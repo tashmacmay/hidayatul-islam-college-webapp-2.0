@@ -9,13 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/msal-node": "^5.2.5",
     "@hookform/resolvers": "^5.4.0",
+    "date-fns": "^4.4.0",
+    "firebase": "^12.15.0",
     "framer-motion": "^12.40.0",
+    "ical-generator": "^11.0.0",
     "lucide-react": "^1.20.0",
     "next": "14.2.35",
+    "nodemailer": "^9.0.1",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.79.0",
+    "react-hot-toast": "^2.6.0",
+    "sharp": "^0.35.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
