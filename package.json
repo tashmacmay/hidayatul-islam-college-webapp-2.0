@@ -16,6 +16,7 @@
     "framer-motion": "^12.40.0",
     "ical-generator": "^11.0.0",
     "lucide-react": "^1.20.0",
+    "mysql2": "^3.22.5",
     "next": "14.2.35",
     "nodemailer": "^9.0.1",
     "react": "^18",
