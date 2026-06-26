@@ -3,21 +3,80 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --navy: #0d2260;
+  --navy-dark: #081540;
+  --light-blue: #3a7fc1;
+  --gold: #c9a227;
+  --gold-light: #f0d080;
+  --gold-pale: #fdf6e3;
+  --white: #ffffff;
+  --off-white: #f7f8fc;
+  --text: #1a2540;
+  --text-muted: #5a6a82;
+  --border: rgba(13, 34, 96, 0.15);
+
+  --background: var(--white);
+  --foreground: var(--text);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
   background: var(--background);
+  color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+@layer components {
+  .section-label {
+    @apply text-[11px] tracking-[1.5px] uppercase font-semibold text-gold mb-2;
+  }
+
+  .section-title {
+    @apply text-[28px] md:text-[34px] font-bold text-navy leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-[15px] text-text-muted mt-2 leading-relaxed;
+  }
+
+  .gold-divider {
+    @apply w-16 h-1 bg-gold rounded-full my-4;
+  }
+
+  .form-label {
+    @apply block mb-2 font-semibold text-navy;
+  }
+
+  .form-input {
+    @apply w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy;
+  }
 }
 
 @layer utilities {

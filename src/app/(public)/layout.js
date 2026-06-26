@@ -1,13 +1,11 @@
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
-export default function Home() {
+export default function PublicLayout({ children }) {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen">
-        <h1>HIC Homepage-coming soon</h1>
-      </main>
+      <main>{children}</main>
       <Footer />
     </>
   );
