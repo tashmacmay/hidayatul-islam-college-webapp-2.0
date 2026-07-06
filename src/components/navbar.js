@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Phone, Mail, Lock } from "lucide-react";
 
 const links = [
   { name: "Home", href: "/" },
@@ -17,48 +18,62 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <header className="bg-navy text-white">
-      <div className="bg-navy-dark px-6 py-2 text-xs">
-        <div className="mx-auto flex max-w-7xl justify-between">
-          <div className="flex gap-6">
-            <span>☎ +27 21 000 XXXX</span>
-            <span>✉ info@hidayatulislam.co.za</span>
+    <header className="w-full text-white">
+<div className="bg-navy-dark px-6 h-7 text-xs">
+<div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-8">
+              <div className="flex items-center gap-5">
+            <span className="flex items-center gap-2">
+              <Phone size={12} />
+              +27 21 000 XXXX
+            </span>
+
+            <span className="flex items-center gap-2">
+              <Mail size={12} />
+              info@hidayatulislam.co.za
+            </span>
           </div>
-          <div className="flex gap-6">
-            <Link href="/contact">Admissions 2026</Link>
-            <Link href="/login">Portal Login</Link>
+
+          <div className="flex items-center gap-5">
+            <Link href="/contact" className="hover:text-gold">
+              Admissions 2026
+            </Link>
+            <Link href="/login" className="hover:text-gold">
+              Portal Login
+            </Link>
           </div>
         </div>
       </div>
 
-      <nav className="px-6 py-5">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="flex items-center gap-4">
-            <img
-              src="public\images\public\images\HIC_Logo(2).webp"
-              alt="Hidayatul Islam College Logo"
-              className="h-16 w-16 rounded-full bg-white object-contain p-1"
-            />
+<nav className="bg-navy px-6 h-16 shadow-md">
+           <div className="flex items-center justify-between px-8">       
+        <Link href="/" className="flex items-center gap-2.5">
+<div className="flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-gold bg-white">
+    <img
+    src="\images\HIC_Logo2.png"
+    alt="Hidayatul Islam College Logo"
+    className="h-14 w-14 object-contain"
+  />
+</div>
 
-            <div>
-              <h1 className="text-2xl font-bold leading-tight">
+            <div className="leading-tight">
+              <h1 className="text-lg font-semibold leading-tight text-white">
                 Hidayatul Islam College
               </h1>
-              <p className="text-sm italic text-gold">
-                Knowledge is Light · Primary School
+              <p className="text-[10px] font-medium text-gold">              
+                  Knowledge is Light - Primary School
               </p>
             </div>
           </Link>
 
-          <div className="hidden items-center gap-7 text-sm md:flex">
-            {links.map((link) => (
+<div className="hidden items-center gap-5 text-[14px] font-medium md:flex">      
+        {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`pb-1 transition ${
                   pathname === link.href
                     ? "border-b-2 border-gold text-gold"
-                    : "hover:text-gold"
+                    : "text-white hover:text-gold"
                 }`}
               >
                 {link.name}
@@ -67,9 +82,10 @@ export default function Navbar() {
 
             <Link
               href="/login"
-              className="rounded-md bg-gold px-5 py-3 font-semibold text-navy hover:bg-gold-light"
+              className="flex items-center gap-2 rounded-lg bg-gold px-4 py-1.5 font-semibold text-navy transition hover:bg-gold-light"
             >
-              🔒 Portal Login
+              <Lock size={10} />
+              Portal Login
             </Link>
           </div>
         </div>
