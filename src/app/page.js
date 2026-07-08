@@ -1,3 +1,6 @@
+"use client";
+import {useEffect,useState} from "react";
+
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 
@@ -11,16 +14,37 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const heroImages = [
+    "/images/HIC-kids.jpg",
+    "/images/HIC-image2.jpg",
+];
+const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImage((prevImage) => (prevImage + 1) % heroImages.length);
+    }, 5000); // Change image every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
+  useEffect(() => {
+    // Any client-side initialization logic can go here
+  }, []);
+
   return (
+
     <>
       <Navbar />
 
       <main>
+        
         <section className="relative h-[640px] overflow-hidden bg-navy text-white">
+         //image slide for backgrund
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
-              backgroundImage: "url('/images/hero.jpg')",
+              backgroundImage: `url('${heroImages[currentImage]}')`,
             }}
           />
 
@@ -46,7 +70,15 @@ export default function Home() {
                   <p className="mt-2 text-sm font-medium text-gold">
                     Knowledge is Light
                   </p>
-                </div>
+                  <p 
+                  className="mt-1 text-lg text-gold/90"
+                  dir="rtl"
+                  lang="ar"
+                  style={{fontFamily: "'Amiri','Noto Naskh Arabic',serif"}}
+                >
+                  النور هو المعرفة
+                </p>
+              </div>
               </div>
 
               <div className="mb-8 inline-block rounded-full border border-gold/40 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[2px] text-gold">
@@ -81,6 +113,20 @@ export default function Home() {
               </div>
             </div>
           </div>
+          //image slider dots
+           <div className="absolute bottom-8 left-10 z-20 flex gap-3">
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImage(index)}
+                className={`transition-all ${
+                  currentImage === index
+                    ? "h-3 w-8 rounded-full bg-gold"
+                    : "h-3 w-3 rounded-full bg-white/50 hover:bg-white"
+                }`}
+              />
+            ))}
+          </div>  
         </section>
 
         <section className="grid bg-gold text-navy md:grid-cols-4">
