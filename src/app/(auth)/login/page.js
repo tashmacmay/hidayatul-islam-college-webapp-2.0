@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.push("/");
+      router.push("/dashboard"); // 👈 redirect to parent dashboard
     } catch (err) {
       console.error("Login error:", err);
       switch (err.code) {
@@ -50,7 +50,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signInWithPopup(auth, googleProvider);
-      router.push("/");
+      router.push("/dashboard"); // 👈 redirect to parent dashboard
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError("Google sign-in failed. Please try again.");
