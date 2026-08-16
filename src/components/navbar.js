@@ -19,30 +19,7 @@ export default function Navbar() {
 
   return (
     <header className="w-full text-white">
-<div className="bg-navy-dark px-6 h-7 text-xs">
-<div className="mx-auto flex h-full max-w-[1600px] items-center justify-between px-8">
-              <div className="flex items-center gap-5">
-            <span className="flex items-center gap-2">
-              <Phone size={12} />
-              +27 21 000 XXXX
-            </span>
 
-            <span className="flex items-center gap-2">
-              <Mail size={12} />
-              info@hidayatulislam.co.za
-            </span>
-          </div>
-
-          <div className="flex items-center gap-5">
-            <Link href="/contact" className="hover:text-gold">
-              Admissions 2026
-            </Link>
-            <Link href="/login" className="hover:text-gold">
-              Portal Login
-            </Link>
-          </div>
-        </div>
-      </div>
 
 <nav className="bg-navy px-6 h-16 shadow-md">
            <div className="flex items-center justify-between px-8">       
