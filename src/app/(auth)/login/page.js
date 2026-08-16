@@ -17,16 +17,50 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Common function to handle role-based redirect
+  const redirectBasedOnRole = async (user) => {
+    try {
+      const res = await fetch(`/api/user-role?uid=${user.uid}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "User role not found");
+      }
+      const data = await res.json();
+
+      // Decide redirect path
+      if (data.role === "parent") {
+        router.push("/dashboard");
+      } else if (data.role === "staff") {
+        if (data.is_admin) {
+          router.push("/admin/dashboard");
+        } else {
+          router.push("/staff/dashboard");
+        }
+      } else {
+        // Fallback – maybe log out or go to home
+        throw new Error("Unknown role");
+      }
+    } catch (err) {
+      console.error("Role fetch error:", err);
+      setError(err.message || "Unable to determine your role. Please contact support.");
+      setLoading(false);
+      // Optionally sign out the user if they have no role in DB
+      // await signOut(auth);
+    }
+  };
+
+  // Email/password sign in
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.push("/dashboard"); // 👈 redirect to parent dashboard
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await redirectBasedOnRole(userCredential.user);
     } catch (err) {
       console.error("Login error:", err);
+      // Handle Firebase auth errors
       switch (err.code) {
         case "auth/user-not-found":
           setError("No account found with this email.");
@@ -40,21 +74,20 @@ export default function LoginPage() {
         default:
           setError("Login failed. Please try again.");
       }
-    } finally {
       setLoading(false);
     }
   };
 
+  // Google sign in
   const handleGoogleSignIn = async () => {
     setError("");
     setLoading(true);
     try {
-      await signInWithPopup(auth, googleProvider);
-      router.push("/dashboard"); // 👈 redirect to parent dashboard
+      const result = await signInWithPopup(auth, googleProvider);
+      await redirectBasedOnRole(result.user);
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError("Google sign-in failed. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
