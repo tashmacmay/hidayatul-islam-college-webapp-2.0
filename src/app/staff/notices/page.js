@@ -17,8 +17,10 @@ import {
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation"; // <-- add this import
 
 export default function NoticeManagementPage() {
+  const router = useRouter(); // <-- needed for redirect on 401
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -39,30 +41,31 @@ export default function NoticeManagementPage() {
 
   // Fetch notices
   const fetchNotices = useCallback(async () => {
-  try {
-    const token = await auth.currentUser.getIdToken();
-    const params = new URLSearchParams();
-    if (filterStatus !== "All") params.append("status", filterStatus);
-    if (searchTerm) params.append("search", searchTerm);
-    const res = await fetch(`/api/notices?${params.toString()}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) {
-      // If unauthorized, redirect to login
-      if (res.status === 401) {
-        router.push('/login');
-        return;
+    try {
+      console.log("🔍 Fetching notices with filters:", { filterStatus, searchTerm });
+      const token = await auth.currentUser.getIdToken();
+      const params = new URLSearchParams();
+      if (filterStatus !== "All") params.append("status", filterStatus);
+      if (searchTerm) params.append("search", searchTerm);
+      const res = await fetch(`/api/notices?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+        throw new Error("Failed to fetch");
       }
-      throw new Error("Failed to fetch");
+      const data = await res.json();
+      console.log("✅ Notices received:", data);
+      setNotices(data);
+    } catch (error) {
+      console.error("❌ Error fetching notices:", error);
+    } finally {
+      setLoading(false);
     }
-    const data = await res.json();
-    setNotices(data);
-  } catch (error) {
-    console.error("Error fetching notices:", error);
-  } finally {
-    setLoading(false);
-  }
-  }, [filterStatus, searchTerm]);
+  }, [filterStatus, searchTerm, router]);
 
   useEffect(() => {
     fetchNotices();
@@ -90,6 +93,7 @@ export default function NoticeManagementPage() {
 
   // Open modal for edit
   const openEditModal = (notice) => {
+    console.log("✏️ Editing notice:", notice);
     setEditingNotice(notice);
     setFormData({
       title: notice.title,
@@ -106,9 +110,13 @@ export default function NoticeManagementPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      console.log("🚀 Submitting form. Editing?", !!editingNotice);
       const token = await auth.currentUser.getIdToken();
       const method = editingNotice ? "PUT" : "POST";
       const url = editingNotice ? `/api/notices/${editingNotice.id}` : "/api/notices";
+      console.log(`🔗 Sending ${method} request to ${url}`);
+      console.log("📦 Payload:", formData);
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -117,11 +125,17 @@ export default function NoticeManagementPage() {
         },
         body: JSON.stringify(formData),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("❌ Save failed with status", res.status, errorText);
+        throw new Error(`Failed to save (${res.status})`);
+      }
+      const responseData = await res.json();
+      console.log("✅ Save successful:", responseData);
       setShowModal(false);
       fetchNotices();
     } catch (error) {
-      console.error("Save error:", error);
+      console.error("❌ Save error:", error);
     }
   };
 
@@ -135,24 +149,26 @@ export default function NoticeManagementPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Delete failed");
+      console.log("🗑️ Deleted notice", id);
       fetchNotices();
     } catch (error) {
-      console.error("Delete error:", error);
+      console.error("❌ Delete error:", error);
     }
   };
 
-useEffect(() => {
-  const checkAuth = async () => {
-    const user = auth.currentUser;
-    if (!user) {
-      console.log('No user logged in');
-      return;
-    }
-    const token = await user.getIdToken();
-    console.log('Token exists?', !!token);
-  };
-  checkAuth();
-}, []);
+  // Auth check (just for debug)
+  useEffect(() => {
+    const checkAuth = async () => {
+      const user = auth.currentUser;
+      if (!user) {
+        console.log("No user logged in");
+        return;
+      }
+      const token = await user.getIdToken();
+      console.log("Token exists?", !!token);
+    };
+    checkAuth();
+  }, []);
 
   const statusStyles = {
     Published: "bg-green-100 text-green-700",
@@ -255,6 +271,15 @@ useEffect(() => {
                 className="w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-gold md:w-64"
               />
             </div>
+          </div>
+
+          {/* Debug Panel */}
+          <div className="bg-gray-100 p-4 rounded border border-red-300 text-sm">
+            <p className="font-bold">🔍 Debug:</p>
+            <p>Notices count: {notices.length}</p>
+            <pre className="text-xs overflow-auto max-h-40">
+              {JSON.stringify(notices, null, 2)}
+            </pre>
           </div>
 
           {/* Table */}
