@@ -11,17 +11,50 @@ import {
   Users,
   UserCircle,
   LogOut,
+  School,
 } from "lucide-react";
 
-const links = [
+// =============================
+// STAFF LINKS
+// =============================
+
+const staffLinks = [
   {
     name: "Dashboard",
     href: "/staff/dashboard",
     icon: LayoutDashboard,
   },
   {
-    name: "Bookings",
+    name: "My Bookings",
     href: "/staff/bookings",
+    icon: CalendarDays,
+  },
+  {
+    name: "My Calendar",
+    href: "/staff/calendar",
+    icon: Users,
+  },
+
+  {
+    name: "Resources",
+    href: "/staff/resources",
+    icon: BookOpen,
+  },
+];
+
+// =============================
+// ADMIN LINKS
+// =============================
+
+const adminLinks = [
+  {
+    name: "School Bookings",
+    href: "/staff/bookings/school-overview",
+    icon: School,
+  },
+    {
+    name: "School Calendar",
+    href: "/staff/school-calendar",
     icon: CalendarDays,
   },
   {
@@ -30,13 +63,8 @@ const links = [
     icon: Bell,
   },
   {
-    name: "Resources",
-    href: "/staff/resources",
-    icon: BookOpen,
-  },
-  {
-    name: "Calendar",
-    href: "/staff/calendar",
+    name: "Users",
+    href: "/staff/users",
     icon: Users,
   },
 ];
@@ -68,27 +96,79 @@ export default function StaffSidebar() {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto py-[10px]">
-        {links.map((link) => {
-          const Icon = link.icon;
+{/* =======================================
+    STAFF SECTION
+======================================= */}
 
-          const active = pathname === link.href;
+<div className="px-5 py-2">
+  <div className="flex items-center gap-3">
+    <div className="h-px flex-1 bg-white/10" />
 
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-                active
-                  ? "border-gold bg-[#c9a2271a] text-white"
-                  : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Icon size={17} />
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
+      Staff
+    </span>
 
-              <span>{link.name}</span>
-            </Link>
-          );
-        })}
+    <div className="h-px flex-1 bg-white/10" />
+  </div>
+</div>
+
+{staffLinks.map((link) => {
+  const Icon = link.icon;
+
+  const active = pathname === link.href;
+
+  return (
+    <Link
+      key={link.href}
+      href={link.href}
+      className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+        active
+          ? "border-gold bg-[#c9a2271a] text-white"
+          : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
+      }`}
+    >
+      <Icon size={17} />
+      <span>{link.name}</span>
+    </Link>
+  );
+})}
+
+{/* =======================================
+    ADMIN SECTION
+======================================= */}
+
+<div className="mt-4 px-5 py-2">
+  <div className="flex items-center gap-3">
+    <div className="h-px flex-1 bg-white/10" />
+
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
+      Admin
+    </span>
+
+    <div className="h-px flex-1 bg-white/10" />
+  </div>
+</div>
+
+{adminLinks.map((link) => {
+  const Icon = link.icon;
+
+  const active = pathname === link.href;
+
+  return (
+    <Link
+      key={link.href}
+      href={link.href}
+      className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+        active
+          ? "border-gold bg-[#c9a2271a] text-white"
+          : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
+      }`}
+    >
+      <Icon size={17} />
+      <span>{link.name}</span>
+    </Link>
+  );
+})}
 
         <div className="mx-4 my-2 h-px bg-white/10" />
 

@@ -56,6 +56,9 @@ export default function BookingsPage() {
             <Plus size={18} />
             Create Booking
           </Link>
+              <button className="rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy transition hover:opacity-90">
+      Book on Behalf of Parent
+    </button>
 
           <Link
             href="/staff/bookings/availability"
