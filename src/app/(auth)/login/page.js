@@ -32,7 +32,7 @@ export default function LoginPage() {
         router.push("/dashboard");
       } else if (data.role === "staff") {
         if (data.is_admin) {
-          router.push("/admin/dashboard");
+          router.push("/staff/notices");
         } else {
           router.push("/staff/dashboard");
         }

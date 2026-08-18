@@ -15,6 +15,7 @@
     "firebase": "^12.17.1",
     "framer-motion": "^12.40.0",
     "ical-generator": "^11.0.0",
+    "jose": "^6.2.9",
     "lucide-react": "^1.20.0",
     "mssql": "^12.7.0",
     "mysql2": "^3.22.5",
