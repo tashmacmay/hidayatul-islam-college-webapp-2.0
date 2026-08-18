@@ -1,0 +1,18 @@
+[33m2e1bdb7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mDatabase[m[33m)[m Merge remote-tracking branch 'origin/feature/parent-dashboard' into Database
+[33m913ce49[m Auth with Users table
+[33m6fd785c[m Redesign parent bookings dashboard page
+[33m65af814[m[33m ([m[1;31morigin/LogIn[m[33m, [m[1;32mLogIn[m[33m)[m LogIn+LogOut
+[33ma0038d9[m Merge remote-tracking branch 'origin/feature/parent-dashboard' into LogIn merge
+[33m4eb5437[m LogIn page+firebse
+[33m9fbbb47[m[33m ([m[1;32mfeature/parent-dashboard[m[33m)[m Implement parent dashboard and sidebar layout
+[33m392156d[m[33m ([m[1;32mfeature/frontend[m[33m)[m Build public gallery, news and resources pages
+[33mbe90e8e[m feat: add About and Academics public pages
+[33m8ac7acc[m complete homepage
+[33mfc78a33[m second commit
+[33m5627a77[m feat: add frontend layout, components, and styling setup
+[33m08a5451[m[33m ([m[1;31morigin/feature/database[m[33m, [m[1;31morigin/feature/bookings[m[33m, [m[1;31morigin/develop[m[33m, [m[1;32mfeature/staff-admin[m[33m)[m chore: create page routing structure
+[33m350979c[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m chore: install mysql2 (MySQL database driver)
+[33m6d811f0[m chore: install Firebase, MSAL, nodemailer, ical-generator, date-fns, react-hot-toast, sharp
+[33me61ffff[m chore: install Next.js & frontend packages
+[33m577ba1d[m Create README.md
+[33mdc54b23[m Initial commit
