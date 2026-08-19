@@ -58,15 +58,18 @@ import {
 
 export async function GET() {
   try {
-    initializeGraphForAppOnlyAuth();
+    //initializeGraphForAppOnlyAuth(); //IGNORED TILL MOCK BOOKING DATA IS DROPPED
 
     const token = await getAppOnlyTokenAsync();
 
     console.log('Token acquired successfully');
     console.log('Token length:', token?.length);
 
-    const bookingBusinesses = await getBookingBusinessesAsync();
-
+    //const bookingBusinesses = await getBookingBusinessesAsync(); //IGNORED TILL MOCK BOOKING DATA IS DROPPED
+    const bookings = mockBookings;
+    //MOCK DATA FILLING IN ABOVE ^
+    //when graph api permission granted:
+    //await saveBookings(bookings);
     return NextResponse.json(bookingBusinesses);
 
   } catch (error) {
