@@ -5,27 +5,20 @@ import { verifyUser } from '@/lib/auth';
 import sql from 'mssql';
 
 export async function PUT(req, { params }) {
-  console.log('🔍 PUT /api/notices/[id] called with id:', params.id);
   try {
     const user = await verifyUser(req);
     const id = params.id;
     const body = await req.json();
-    console.log('🔍 Request body for update:', body);
     const { title, category, content, recipients, status, scheduled_for } = body;
 
-    // Check if notice exists and user has permission
-    const pool = await getConnection();
-    const check = await pool.request()
-      .input('id', sql.Int, id)
-      .query('SELECT created_by_uid FROM Notices WHERE id = @id');
-    if (check.recordset.length === 0) {
-      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
-    }
-    const notice = check.recordset[0];
-    if (user.uid !== notice.created_by_uid && user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    console.log('🔧 Updating notice:', { id, title, category, content, recipients, status, scheduled_for });
+
+    // Validate required fields
+    if (!title || !category || !content || !recipients || !status) {
+      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const pool = await getConnection();
     await pool.request()
       .input('id', sql.Int, id)
       .input('title', sql.NVarChar, title)
@@ -40,13 +33,12 @@ export async function PUT(req, { params }) {
             status=@status, scheduled_for=@scheduled_for, updated_at=GETDATE()
         WHERE id=@id
       `);
-    console.log('✅ Notice updated successfully');
+
+    console.log('✅ Notice updated:', id);
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('❌ PUT /api/notices/[id] error:', err);
-    if (err.message === 'User not found in database' || 
-        err.message === 'Invalid token' || 
-        err.message === 'Missing or invalid Authorization header') {
+    console.error('❌ PUT error:', err);
+    if (err.message === 'User not found in database' || err.message === 'Invalid token' || err.message === 'Missing or invalid Authorization header') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -54,33 +46,18 @@ export async function PUT(req, { params }) {
 }
 
 export async function DELETE(req, { params }) {
-  console.log('🔍 DELETE /api/notices/[id] called with id:', params.id);
   try {
     const user = await verifyUser(req);
     const id = params.id;
     const pool = await getConnection();
-    // Check permission
-    const check = await pool.request()
-      .input('id', sql.Int, id)
-      .query('SELECT created_by_uid FROM Notices WHERE id = @id');
-    if (check.recordset.length === 0) {
-      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
-    }
-    const notice = check.recordset[0];
-    if (user.uid !== notice.created_by_uid && user.role !== 'admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     await pool.request()
       .input('id', sql.Int, id)
       .query('DELETE FROM Notices WHERE id = @id');
-    console.log('✅ Notice deleted successfully');
+    console.log('🗑️ Notice deleted:', id);
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error('❌ DELETE /api/notices/[id] error:', err);
-    if (err.message === 'User not found in database' || 
-        err.message === 'Invalid token' || 
-        err.message === 'Missing or invalid Authorization header') {
+    console.error('❌ DELETE error:', err);
+    if (err.message === 'User not found in database' || err.message === 'Invalid token' || err.message === 'Missing or invalid Authorization header') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

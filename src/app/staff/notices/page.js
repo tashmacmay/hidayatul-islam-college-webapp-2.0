@@ -14,17 +14,19 @@ import {
   ShieldCheck,
   X,
   Menu,
+  CheckCircle,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
-import { useRouter } from "next/navigation"; // <-- add this import
+import { useRouter } from "next/navigation";
 
 export default function NoticeManagementPage() {
-  const router = useRouter(); // <-- needed for redirect on 401
+  const router = useRouter();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingNotice, setEditingNotice] = useState(null);
+  const [successMessage, setSuccessMessage] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     category: "General",
@@ -39,7 +41,6 @@ export default function NoticeManagementPage() {
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  // Fetch notices
   const fetchNotices = useCallback(async () => {
     try {
       console.log("🔍 Fetching notices with filters:", { filterStatus, searchTerm });
@@ -71,13 +72,11 @@ export default function NoticeManagementPage() {
     fetchNotices();
   }, [fetchNotices]);
 
-  // Handle form changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  // Open modal for new notice
   const openNewModal = () => {
     setEditingNotice(null);
     setFormData({
@@ -91,7 +90,6 @@ export default function NoticeManagementPage() {
     setShowModal(true);
   };
 
-  // Open modal for edit
   const openEditModal = (notice) => {
     console.log("✏️ Editing notice:", notice);
     setEditingNotice(notice);
@@ -106,7 +104,6 @@ export default function NoticeManagementPage() {
     setShowModal(true);
   };
 
-  // Submit create/update
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -133,13 +130,18 @@ export default function NoticeManagementPage() {
       const responseData = await res.json();
       console.log("✅ Save successful:", responseData);
       setShowModal(false);
+      setSuccessMessage(
+        editingNotice ? "Notice updated successfully!" : "Notice published successfully!"
+      );
+      setTimeout(() => setSuccessMessage(""), 3000);
       fetchNotices();
     } catch (error) {
       console.error("❌ Save error:", error);
+      setSuccessMessage("Failed to save notice. Please try again.");
+      setTimeout(() => setSuccessMessage(""), 4000);
     }
   };
 
-  // Delete notice
   const handleDelete = async (id) => {
     if (!confirm("Delete this notice?")) return;
     try {
@@ -150,13 +152,14 @@ export default function NoticeManagementPage() {
       });
       if (!res.ok) throw new Error("Delete failed");
       console.log("🗑️ Deleted notice", id);
+      setSuccessMessage("Notice deleted successfully.");
+      setTimeout(() => setSuccessMessage(""), 3000);
       fetchNotices();
     } catch (error) {
       console.error("❌ Delete error:", error);
     }
   };
 
-  // Auth check (just for debug)
   useEffect(() => {
     const checkAuth = async () => {
       const user = auth.currentUser;
@@ -193,6 +196,18 @@ export default function NoticeManagementPage() {
         )}
 
         <div className="space-y-8">
+          {/* Success/Error Message */}
+          {successMessage && (
+            <div className={`rounded-lg border px-4 py-3 flex items-center gap-2 ${
+              successMessage.includes("Failed") 
+                ? "bg-red-50 border-red-200 text-red-800" 
+                : "bg-green-50 border-green-200 text-green-800"
+            }`}>
+              <CheckCircle size={18} className={successMessage.includes("Failed") ? "text-red-600" : "text-green-600"} />
+              {successMessage}
+            </div>
+          )}
+
           {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -271,15 +286,6 @@ export default function NoticeManagementPage() {
                 className="w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-gold md:w-64"
               />
             </div>
-          </div>
-
-          {/* Debug Panel */}
-          <div className="bg-gray-100 p-4 rounded border border-red-300 text-sm">
-            <p className="font-bold">🔍 Debug:</p>
-            <p>Notices count: {notices.length}</p>
-            <pre className="text-xs overflow-auto max-h-40">
-              {JSON.stringify(notices, null, 2)}
-            </pre>
           </div>
 
           {/* Table */}
