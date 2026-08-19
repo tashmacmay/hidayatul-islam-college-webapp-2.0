@@ -15,6 +15,8 @@ import {
   X,
   Menu,
   CheckCircle,
+  Calendar,
+  Save,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
@@ -27,23 +29,32 @@ export default function NoticeManagementPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingNotice, setEditingNotice] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [toastType, setToastType] = useState("success"); // 'success' or 'error'
   const [formData, setFormData] = useState({
     title: "",
     category: "General",
     content: "",
     recipients: "All Parents",
-    status: "Draft",
     scheduled_for: "",
   });
+  const [selectedAction, setSelectedAction] = useState("publish"); // for UI highlight
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  // Toast helper
+  const showToast = (message, type = "success") => {
+    setSuccessMessage(message);
+    setToastType(type);
+    setTimeout(() => {
+      setSuccessMessage("");
+    }, 3000);
+  };
+
   const fetchNotices = useCallback(async () => {
     try {
-      console.log("🔍 Fetching notices with filters:", { filterStatus, searchTerm });
       const token = await auth.currentUser.getIdToken();
       const params = new URLSearchParams();
       if (filterStatus !== "All") params.append("status", filterStatus);
@@ -59,10 +70,9 @@ export default function NoticeManagementPage() {
         throw new Error("Failed to fetch");
       }
       const data = await res.json();
-      console.log("✅ Notices received:", data);
       setNotices(data);
     } catch (error) {
-      console.error("❌ Error fetching notices:", error);
+      console.error("Error fetching notices:", error);
     } finally {
       setLoading(false);
     }
@@ -84,35 +94,53 @@ export default function NoticeManagementPage() {
       category: "General",
       content: "",
       recipients: "All Parents",
-      status: "Draft",
       scheduled_for: "",
     });
+    setSelectedAction("publish");
     setShowModal(true);
   };
 
   const openEditModal = (notice) => {
-    console.log("✏️ Editing notice:", notice);
     setEditingNotice(notice);
     setFormData({
       title: notice.title,
       category: notice.category,
       content: notice.content || "",
       recipients: notice.recipients,
-      status: notice.status,
       scheduled_for: notice.scheduled_for ? notice.scheduled_for.split("T")[0] : "",
     });
+    // Set default action based on current status
+    if (notice.status === "Published") setSelectedAction("publish");
+    else if (notice.status === "Scheduled") setSelectedAction("schedule");
+    else setSelectedAction("draft");
     setShowModal(true);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, action) => {
     e.preventDefault();
+    // Determine status based on action
+    let status = "";
+    if (action === "publish") {
+      status = "Published";
+    } else if (action === "schedule") {
+      status = "Scheduled";
+      // Validate date presence
+      if (!formData.scheduled_for) {
+        showToast("Please select a date and time to schedule.", "error");
+        // Focus the date input
+        const dateInput = document.querySelector('input[name="scheduled_for"]');
+        if (dateInput) dateInput.focus();
+        return;
+      }
+    } else if (action === "draft") {
+      status = "Draft";
+    }
+
     try {
-      console.log("🚀 Submitting form. Editing?", !!editingNotice);
       const token = await auth.currentUser.getIdToken();
       const method = editingNotice ? "PUT" : "POST";
       const url = editingNotice ? `/api/notices/${editingNotice.id}` : "/api/notices";
-      console.log(`🔗 Sending ${method} request to ${url}`);
-      console.log("📦 Payload:", formData);
+      const payload = { ...formData, status };
 
       const res = await fetch(url, {
         method,
@@ -120,25 +148,31 @@ export default function NoticeManagementPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        const errorText = await res.text();
-        console.error("❌ Save failed with status", res.status, errorText);
-        throw new Error(`Failed to save (${res.status})`);
+        let errorMsg = `Failed to save (${res.status})`;
+        try {
+          const errorData = await res.json();
+          if (errorData.error) errorMsg = errorData.error;
+        } catch (_) {}
+        throw new Error(errorMsg);
       }
       const responseData = await res.json();
-      console.log("✅ Save successful:", responseData);
       setShowModal(false);
-      setSuccessMessage(
-        editingNotice ? "Notice updated successfully!" : "Notice published successfully!"
-      );
-      setTimeout(() => setSuccessMessage(""), 3000);
+      let msg = "";
+      if (editingNotice) {
+        msg = "Notice updated successfully!";
+      } else {
+        if (status === "Published") msg = "Notice published successfully!";
+        else if (status === "Scheduled") msg = "Notice scheduled successfully!";
+        else msg = "Notice saved as draft.";
+      }
+      showToast(msg, "success");
       fetchNotices();
     } catch (error) {
-      console.error("❌ Save error:", error);
-      setSuccessMessage("Failed to save notice. Please try again.");
-      setTimeout(() => setSuccessMessage(""), 4000);
+      console.error("Save error:", error);
+      showToast(`❌ ${error.message}`, "error");
     }
   };
 
@@ -151,27 +185,13 @@ export default function NoticeManagementPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Delete failed");
-      console.log("🗑️ Deleted notice", id);
-      setSuccessMessage("Notice deleted successfully.");
-      setTimeout(() => setSuccessMessage(""), 3000);
+      showToast("Notice deleted successfully.", "success");
       fetchNotices();
     } catch (error) {
-      console.error("❌ Delete error:", error);
+      console.error("Delete error:", error);
+      showToast("Failed to delete notice.", "error");
     }
   };
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      const user = auth.currentUser;
-      if (!user) {
-        console.log("No user logged in");
-        return;
-      }
-      const token = await user.getIdToken();
-      console.log("Token exists?", !!token);
-    };
-    checkAuth();
-  }, []);
 
   const statusStyles = {
     Published: "bg-green-100 text-green-700",
@@ -196,18 +216,6 @@ export default function NoticeManagementPage() {
         )}
 
         <div className="space-y-8">
-          {/* Success/Error Message */}
-          {successMessage && (
-            <div className={`rounded-lg border px-4 py-3 flex items-center gap-2 ${
-              successMessage.includes("Failed") 
-                ? "bg-red-50 border-red-200 text-red-800" 
-                : "bg-green-50 border-green-200 text-green-800"
-            }`}>
-              <CheckCircle size={18} className={successMessage.includes("Failed") ? "text-red-600" : "text-green-600"} />
-              {successMessage}
-            </div>
-          )}
-
           {/* Header */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
@@ -359,6 +367,23 @@ export default function NoticeManagementPage() {
         </div>
       </div>
 
+      {/* Floating Toast Notification */}
+      {successMessage && (
+        <div
+          className={`fixed bottom-4 left-4 z-50 max-w-sm rounded-lg border px-4 py-3 shadow-lg flex items-center gap-2 ${
+            toastType === "error"
+              ? "bg-red-50 border-red-200 text-red-800"
+              : "bg-green-50 border-green-200 text-green-800"
+          }`}
+        >
+          <CheckCircle
+            size={18}
+            className={toastType === "error" ? "text-red-600" : "text-green-600"}
+          />
+          <span>{successMessage}</span>
+        </div>
+      )}
+
       {/* Modal for Create/Edit */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -369,7 +394,8 @@ export default function NoticeManagementPage() {
                 <X size={24} />
               </button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form className="space-y-4">
+              {/* Title */}
               <div>
                 <label className="mb-2 block text-sm font-medium">Title</label>
                 <input
@@ -381,6 +407,7 @@ export default function NoticeManagementPage() {
                   required
                 />
               </div>
+              {/* Category & Recipients */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium">Category</label>
@@ -414,6 +441,7 @@ export default function NoticeManagementPage() {
                   </select>
                 </div>
               </div>
+              {/* Message */}
               <div>
                 <label className="mb-2 block text-sm font-medium">Message</label>
                 <textarea
@@ -425,33 +453,30 @@ export default function NoticeManagementPage() {
                   required
                 />
               </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium">Status</label>
-                  <select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border p-3"
-                  >
-                    <option value="Draft">Draft</option>
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="Published">Published</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="mb-2 block text-sm font-medium">
-                    Schedule For (Optional)
-                  </label>
-                  <input
-                    type="datetime-local"
-                    name="scheduled_for"
-                    value={formData.scheduled_for}
-                    onChange={handleChange}
-                    className="w-full rounded-lg border p-3"
-                  />
-                </div>
+              {/* Schedule field */}
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  Schedule For
+                  {selectedAction === "schedule" && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
+                </label>
+                <input
+                  type="datetime-local"
+                  name="scheduled_for"
+                  value={formData.scheduled_for}
+                  onChange={handleChange}
+                  className={`w-full rounded-lg border p-3 ${
+                    selectedAction === "schedule" ? "border-gold" : ""
+                  }`}
+                />
+                {selectedAction === "schedule" && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Required when scheduling a notice.
+                  </p>
+                )}
               </div>
+              {/* POPIA notice */}
               <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 text-sm text-gray-600">
                 <div className="flex gap-2">
                   <ShieldCheck size={18} className="mt-0.5 text-gold" />
@@ -461,17 +486,67 @@ export default function NoticeManagementPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-3">
+              {/* Action buttons */}
+              <div className="flex flex-wrap gap-3 pt-2">
                 <button
-                  type="submit"
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gold py-3 font-semibold text-navy hover:opacity-90"
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedAction("publish");
+                    handleSubmit(e, "publish");
+                  }}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold transition ${
+                    selectedAction === "publish"
+                      ? "bg-navy text-white"
+                      : "bg-gold text-navy hover:opacity-90"
+                  }`}
                 >
-                  {editingNotice ? "Update" : "Send Now"}
+                  <Send size={18} />
+                  {editingNotice ? "Publish Now" : "Publish Now"}
                 </button>
                 <button
                   type="button"
+                  onClick={(e) => {
+                    setSelectedAction("schedule");
+                    // If no date, focus the input after a short delay
+                    if (!formData.scheduled_for) {
+                      setTimeout(() => {
+                        const dateInput = document.querySelector('input[name="scheduled_for"]');
+                        if (dateInput) dateInput.focus();
+                      }, 100);
+                    }
+                    
+                    handleSubmit(e, "schedule");
+                  }}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 font-semibold transition ${
+                    selectedAction === "schedule"
+                      ? "border-gold bg-gold/10 text-navy"
+                      : "border-gray-300 bg-white text-navy hover:bg-gray-50"
+                  }`}
+                >
+                  <Calendar size={18} />
+                  Schedule
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedAction("draft");
+                    handleSubmit(e, "draft");
+                  }}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-lg border px-4 py-3 font-semibold transition ${
+                    selectedAction === "draft"
+                      ? "border-gold bg-gold/10 text-navy"
+                      : "border-gray-300 bg-white text-navy hover:bg-gray-50"
+                  }`}
+                >
+                  <Save size={18} />
+                  Save Draft
+                </button>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex items-center gap-2 rounded-lg border px-5 py-3"
+                  className="rounded-lg border px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
