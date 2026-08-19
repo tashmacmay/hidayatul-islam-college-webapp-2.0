@@ -27,7 +27,7 @@ import {
 // STAT CARD
 // ============================================================
 // Displays one dashboard statistic.
-//
+//g
 // The card is clickable and takes the parent to the relevant
 // section of the portal.
 // ============================================================

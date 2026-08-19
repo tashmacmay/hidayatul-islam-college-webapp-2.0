@@ -163,7 +163,7 @@ export default function ParentBookingsPage() {
             ==================================================== */}
 
         <Link
-          href="/parent/my-bookings/create-booking"
+          href="/my-bookings/create"
           className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy transition hover:opacity-90"
         >
           <Plus size={18} />
