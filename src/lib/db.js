@@ -4,7 +4,7 @@ import sql from 'mssql';
 const config = {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    server: 'localhost', // or '127.0.0.1'
+    server: '127.0.0.1', // or '127.0.0.1''localhost'
     port: 62729, // your dynamic port
     database: process.env.DB_NAME,
     options: {
