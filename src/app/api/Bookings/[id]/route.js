@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import { getConnection } from "@/lib/db";
 
 // ============================================================
@@ -141,4 +141,4 @@ export async function DELETE(req, { params }) {
       { status: 500 }
     );
   }
-}n
+}*/
