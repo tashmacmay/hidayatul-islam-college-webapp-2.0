@@ -36,13 +36,13 @@ export function initializeGraphForAppOnlyAuth() {
   }
 }
 
-//Gets the Microsoft Bookings businesses available to the application
-export async function getBookingBusinessesAsync() {
+//Gets the Microsoft Bookings appointments available to the application
+export async function getBookingsAsync() {
   if (!_appClient) { //Ensure that the Microsoft Graph Client has been created
     throw new Error('Graph has not been initialized for app-only auth');
   }
 
   return _appClient
-    .api('/solutions/bookingBusinesses') //Interact with Microsoft Graph endpoint
+    .api('/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments') //Interact with Microsoft Graph endpoint 
     .get(); //Perform an HTTP GET request
 }
