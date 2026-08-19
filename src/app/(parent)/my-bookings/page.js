@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -64,8 +64,33 @@ export default function ParentBookingsPage() {
   //
   // ==========================================================
 
-  const bookings = [];
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    async function loadBookings() {
+      try {
+        const response = await fetch("/api/bookings");
+
+        if (!response.ok) {
+          throw new Error("Failed to retrieve bookings");
+        }
+
+        const data = await response.json();
+
+        console.log("Bookings returned by API:", data);
+
+        setBookings(data);
+      } catch (error) {
+        console.error("Failed to load bookings:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBookings();
+  }, []);
 
   // ==========================================================
   // CONNECT BOOKING TABLE

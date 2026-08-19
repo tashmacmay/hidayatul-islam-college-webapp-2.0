@@ -9,8 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/identity": "^4.13.2",
     "@azure/msal-node": "^5.2.5",
     "@hookform/resolvers": "^5.4.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "date-fns": "^4.4.0",
     "firebase": "^12.17.1",
     "framer-motion": "^12.40.0",

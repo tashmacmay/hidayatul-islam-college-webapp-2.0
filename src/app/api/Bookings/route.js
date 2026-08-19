@@ -9,15 +9,50 @@ import { //Importing "export"ed functions from the graphHelper
 export async function GET() {
   try {
     initializeGraphForAppOnlyAuth(); //Calls to initialises graphHelper
-    
-    //const token = await getAppOnlyTokenAsync();
-    //console.log('Token acquired successfully');
-    //console.log('Token length:', token?.length);
 
-    const bookings = await getBookingsAsync(); //Calls graphHelper to return MS Bookings data
-    //const bookings = mockBookings; //^ TEMP REPLACEMENT for getBooking... - DO NOT treat as official shape of booking data returned (only mock data)
+    const response = await getBookingsAsync(); //Calls graphHelper to return MS Bookings data
     
-    //await saveBookings(bookings); //Actual booking data
+    const bookings = response.value.map((booking) => { //HOWEVER Booking data isnt in right formation for the ui db table -> map to right cogfiguration!
+      const learnerAnswer =
+        booking.customers?.[0]?.customQuestionAnswers?.find(
+          (answer) =>
+            answer.question === "Learner's Full Name"
+        );
+
+      const start = new Date(
+        booking.startDateTime.dateTime
+      );
+
+      const end = new Date(
+        booking.endDateTime.dateTime
+      );
+      return {
+        id: booking.id,
+
+        ref: booking.selfServiceAppointmentId,
+
+        date: start.toLocaleDateString(),
+
+        time: `${start.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })} - ${end.toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}`,
+
+        appointmentType: booking.serviceName,
+
+        learner: learnerAnswer?.answer || booking.customerName,
+
+        staff: booking.staffMemberIds?.[0] || "Unassigned",
+
+        status:
+          start >= new Date()
+            ? "upcoming"
+            : "past",
+      };
+    });
     return NextResponse.json(bookings); //In response to GET(), return the data through Next.js as JSON
 
   } catch (error) {
