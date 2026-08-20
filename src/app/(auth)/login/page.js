@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Common function to handle role-based redirect
+  // function to handle role-based redirect
   const redirectBasedOnRole = async (user) => {
     try {
       const res = await fetch(`/api/user-role?uid=${user.uid}`);
@@ -45,7 +45,7 @@ export default function LoginPage() {
       setError(err.message || "Unable to determine your role. Please contact support.");
       setLoading(false);
       // Optionally sign out the user if they have no role in DB
-      // await signOut(auth);
+      await signOut(auth);
     }
   };
 

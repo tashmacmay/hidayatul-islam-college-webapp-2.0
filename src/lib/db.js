@@ -34,4 +34,3 @@ export async function closeConnection() {
         pool = null;
     }
 }
-//Notices Section
