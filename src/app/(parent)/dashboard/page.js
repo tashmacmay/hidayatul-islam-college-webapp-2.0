@@ -247,69 +247,34 @@ export default function DashboardPage() {
   // ==========================================================
 
   useEffect(() => {
-
     async function loadDashboard() {
-
       try {
-
         setLoading(true);
         setError("");
 
-        const response = await fetch(
-          "/api/staff/dashboard"
-        );
+        const response = await fetch("/api/bookings"); // same route as My Bookings page
 
         if (!response.ok) {
-          throw new Error(
-            "Failed to load dashboard data"
-          );
+          throw new Error("Failed to load dashboard data");
         }
 
-        const data = await response.json();
-
-
-        // ======================================================
-        // SAVE API DATA
-        // ======================================================
+        const bookingsData = await response.json(); // this is a flat array, not { bookings, notices, resourceCount }
 
         setDashboard({
-
-          bookings: Array.isArray(data.bookings)
-            ? data.bookings
-            : [],
-
-          notices: Array.isArray(data.notices)
-            ? data.notices
-            : [],
-
-          resourceCount:
-            Number(data.resourceCount) || 0,
-
+          bookings: Array.isArray(bookingsData) ? bookingsData : [],
+          notices: [], // no notices source yet — keep empty until that's wired up
+          resourceCount: 0, // same — placeholder until resources are connected
         });
-
       } catch (err) {
-
-        console.error(
-          "❌ Parent dashboard error:",
-          err
-        );
-
-        setError(
-          "Unable to load dashboard data. Please try again."
-        );
-
+        console.error("❌ Parent dashboard error:", err);
+        setError("Unable to load dashboard data. Please try again.");
       } finally {
-
         setLoading(false);
-
       }
-
     }
 
     loadDashboard();
-
   }, []);
-
 
   // ==========================================================
   // DASHBOARD COUNTS
@@ -326,12 +291,12 @@ export default function DashboardPage() {
   // DISPLAY ONLY THE FIRST FEW ITEMS
   // ==========================================================
 
-  const upcomingBookings =
-    dashboard.bookings.slice(0, 3);
+  const upcomingBookings = dashboard.bookings
+  .filter((booking) => booking.status === "upcoming")
+  .slice(0, 3);
 
   const recentNotices =
     dashboard.notices.slice(0, 3);
-
 
   // ==========================================================
   // PAGE
@@ -496,52 +461,31 @@ export default function DashboardPage() {
 
             )}
 
-
             {/* Booking list */}
             {!loading &&
-              upcomingBookings.map(
-                (booking) => (
+            upcomingBookings.map((booking) => (
+              <Link
+                key={booking.id}
+                href="/my-bookings"
+                className="block rounded-lg bg-gold-pale p-4 transition hover:bg-gold hover:shadow-sm"
+              >
+                <p className="font-semibold text-navy">
+                  {booking.appointmentType || "Booking"}
+                </p>
 
-                  <Link
-                    key={booking.id}
-                    href="/my-bookings"
-                    className="block rounded-lg bg-gold-pale p-4 transition hover:bg-gold hover:shadow-sm"
-                  >
+                <p className="mt-1 text-sm text-text-muted">
+                  {booking.date} · {booking.time}
+                </p>
 
-                    <p className="font-semibold text-navy">
-                      {booking.title ||
-                        "Booking"}
-                    </p>
-
-                    <p className="mt-1 text-sm text-text-muted">
-
-                      {booking.start_time ||
-                        booking.startTime ||
-                        "Time not available"}
-
-                      {booking.end_time
-                        ? ` - ${booking.end_time}`
-                        : ""}
-
-                    </p>
-
-                    {booking.status && (
-
-                      <p className="mt-2 text-xs text-text-muted">
-                        Status: {booking.status}
-                      </p>
-
-                    )}
-
-                  </Link>
-
-                )
-              )}
-
+                {booking.status && (
+                  <p className="mt-2 text-xs text-text-muted">
+                    Status: {booking.status}
+                  </p>
+                )}
+              </Link>
+            ))}
           </div>
-
         </DashboardCard>
-
 
         {/* ====================================================
             RECENT NOTICES

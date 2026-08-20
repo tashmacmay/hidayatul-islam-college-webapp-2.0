@@ -61,3 +61,23 @@ export async function cancelBookingAsync(appointmentId) {
       cancellationMessage: 'Cancelled by user via portal',
     });
 }
+
+export function formatParentBooking(booking) {
+  const learnerAnswer = booking.customers?.[0]?.customQuestionAnswers?.find(
+    (answer) => answer.question === "Learner's Full Name"
+  );
+
+  const start = new Date(booking.startDateTime.dateTime);
+  const end = new Date(booking.endDateTime.dateTime);
+
+  return {
+    id: booking.id,
+    ref: booking.selfServiceAppointmentId,
+    date: start.toLocaleDateString(),
+    time: `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+    appointmentType: booking.serviceName,
+    learner: learnerAnswer?.answer || booking.customerName,
+    staff: booking.staffMemberIds?.[0] || "Unassigned",
+    status: start >= new Date() ? "upcoming" : "past",
+  };
+}
