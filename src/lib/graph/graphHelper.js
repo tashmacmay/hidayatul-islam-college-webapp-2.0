@@ -46,3 +46,18 @@ export async function getBookingsAsync() {
     .api('/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments') //Interact with Microsoft Graph endpoint 
     .get(); //Perform an HTTP GET request
 }
+
+
+export async function cancelBookingAsync(appointmentId) {
+  if (!_appClient) { //Ensure that the Microsoft Graph Client has been created
+    throw new Error('Graph has not been initialized for app-only auth');
+  }
+
+  return _appClient
+    .api( //"Cancel" API call to MS Booking with variable ID 
+      `/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments/${appointmentId}/cancel`
+    )
+    .post({ //Document how booking was cancelled for documentation
+      cancellationMessage: 'Cancelled by user via portal',
+    });
+}

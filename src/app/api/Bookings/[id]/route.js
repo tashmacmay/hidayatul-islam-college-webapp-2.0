@@ -1,3 +1,36 @@
+import { NextResponse } from 'next/server';
+import { //Import the necessary functions from graphHelper to do the job: 
+  initializeGraphForAppOnlyAuth,
+  cancelBookingAsync,
+} from '@/lib/graph/graphHelper';
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = params; //Booking's Graph id - found as this page is through id URL
+
+    if (!id) { //If no ID found:
+      return NextResponse.json({ error: 'Missing booking id' }, { status: 400 });
+    }
+
+    initializeGraphForAppOnlyAuth(); //Calls to initialise graphHelper: make Client Secret Credential to make Microsoft Graph Client
+    await cancelBookingAsync(id); //Cancel the booking!
+
+    return NextResponse.json({ success: true, id }); //Return JSON
+  } catch (error) {
+    console.error('CANCEL BOOKING ERROR:', error);
+    return NextResponse.json(
+      {
+        error: 'Failed to cancel booking',
+        statusCode: error.statusCode,
+        code: error.code,
+        message: error.message,
+        body: error.body,
+      },
+      { status: error.statusCode || 500 }
+    );
+  }
+}
+
 /*import { NextResponse } from "next/server";
 import { getConnection } from "@/lib/db";
 

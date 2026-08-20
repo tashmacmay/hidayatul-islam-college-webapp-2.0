@@ -8,7 +8,7 @@ import { //Importing "export"ed functions from the graphHelper
 
 export async function GET() {
   try {
-    initializeGraphForAppOnlyAuth(); //Calls to initialises graphHelper
+    initializeGraphForAppOnlyAuth(); //Calls to initialise graphHelper: make Client Secret Credential to make Microsoft Graph Client
 
     const response = await getBookingsAsync(); //Calls graphHelper to return MS Bookings data
     

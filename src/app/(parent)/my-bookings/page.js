@@ -68,29 +68,48 @@ export default function ParentBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    async function loadBookings() {
-      try {
-        const response = await fetch("/api/bookings");
+  async function loadBookings() {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/bookings"); //Fetch booking data from MS Bookings
 
-        if (!response.ok) {
-          throw new Error("Failed to retrieve bookings");
-        }
-
-        const data = await response.json();
-
-        console.log("Bookings returned by API:", data);
-
-        setBookings(data);
-      } catch (error) {
-        console.error("Failed to load bookings:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) { //Check ^^^ above worked
+        throw new Error("Failed to retrieve bookings");
       }
+
+      const data = await response.json(); //Data is returned as JSON
+
+      console.log("Bookings returned by API:", data); //Non-essential - for debugging.
+
+      setBookings(data); //Update the bookings property with set
+    } catch (error) {
+      console.error("Failed to load bookings:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-    loadBookings();
-  }, []);
+  }
+
+  useEffect(() => {
+      loadBookings();
+    }, []);
+
+    async function handleCancel(bookingId) {
+    const confirmed = window.confirm("Cancel this booking?"); //Double check for misclicks
+    if (!confirmed) return; //If user does not confirm, halt.
+
+    try { //Try and catch for cancellation:
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to cancel booking");
+
+      await loadBookings(); //Refetch fresh data from Graph
+    } catch (error) {
+      console.error("Cancel failed:", error);
+      alert("Something went wrong cancelling this booking.");
+    }
+  }
 
   // ==========================================================
   // CONNECT BOOKING TABLE
@@ -434,6 +453,7 @@ export default function ParentBookingsPage() {
 
                         <button
                           type="button"
+                          onClick={() => handleCancel(booking.id)}
                           className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100"
                         >
                           <X size={16} />
