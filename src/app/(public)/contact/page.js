@@ -1,51 +1,57 @@
+import Link from "next/link";
+
 export default function Contact() {
   return (
     <>
       {/* Hero Section */}
 
-      <section className="relative h-[380px] overflow-hidden">
+      <section className="relative flex min-h-[320px] items-end overflow-hidden bg-navy md:min-h-[340px]">
         <img
           src="/images/HIC-image2.jpg"
           alt="Contact Hidayatul Islam College"
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-navy/80" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/45" />
+        <div className="absolute inset-0 opacity-20 [background-image:repeating-linear-gradient(135deg,transparent,transparent_12px,rgba(255,255,255,0.08)_12px,rgba(255,255,255,0.08)_13px)]" />
 
-        <div className="relative z-10 flex h-full items-center">
-          <div className="mx-auto w-full max-w-7xl px-10">
-            <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
-              Home › Contact
-            </p>
+        <div className="relative z-10 w-full px-6 pb-10 md:px-16 md:pb-[52px]">
+          <p className="mb-3.5 flex items-center gap-2 text-[9px] text-blue-200 md:text-[10px]">
+            <Link href="/" className="text-gold-light transition-colors hover:text-gold">
+              Home
+            </Link>
+            <span className="text-navy-dark">›</span>
+            <span className="text-blue-200/75">Contact Us</span>
+          </p>
 
-            <h1 className="mt-5 text-4xl font-bold text-white md:text-5xl">
-              Get in
-              <span className="text-gold"> Touch</span>
-            </h1>
+          <div className="mb-5 h-[3px] w-[60px] rounded-full bg-gold" />
 
-            <p className="mt-5 max-w-2xl text-base leading-7 text-blue-100">
-              We would love to hear from you. Contact Hidayatul Islam College
-              for enquiries, admissions and general information.
-            </p>
-          </div>
+          <h1 className="mb-3 font-serif text-2xl font-bold leading-tight text-white md:text-[28px]">
+            Get in <span className="text-gold">Touch</span>
+          </h1>
+
+          <p className="max-w-[560px] text-sm leading-7 text-blue-100">
+            We would love to hear from you. Contact Hidayatul Islam College
+            for enquiries, admissions and general information.
+          </p>
         </div>
       </section>
 
       {/* Contact Information */}
 
-      <section className="px-10 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-12 lg:grid-cols-2">
+      <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
 
             {/* Left Column */}
 
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
-                Contact Us
+              <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
+                Find Us
               </p>
 
-              <h2 className="mt-3 text-3xl font-bold text-navy md:text-4xl">
-                We'd Love to Hear From You
+              <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
+                Contact Information
               </h2>
 
               <div className="mt-5 h-1 w-16 rounded-full bg-gold" />
@@ -56,12 +62,12 @@ export default function Contact() {
                 assist you.
               </p>
 
-              <div className="mt-10 space-y-7">
+              <div className="mt-8 space-y-4">
 
                 {/* Address */}
 
-                <div className="flex gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-gold">
+                <div className="flex gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy text-gold">
                     <span className="text-lg">⌖</span>
                   </div>
 
@@ -80,8 +86,8 @@ export default function Contact() {
 
                 {/* Phone */}
 
-                <div className="flex gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-gold">
+                <div className="flex gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy text-gold">
                     <span className="text-lg">☎</span>
                   </div>
 
@@ -101,8 +107,8 @@ export default function Contact() {
 
                 {/* Email */}
 
-                <div className="flex gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-gold">
+                <div className="flex gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy text-gold">
                     <span className="text-lg">✉</span>
                   </div>
 
@@ -122,8 +128,8 @@ export default function Contact() {
 
                 {/* School Hours */}
 
-                <div className="flex gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-gold">
+                <div className="flex gap-4 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy text-gold">
                     <span className="text-lg">◷</span>
                   </div>
 
@@ -145,9 +151,9 @@ export default function Contact() {
 
             {/* Right Column - Map */}
 
-            <div className="overflow-hidden rounded-3xl bg-gray-100 shadow-lg">
+            <div className="overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
 
-              <div className="flex min-h-[420px] flex-col items-center justify-center p-10 text-center">
+              <div className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center md:p-10">
 
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy text-2xl text-gold">
                   ⌖
@@ -157,7 +163,7 @@ export default function Contact() {
                   Find Us
                 </p>
 
-                <h3 className="mt-3 text-2xl font-bold text-navy">
+                <h3 className="mt-3 text-base font-semibold text-navy">
                   Hidayatul Islam College
                 </h3>
 
@@ -183,16 +189,16 @@ export default function Contact() {
 
       {/* Enquiries */}
 
-      <section className="bg-gray-50 px-10 py-20">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
+        <div className="mx-auto max-w-6xl">
 
           <div className="text-center">
-            <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
-              Enquiries
+            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
+              Other Ways to Reach Us
             </p>
 
-            <h2 className="mt-3 text-3xl font-bold text-navy md:text-4xl">
-              How Can We Help?
+            <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
+              Quick Contacts
             </h2>
 
             <div className="mx-auto mt-5 h-1 w-16 rounded-full bg-gold" />
@@ -203,10 +209,10 @@ export default function Contact() {
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
 
-            <div className="rounded-2xl bg-white p-7 text-center shadow-sm">
-              <h3 className="text-lg font-bold text-navy">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+              <h3 className="text-base font-semibold text-navy">
                 Admissions
               </h3>
 
@@ -216,8 +222,8 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-7 text-center shadow-sm">
-              <h3 className="text-lg font-bold text-navy">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+              <h3 className="text-base font-semibold text-navy">
                 General Enquiries
               </h3>
 
@@ -227,8 +233,8 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="rounded-2xl bg-white p-7 text-center shadow-sm">
-              <h3 className="text-lg font-bold text-navy">
+            <div className="rounded-xl border border-gray-200 bg-white p-6 text-center shadow-sm">
+              <h3 className="text-base font-semibold text-navy">
                 School Information
               </h3>
 
@@ -244,12 +250,12 @@ export default function Contact() {
 
       {/* CTA */}
 
-      <section className="bg-navy px-10 py-20 text-center text-white">
+      <section className="bg-navy px-6 py-20 text-center text-white md:px-10 md:py-24">
         <div className="mx-auto max-w-3xl">
 
-          <h2 className="text-3xl font-bold md:text-4xl">
-            Connect With the
-            <span className="text-gold"> HIC Family</span>
+          <h2 className="font-serif text-xl font-bold leading-tight md:text-2xl">
+            Ready to be part of the
+            <span className="text-gold"> HIC family?</span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-blue-100">
