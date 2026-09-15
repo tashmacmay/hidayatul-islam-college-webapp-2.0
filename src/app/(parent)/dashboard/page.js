@@ -2,17 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-// ============================================================
-// LOGIN — TEMPORARILY DISABLED
-// ============================================================
-// Keep these imports/code commented out until authentication
-// is ready to be enabled again.
-//
-// import { useRouter } from "next/navigation";
-// import { onAuthStateChanged } from "firebase/auth";
-// import { auth } from "@/lib/firebase";
-// ============================================================
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 import {
   CalendarDays,
@@ -137,65 +129,39 @@ function DashboardCard({
 
 export default function DashboardPage() {
 
-  // ==========================================================
-  // LOGIN — TEMPORARILY DISABLED
-  // ==========================================================
-  //
-  // Keep this code for later.
-  //
-  // const router = useRouter();
-  // const [user, setUser] = useState(null);
-  // const [loading, setLoading] = useState(true);
-  //
-  // useEffect(() => {
-  //
-  //   const unsubscribe = onAuthStateChanged(
-  //     auth,
-  //     (currentUser) => {
-  //
-  //       if (!currentUser) {
-  //         router.push("/login");
-  //       } else {
-  //         setUser(currentUser);
-  //       }
-  //
-  //       setLoading(false);
-  //     }
-  //   );
-  //
-  //   return () => unsubscribe();
-  //
-  // }, [router]);
-  //
-  // if (loading) {
-  //   return (
-  //     <div className="flex min-h-[60vh] items-center justify-center">
-  //       <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent" />
-  //     </div>
-  //   );
-  // }
-  //
-  // if (!user) return null;
-  //
-  // const displayName =
-  //   user.displayName ||
-  //   user.email?.split("@")[0] ||
-  //   "Parent";
-  //
-  // ==========================================================
+  const router = useRouter();
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!currentUser) {
+          router.push("/login");
+        } else {
+          setUser(currentUser);
+        }
+        setAuthLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [router]);
 
-  // ==========================================================
-  // TEMPORARY DISPLAY NAME
-  // ==========================================================
-  // Login is currently disabled, so we use a temporary name.
-  //
-  // When authentication is enabled again, replace this with
-  // the displayName obtained from Firebase.
-  // ==========================================================
+  if (authLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent" />
+      </div>
+    );
+  }
 
-  const displayName = "Parent";
+  if (!user) return null;
 
+  const displayName =
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "Parent";
 
   // ==========================================================
   // DASHBOARD DATA
