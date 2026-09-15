@@ -1,19 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
+import { verifyUser } from '@/lib/auth';
 import sql from 'mssql';
 
 export async function GET(request) {
-    const { searchParams } = new URL(request.url);
-    const uid = searchParams.get('uid');
-
-    if (!uid) {
-        return NextResponse.json(
-            { error: 'Missing uid parameter' },
-            { status: 400 }
-        );
-    }
-
     try {
+        const user = await verifyUser(request);
+        const uid = user.uid;
+
         const pool = await getConnection();
         const result = await pool.request()
             .input('uid', sql.NVarChar, uid)
@@ -27,12 +21,17 @@ export async function GET(request) {
         }
 
         const { role, is_admin } = result.recordset[0];
-        return NextResponse.json({ 
-            role, 
-            is_admin: Boolean(is_admin) 
+        return NextResponse.json({
+            role,
+            is_admin: Boolean(is_admin)
         });
     } catch (error) {
         console.error('DB error:', error);
+        if (error.message === 'User not found in database' ||
+            error.message === 'Invalid token' ||
+            error.message === 'Missing or invalid Authorization header') {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
         return NextResponse.json(
             { error: 'Internal server error' },
             { status: 500 }
