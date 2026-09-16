@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { Images, ShieldCheck } from "lucide-react";
 
 const categories = [
   "All",
@@ -18,38 +20,42 @@ export default function Gallery() {
     <>
       {/* Hero Section */}
 
-      <section className="relative h-[330px] overflow-hidden">
+      <section className="relative flex min-h-[320px] items-end overflow-hidden bg-navy md:min-h-[340px]">
         <img
           src="/images/HIC-image2.jpg"
           alt="Gallery and Media"
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-navy/85" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/45" />
+        <div className="absolute inset-0 opacity-20 [background-image:repeating-linear-gradient(135deg,transparent,transparent_12px,rgba(255,255,255,0.08)_12px,rgba(255,255,255,0.08)_13px)]" />
 
-        <div className="relative z-10 flex h-full items-center">
-          <div className="mx-auto w-full max-w-7xl px-10">
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Home › Gallery & Media
-            </p>
+        <div className="relative z-10 w-full px-6 pb-10 md:px-16 md:pb-[52px]">
+          <p className="mb-3.5 flex items-center gap-2 text-[9px] text-blue-200 md:text-[10px]">
+            <Link href="/" className="text-gold-light transition-colors hover:text-gold">
+              Home
+            </Link>
+            <span className="text-navy-dark">›</span>
+            <span className="text-blue-200/75">Gallery & Media</span>
+          </p>
 
-            <h1 className="mt-5 text-4xl font-bold text-white md:text-5xl">
-              Gallery & <span className="text-gold">Media</span>
-            </h1>
+          <div className="mb-5 h-[3px] w-[60px] rounded-full bg-gold" />
 
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-blue-100">
-              A window into life at Hidayatul Islam College — events,
-              learning, sport, and community moments captured throughout
-              the year.
-            </p>
-          </div>
+          <h1 className="mb-3 font-serif text-2xl font-bold leading-tight text-white md:text-[28px]">
+            Gallery & <span className="text-gold">Media</span>
+          </h1>
+
+          <p className="max-w-[560px] text-sm leading-7 text-blue-100">
+            A window into life at Hidayatul Islam College — events, learning,
+            sport, and community moments captured throughout the year.
+          </p>
         </div>
       </section>
 
       {/* Gallery Section */}
 
-      <section className="px-10 py-20">
-        <div className="mx-auto max-w-7xl">
+      <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+        <div className="mx-auto max-w-6xl">
 
           {/* Section Heading */}
 
@@ -58,7 +64,7 @@ export default function Gallery() {
               Our Moments
             </p>
 
-            <h2 className="mt-3 text-3xl font-bold text-navy md:text-4xl">
+            <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
               School Life in Pictures
             </h2>
 
@@ -70,7 +76,7 @@ export default function Gallery() {
           <div className="mx-auto mt-8 max-w-5xl rounded-xl border border-[#eadcae] bg-[#fff9e8] px-6 py-4">
             <div className="flex gap-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-sm text-gold">
-                ♧
+                <ShieldCheck className="h-4 w-4" />
               </div>
 
               <div>
@@ -79,10 +85,10 @@ export default function Gallery() {
                 </p>
 
                 <p className="mt-1 text-xs leading-5 text-gray-600">
-                  Photos published on this page should only be used with
-                  the appropriate school and parental consent. Images
-                  containing learners should be published in accordance
-                  with the Protection of Personal Information Act (POPIA).
+                  Photos will only be published once the appropriate consent
+                  has been obtained. Images containing learners must be handled
+                  in accordance with the Protection of Personal Information Act
+                  (POPIA).
                 </p>
               </div>
             </div>
@@ -97,8 +103,8 @@ export default function Gallery() {
                 onClick={() => setSelectedCategory(category)}
                 className={`rounded-full border px-5 py-2.5 text-xs font-semibold transition ${
                   selectedCategory === category
-                    ? "border-navy bg-navy text-white"
-                    : "border-gray-200 bg-white text-navy hover:border-gold hover:text-gold"
+                    ? "border-navy bg-navy text-gold-light"
+                    : "border-gray-200 bg-white text-navy hover:border-gold hover:bg-gold/10"
                 }`}
               >
                 {category}
@@ -109,28 +115,20 @@ export default function Gallery() {
           {/* Gallery Grid */}
 
           <div className="mt-10">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-
-              {/* Gallery images will be populated by the client */}
-
-              <div className="hidden" />
-              
-            </div>
-
-            {/* Empty gallery state */}
-
-            <div className="flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+            <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14">
               <div className="text-center">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-xl text-gold">
-                  ▣
+                  <Images className="h-6 w-6" />
                 </div>
 
-                <h3 className="mt-4 text-base font-bold text-navy">
-                  Gallery
+                <h3 className="mt-4 text-sm font-semibold text-navy">
+                  No gallery photos yet
                 </h3>
 
-                <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-gray-500">
-                  Gallery images will be displayed here.
+                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+                  Photos from school events, learning activities, sport, outings
+                  and community moments will appear here once they are uploaded
+                  by the school.
                 </p>
               </div>
             </div>
@@ -141,10 +139,10 @@ export default function Gallery() {
 
       {/* Footer CTA */}
 
-      <section className="bg-navy px-10 py-16 text-center text-white">
+      <section className="bg-navy px-6 py-16 text-center text-white md:px-10">
         <div className="mx-auto max-w-3xl">
 
-          <h2 className="text-3xl font-bold">
+          <h2 className="font-serif text-xl font-bold leading-tight">
             Stay connected with{" "}
             <span className="text-gold">HIC</span>
           </h2>

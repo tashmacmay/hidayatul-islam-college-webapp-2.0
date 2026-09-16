@@ -1,9 +1,19 @@
+import Link from "next/link";
+import {
+  BookOpen,
+  HeartHandshake,
+  MapPin,
+  ShieldCheck,
+  Star,
+  Users,
+} from "lucide-react";
+
 export default function About() {
   return (
     <>
       {/* Hero */}
 
-      <section className="relative h-[500px] overflow-hidden">
+      <section className="relative flex min-h-[340px] items-end overflow-hidden bg-navy md:min-h-[350px]">
 
         <img
           src="/images/HIC-image2.jpg"
@@ -11,28 +21,29 @@ export default function About() {
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-navy/75" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/45" />
+        <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:18px_18px]" />
 
-        <div className="relative z-10 flex h-full items-center justify-center px-8 text-center">
+        <div className="relative z-10 w-full px-6 pb-12 md:px-16 md:pb-[60px]">
 
-          <div className="max-w-4xl">
+          <p className="mb-3.5 flex items-center gap-2 text-[9px] text-blue-200 md:text-[10px]">
+            <Link href="/" className="text-gold-light transition-colors hover:text-gold">
+              Home
+            </Link>
+            <span className="text-navy-dark">›</span>
+            <span className="text-blue-200/75">About Us</span>
+          </p>
 
-            <p className="text-sm font-semibold uppercase tracking-[4px] text-gold">
-              Home › About Us
-            </p>
+          <div className="mb-5 h-[3px] w-[60px] rounded-full bg-gold" />
 
-            <h1 className="mt-6 text-5xl font-bold text-white md:text-6xl">
-              About Our School
-            </h1>
+          <h1 className="mb-3 font-serif text-2xl font-bold leading-tight text-white md:text-[28px]">
+            About <span className="text-gold">Our School</span>
+          </h1>
 
-            <div className="mx-auto mt-6 h-1 w-20 rounded-full bg-gold" />
-
-            <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-blue-100">
-              A community of learners, educators, and families united by faith,
-              knowledge, and a shared commitment to excellence since 1982.
-            </p>
-
-          </div>
+          <p className="max-w-[560px] text-sm leading-7 text-blue-100">
+            A community of learners, educators, and families united by faith,
+            knowledge, and a shared commitment to excellence since 1982.
+          </p>
 
         </div>
 
@@ -40,17 +51,17 @@ export default function About() {
 
       {/* Who We Are */}
 
-      <section className="px-10 py-24">
+      <section className="bg-white px-6 py-24 md:px-10 md:py-28">
 
-        <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
 
           <div>
 
-            <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
+            <p className="text-[10px] font-semibold uppercase tracking-[3px] text-gold">
               Who We Are
             </p>
 
-            <h2 className="mt-3 text-5xl font-bold text-navy">
+            <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
               Rooted in Faith,
               <span className="block text-gold">
                 Built for Excellence
@@ -79,13 +90,13 @@ export default function About() {
 
           </div>
 
-          <div className="rounded-3xl bg-navy p-12 text-center text-white shadow-xl">
+          <div className="rounded-2xl bg-navy p-10 text-center text-white shadow-lg">
 
-            <p className="text-5xl text-gold">
+            <p className="text-2xl text-gold">
               علم نور
             </p>
 
-            <h3 className="mt-6 text-3xl font-bold">
+            <h3 className="mt-6 text-lg font-semibold">
               “Knowledge is Light”
             </h3>
 
@@ -101,33 +112,33 @@ export default function About() {
 
       {/* Mission Vision Values */}
 
-      <section className="bg-gray-50 px-10 py-24">
+      <section className="bg-white px-6 pb-16 md:px-10 md:pb-20">
 
         <div className="mx-auto max-w-7xl">
 
-          <div className="text-center">
-
+          <div className="mb-8 text-center">
             <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
               Our Foundation
             </p>
 
-            <h2 className="mt-3 text-5xl font-bold text-navy">
+            <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
               Mission, Vision & Values
             </h2>
 
-            <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
-
+            <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gold" />
           </div>
 
-          <div className="mt-16 grid gap-8 lg:grid-cols-3">
+          <div className="grid gap-6 lg:grid-cols-3">
 
-            <div className="rounded-3xl bg-white p-10 shadow-lg">
+            <div className="rounded-2xl border border-navy/10 bg-navy p-8 text-white shadow-md">
 
-              <h3 className="text-2xl font-bold text-navy">
+              <BookOpen className="h-6 w-6 text-gold" />
+
+              <h3 className="mt-5 text-base font-semibold">
                 Our Mission
               </h3>
 
-              <p className="mt-6 leading-8 text-gray-600">
+              <p className="mt-4 text-sm leading-7 text-blue-100">
                 To provide a nurturing, values-driven educational environment
                 that empowers every learner to achieve academic excellence and
                 grow into a person of strong character, guided by the
@@ -136,26 +147,30 @@ export default function About() {
 
             </div>
 
-            <div className="rounded-3xl bg-white p-10 shadow-lg">
+            <div className="rounded-2xl border border-gold/30 bg-gold-pale p-8 shadow-md">
 
-              <h3 className="text-2xl font-bold text-navy">
+              <HeartHandshake className="h-6 w-6 text-gold" />
+
+              <h3 className="mt-5 text-base font-semibold text-navy">
                 Our Vision
               </h3>
 
-              <p className="mt-6 leading-8 text-gray-600">
+              <p className="mt-4 text-sm leading-7 text-gray-600">
                 To be a leading centre of holistic learning in the Western Cape
                 where faith and knowledge illuminate every learner's path.
               </p>
 
             </div>
 
-            <div className="rounded-3xl bg-white p-10 shadow-lg">
+            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-md">
 
-              <h3 className="text-2xl font-bold text-navy">
+              <Star className="h-6 w-6 text-gold" />
+
+              <h3 className="mt-5 text-base font-semibold text-navy">
                 Our Values
               </h3>
 
-              <ul className="mt-6 space-y-3 text-gray-600">
+              <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-600">
                 <li>Taqwa — God-consciousness</li>
                 <li>Ilm — Love of learning</li>
                 <li>Adab — Respect & good character</li>
@@ -174,28 +189,28 @@ export default function About() {
 
       {/* Statistics */}
 
-      <section className="bg-gold py-16">
+      <section className="bg-gold py-10">
 
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-10 px-10 text-center md:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4 md:px-10">
 
           <div>
-            <h3 className="text-5xl font-bold text-navy">40+</h3>
-            <p className="mt-2 text-navy">Years of Service</p>
+            <h3 className="text-lg font-bold text-navy">40+</h3>
+            <p className="mt-1 text-sm text-navy">Years of Service</p>
           </div>
 
           <div>
-            <h3 className="text-5xl font-bold text-navy">R–7</h3>
-            <p className="mt-2 text-navy">Grades Offered</p>
+            <h3 className="text-lg font-bold text-navy">R–7</h3>
+            <p className="mt-1 text-sm text-navy">Grades Offered</p>
           </div>
 
           <div>
-            <h3 className="text-5xl font-bold text-navy">100%</h3>
-            <p className="mt-2 text-navy">Dept. of Ed. Compliant</p>
+            <h3 className="text-lg font-bold text-navy">100%</h3>
+            <p className="mt-1 text-sm text-navy">Dept. of Ed. Compliant</p>
           </div>
 
           <div>
-            <h3 className="text-5xl font-bold text-navy">Cape Town</h3>
-            <p className="mt-2 text-navy">Kensington Community</p>
+            <h3 className="text-lg font-bold text-navy">Cape Town</h3>
+            <p className="mt-1 text-sm text-navy">Kensington Community</p>
           </div>
 
         </div>
@@ -204,9 +219,9 @@ export default function About() {
    
 {/* Legacy of Learning */}
 
-<section className="px-10 py-24">
+<section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
 
-  <div className="mx-auto max-w-7xl">
+  <div className="mx-auto max-w-5xl">
 
     <div className="text-center">
 
@@ -214,7 +229,7 @@ export default function About() {
         Our Story
       </p>
 
-      <h2 className="mt-3 text-5xl font-bold text-navy">
+      <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
         A Legacy of Learning
       </h2>
 
@@ -227,15 +242,18 @@ export default function About() {
 
     </div>
 
-    <div className="mt-20 grid gap-16 lg:grid-cols-2">
+    <div className="relative mt-16">
 
-      <div className="space-y-10">
+      <div className="absolute bottom-0 left-4 top-0 w-px bg-gold/60 md:left-1/2" />
 
-        <div className="rounded-2xl border-l-4 border-gold bg-white p-8 shadow-md">
+      <div className="space-y-8">
+
+        <div className="relative w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-md md:w-[calc(50%-2rem)] md:p-7">
+          <span className="absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white md:-right-[25px] md:left-auto" />
 
           <p className="font-semibold text-gold">1982</p>
 
-          <h3 className="mt-2 text-2xl font-bold text-navy">
+          <h3 className="mt-2 text-lg font-semibold text-navy">
             The School is Founded
           </h3>
 
@@ -247,11 +265,12 @@ export default function About() {
 
         </div>
 
-        <div className="rounded-2xl border-l-4 border-gold bg-white p-8 shadow-md">
+        <div className="relative ml-auto w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-md md:w-[calc(50%-2rem)] md:p-7">
+          <span className="absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white md:-left-[25px]" />
 
           <p className="font-semibold text-gold">1990s</p>
 
-          <h3 className="mt-2 text-2xl font-bold text-navy">
+          <h3 className="mt-2 text-lg font-semibold text-navy">
             Growth & Community Roots
           </h3>
 
@@ -263,11 +282,12 @@ export default function About() {
 
         </div>
 
-        <div className="rounded-2xl border-l-4 border-gold bg-white p-8 shadow-md">
+        <div className="relative w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-md md:w-[calc(50%-2rem)] md:p-7">
+          <span className="absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white md:-right-[25px] md:left-auto" />
 
           <p className="font-semibold text-gold">2000s</p>
 
-          <h3 className="mt-2 text-2xl font-bold text-navy">
+          <h3 className="mt-2 text-lg font-semibold text-navy">
             Curriculum Alignment
           </h3>
 
@@ -279,11 +299,12 @@ export default function About() {
 
         </div>
 
-        <div className="rounded-2xl border-l-4 border-gold bg-white p-8 shadow-md">
+        <div className="relative ml-auto w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-md md:w-[calc(50%-2rem)] md:p-7">
+          <span className="absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white md:-left-[25px]" />
 
           <p className="font-semibold text-gold">2010s</p>
 
-          <h3 className="mt-2 text-2xl font-bold text-navy">
+          <h3 className="mt-2 text-lg font-semibold text-navy">
             Facilities & Staff Development
           </h3>
 
@@ -294,11 +315,12 @@ export default function About() {
 
         </div>
 
-        <div className="rounded-2xl border-l-4 border-gold bg-white p-8 shadow-md">
+        <div className="relative w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-md md:w-[calc(50%-2rem)] md:p-7">
+          <span className="absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white md:-right-[25px] md:left-auto" />
 
           <p className="font-semibold text-gold">Today</p>
 
-          <h3 className="mt-2 text-2xl font-bold text-navy">
+          <h3 className="mt-2 text-lg font-semibold text-navy">
             Digital & Community Expansion
           </h3>
 
@@ -311,16 +333,6 @@ export default function About() {
 
       </div>
 
-      <div className="flex items-center">
-
-        <img
-          src="/images/HIC-image2.jpg"
-          alt="School History"
-          className="rounded-3xl shadow-xl"
-        />
-
-      </div>
-
     </div>
 
   </div>
@@ -329,9 +341,9 @@ export default function About() {
 
 {/* Gallery */}
 
-<section className="bg-navy px-10 py-24">
+<section className="bg-navy px-6 py-20 md:px-10 md:py-24">
 
-  <div className="mx-auto max-w-7xl">
+  <div className="mx-auto max-w-5xl">
 
     <div className="text-center">
 
@@ -339,7 +351,7 @@ export default function About() {
         Life At HIC
       </p>
 
-      <h2 className="mt-3 text-5xl font-bold text-white">
+      <h2 className="mt-3 text-xl font-bold leading-tight text-white md:text-2xl">
         Our School In Pictures
       </h2>
 
@@ -347,42 +359,36 @@ export default function About() {
 
     </div>
 
-    <div className="mt-16 grid gap-5 md:grid-cols-3">
+    <div className="mt-12 grid gap-3 md:grid-cols-3 md:grid-rows-2">
 
       <img
         src="/images/HIC-kids.jpg"
         alt="Students"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
+        className="h-72 w-full rounded-2xl object-cover shadow-xl md:row-span-2 md:h-[520px]"
       />
 
       <img
         src="/images/HIC-image2.jpg"
         alt="School"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
+        className="h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]"
       />
 
       <img
         src="/images/HIC-kids.jpg"
         alt="Students"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
+        className="h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]"
       />
 
       <img
         src="/images/HIC-image2.jpg"
         alt="School"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
+        className="h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]"
       />
 
       <img
         src="/images/HIC-kids.jpg"
         alt="Students"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
-      />
-
-      <img
-        src="/images/HIC-image2.jpg"
-        alt="School"
-        className="h-80 w-full rounded-2xl object-cover shadow-xl"
+        className="h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]"
       />
 
     </div>
@@ -392,9 +398,9 @@ export default function About() {
 </section>
 {/* Leadership */}
 
-<section className="px-10 py-24">
+<section className="bg-white px-6 py-20 md:px-10 md:py-24">
 
-  <div className="mx-auto max-w-7xl">
+  <div className="mx-auto max-w-5xl">
 
     <div className="text-center">
 
@@ -402,7 +408,7 @@ export default function About() {
         Our People
       </p>
 
-      <h2 className="mt-3 text-5xl font-bold text-navy">
+      <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
         School Leadership
       </h2>
 
@@ -415,36 +421,36 @@ export default function About() {
 
     </div>
 
-    <div className="mt-16 grid gap-8 md:grid-cols-3">
+    <div className="mt-12 grid gap-6 md:grid-cols-3">
 
-      <div className="rounded-3xl bg-white p-10 text-center shadow-lg transition hover:-translate-y-2 hover:shadow-xl">
+      <div className="rounded-2xl border border-gray-200 bg-white p-7 text-center shadow-md transition hover:-translate-y-1 hover:shadow-lg">
 
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold">
           AF
         </div>
 
-        <h3 className="mt-6 text-2xl font-bold text-navy">
-          Mrs. Aayesha Fridie
+        <h3 className="mt-5 text-base font-semibold text-navy">
+          Mrs. Ayesha Fridie
         </h3>
 
         <p className="mt-2 font-medium text-gold">
           Principal
         </p>
 
-        <p className="mt-4 text-gray-600">
+        <p className="mt-3 text-sm leading-6 text-gray-600">
           Leading Hidayatul Islam College with vision, compassion and a deep
           commitment to every learner’s potential.
         </p>
 
       </div>
 
-      <div className="rounded-3xl bg-white p-10 text-center shadow-lg transition hover:-translate-y-2 hover:shadow-xl">
+      <div className="rounded-2xl border border-gray-200 bg-white p-7 text-center shadow-md transition hover:-translate-y-1 hover:shadow-lg">
 
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold">
           DH
         </div>
 
-        <h3 className="mt-6 text-2xl font-bold text-navy">
+        <h3 className="mt-5 text-base font-semibold text-navy">
           Deputy Principal
         </h3>
 
@@ -452,20 +458,20 @@ export default function About() {
           Academic Leadership
         </p>
 
-        <p className="mt-4 text-gray-600">
+        <p className="mt-3 text-sm leading-6 text-gray-600">
           Overseeing curriculum development, staff coordination and academic
           standards across all grades.
         </p>
 
       </div>
 
-      <div className="rounded-3xl bg-white p-10 text-center shadow-lg transition hover:-translate-y-2 hover:shadow-xl">
+      <div className="rounded-2xl border border-gray-200 bg-white p-7 text-center shadow-md transition hover:-translate-y-1 hover:shadow-lg">
 
         <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold">
           AS
         </div>
 
-        <h3 className="mt-6 text-2xl font-bold text-navy">
+        <h3 className="mt-5 text-base font-semibold text-navy">
           Admin & Support Staff
         </h3>
 
@@ -473,7 +479,7 @@ export default function About() {
           Office & Operations
         </p>
 
-        <p className="mt-4 text-gray-600">
+        <p className="mt-3 text-sm leading-6 text-gray-600">
           Ensuring the school runs smoothly for learners, parents and staff
           every day.
         </p>
@@ -488,9 +494,9 @@ export default function About() {
 
 {/* Principal Message */}
 
-<section className="bg-navy px-10 py-24 text-white">
+<section className="bg-navy px-6 py-20 text-white md:px-10 md:py-24">
 
-  <div className="mx-auto max-w-7xl grid gap-16 lg:grid-cols-2">
+  <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-2 lg:items-center">
 
     <div>
 
@@ -498,15 +504,15 @@ export default function About() {
         AF
       </div>
 
-      <h3 className="mt-8 text-3xl font-bold text-gold">
-        Mrs. Aayesha Fridie
+      <h3 className="mt-8 text-lg font-semibold text-gold">
+        Mrs. Ayesha Fridie
       </h3>
 
       <p className="mt-2 text-blue-200">
         Principal, Hidayatul Islam College
       </p>
 
-      <ul className="mt-8 space-y-3 text-blue-100">
+      <ul className="mt-6 rounded-xl border border-white/10 bg-white/5 p-5 text-sm leading-7 text-blue-100">
         <li>• BEd (Primary Education)</li>
         <li>• Advanced Certificate in School Leadership</li>
         <li>• Over 20 years in education</li>
@@ -517,18 +523,18 @@ export default function About() {
 
     <div>
 
-      <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
+      <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
         A Message From The Principal
       </p>
 
-      <h2 className="mt-3 text-5xl font-bold">
+      <h2 className="mt-3 text-xl font-bold leading-tight md:text-2xl">
         A Word from
         <span className="block text-gold">
           Mrs. Fridie
         </span>
       </h2>
 
-      <blockquote className="mt-8 border-l-4 border-gold pl-6 text-xl italic text-blue-100">
+      <blockquote className="mt-8 rounded-r-xl border-l-4 border-gold bg-white/5 px-6 py-5 text-base italic leading-7 text-blue-100">
         “At Hidayatul Islam College, we believe every child carries a light
         within them. Our role is to help that light shine — through knowledge,
         values, and a community that truly cares.”
@@ -557,20 +563,20 @@ export default function About() {
 
 {/* Community & Culture */}
 
-<section className="px-10 py-24">
+<section className="bg-white px-6 py-20 md:px-10 md:py-24">
 
-  <div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-2">
+  <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-2 lg:items-start">
 
     <div>
 
-      <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
+      <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
         Community & Culture
       </p>
 
-      <h2 className="mt-3 text-5xl font-bold text-navy">
-        More Than A School —
+      <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
+        More than a school —
         <span className="block text-gold">
-          A Community
+          a community
         </span>
       </h2>
 
@@ -590,32 +596,44 @@ export default function About() {
 
     </div>
 
-    <div className="space-y-5">
+    <div className="space-y-3">
 
-      <div className="rounded-2xl bg-gray-50 p-6 shadow-md">
-        <h3 className="font-bold text-navy">Integrated Curriculum</h3>
-        <p className="mt-2 text-gray-600">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <BookOpen className="h-5 w-5 text-gold" />
+          <h3 className="font-bold text-navy">Integrated Curriculum</h3>
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
           National curriculum enriched with Islamic studies, Arabic and Quran.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-gray-50 p-6 shadow-md">
-        <h3 className="font-bold text-navy">Parent Partnership</h3>
-        <p className="mt-2 text-gray-600">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Users className="h-5 w-5 text-gold" />
+          <h3 className="font-bold text-navy">Parent Partnership</h3>
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
           Open communication, school events and strong family involvement.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-gray-50 p-6 shadow-md">
-        <h3 className="font-bold text-navy">Holistic Excellence</h3>
-        <p className="mt-2 text-gray-600">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Star className="h-5 w-5 text-gold" />
+          <h3 className="font-bold text-navy">Holistic Excellence</h3>
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
           Academic, spiritual, sporting and cultural development.
         </p>
       </div>
 
-      <div className="rounded-2xl bg-gray-50 p-6 shadow-md">
-        <h3 className="font-bold text-navy">Rooted In Kensington</h3>
-        <p className="mt-2 text-gray-600">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 shadow-sm">
+        <div className="flex items-center gap-3">
+          <MapPin className="h-5 w-5 text-gold" />
+          <h3 className="font-bold text-navy">Rooted In Kensington</h3>
+        </div>
+        <p className="mt-2 text-sm text-gray-600">
           Proudly serving our local community for more than 40 years.
         </p>
       </div>
@@ -628,15 +646,15 @@ export default function About() {
 
 {/* Accreditation */}
 
-<section className="bg-gray-50 px-10 py-24">
+<section className="bg-gold-pale px-6 py-20 md:px-10 md:py-24">
 
-  <div className="mx-auto max-w-6xl text-center">
+  <div className="mx-auto max-w-5xl text-center">
 
-    <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
+    <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
       Accreditation & Affiliation
     </p>
 
-    <h2 className="mt-3 text-5xl font-bold text-navy">
+    <h2 className="mt-3 text-xl font-bold leading-tight text-navy md:text-2xl">
       Recognised & Accredited
     </h2>
 
@@ -647,21 +665,25 @@ export default function About() {
       Education Department and remains committed to excellence.
     </p>
 
-    <div className="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="mt-10 flex flex-wrap justify-center gap-3">
 
-      <div className="rounded-2xl bg-white p-8 shadow-md">
+      <div className="rounded-full border border-gold/30 bg-white px-5 py-3 text-sm text-navy shadow-sm">
+        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
         Western Cape Education Department
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-md">
+      <div className="rounded-full border border-gold/30 bg-white px-5 py-3 text-sm text-navy shadow-sm">
+        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
         Dept. of Basic Education Registered
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-md">
+      <div className="rounded-full border border-gold/30 bg-white px-5 py-3 text-sm text-navy shadow-sm">
+        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
         POPIA Compliant
       </div>
 
-      <div className="rounded-2xl bg-white p-8 shadow-md">
+      <div className="rounded-full border border-gold/30 bg-white px-5 py-3 text-sm text-navy shadow-sm">
+        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
         Independent Schools Association
       </div>
 
