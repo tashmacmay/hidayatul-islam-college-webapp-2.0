@@ -1,5 +1,3 @@
-// layout.js
-
 import ParentSidebar from "@/components/parent/ParentSidebar";
 
 export default function ParentLayout({ children }) {
