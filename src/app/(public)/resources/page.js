@@ -9,6 +9,7 @@ import {
   BookMarked,
   School,
 } from "lucide-react";
+import Link from "next/link";
 
 const resourceCategories = [
   "All resources",
@@ -30,8 +31,6 @@ const grades = [
   "Grade 6",
   "Grade 7",
 ];
-
-import Link from "next/link";
 
 export default function Resources() {
   const [selectedCategory, setSelectedCategory] =

@@ -75,8 +75,8 @@ export default function Gallery() {
 
           <div className="mx-auto mt-8 max-w-5xl rounded-xl border border-[#eadcae] bg-[#fff9e8] px-6 py-4">
             <div className="flex gap-4">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-sm text-gold">
-                  <ShieldCheck className="h-4 w-4" />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-sm text-gold">
+                <ShieldCheck className="h-4 w-4" />
               </div>
 
               <div>
