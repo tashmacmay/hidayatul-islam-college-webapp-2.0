@@ -4,15 +4,9 @@ import { useState } from "react";
 import {
   BookOpen,
   FileText,
-  Download,
   Play,
   ShieldCheck,
-  GraduationCap,
-  Library,
   BookMarked,
-  Calculator,
-  Heart,
-  Users,
   School,
 } from "lucide-react";
 
@@ -37,6 +31,8 @@ const grades = [
   "Grade 7",
 ];
 
+import Link from "next/link";
+
 export default function Resources() {
   const [selectedCategory, setSelectedCategory] =
     useState("All resources");
@@ -47,36 +43,41 @@ export default function Resources() {
     <>
       {/* Hero Section */}
 
-      <section className="relative h-[300px] overflow-hidden">
+      <section className="relative flex min-h-[320px] items-end overflow-hidden bg-navy md:min-h-[340px]">
         <img
           src="/images/HIC-image2.jpg"
           alt="Learning Resources"
           className="absolute inset-0 h-full w-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-navy/90" />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/45" />
+        <div className="absolute inset-0 opacity-20 [background-image:repeating-linear-gradient(135deg,transparent,transparent_12px,rgba(255,255,255,0.08)_12px,rgba(255,255,255,0.08)_13px)]" />
 
-        <div className="relative z-10 flex h-full items-center">
-          <div className="mx-auto w-full max-w-7xl px-10">
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Home <span className="mx-2 text-white/40">›</span> Resources
-            </p>
+        <div className="relative z-10 w-full px-6 pb-10 md:px-16 md:pb-[52px]">
+          <p className="mb-3.5 flex items-center gap-2 text-[9px] text-blue-200 md:text-[10px]">
+            <Link href="/" className="text-gold-light transition-colors hover:text-gold">
+              Home
+            </Link>
+            <span className="text-navy-dark">›</span>
+            <span className="text-blue-200/75">Resources</span>
+          </p>
 
-            <h1 className="mt-5 text-4xl font-bold text-white md:text-5xl">
-              Learning <span className="text-gold">Resources</span>
-            </h1>
+          <div className="mb-5 h-[3px] w-[60px] rounded-full bg-gold" />
 
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-blue-100">
-              Educational materials and resources for HIC learners,
-              parents and the wider community.
-            </p>
-          </div>
+          <h1 className="mb-3 font-serif text-2xl font-bold leading-tight text-white md:text-[28px]">
+            Learning <span className="text-gold">Resources</span>
+          </h1>
+
+          <p className="max-w-[560px] text-sm leading-7 text-blue-100">
+            Free educational materials for HIC learners, parents, and the
+            wider Kensington community — worksheets, videos, guidance, and more.
+          </p>
         </div>
       </section>
 
       {/* Resources Content */}
 
-      <section className="bg-gray-50 px-10 py-16">
+      <section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
         <div className="mx-auto max-w-6xl">
 
           {/* POPIA Notice */}
@@ -93,10 +94,10 @@ export default function Resources() {
                 </h3>
 
                 <p className="mt-1 text-xs leading-5 text-gray-600">
-                  Some resources on this page may only be available to
-                  registered parents and learners. Please refer to the
-                  school's privacy policy for information about how personal
-                  information is handled.
+                  Some resources may be available publicly, while others may
+                  require authorised access. Personal information must be handled
+                  in accordance with the Protection of Personal Information Act
+                  (POPIA).
                 </p>
               </div>
             </div>
@@ -112,14 +113,14 @@ export default function Resources() {
                   Start Here
                 </p>
 
-                <h2 className="mt-3 text-2xl font-bold">
+                <h2 className="mt-3 text-lg font-semibold">
                   Grade-Specific{" "}
                   <span className="text-gold">Resources</span>
                 </h2>
 
                 <p className="mt-3 max-w-xl text-sm leading-6 text-blue-100">
-                  Browse resources by grade level and find materials
-                  relevant to your child's learning programme.
+                  Grade-specific materials will appear here once they are
+                  uploaded by the school.
                 </p>
 
                 <div className="mt-6 flex flex-wrap gap-2">
@@ -143,33 +144,38 @@ export default function Resources() {
 
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
                 <p className="text-[10px] font-semibold uppercase tracking-[2px] text-gold">
-                  Resource Categories
+                  Included in each pack
                 </p>
 
                 <div className="mt-5 space-y-4">
                   <div className="flex items-center gap-3 text-sm text-blue-100">
                     <FileText className="h-4 w-4 text-gold" />
-                    Worksheets & learning materials
+                    Term overview & schedule
                   </div>
 
                   <div className="flex items-center gap-3 text-sm text-blue-100">
                     <Play className="h-4 w-4 text-gold" />
-                    Video learning materials
+                    Worksheets
                   </div>
 
                   <div className="flex items-center gap-3 text-sm text-blue-100">
                     <BookOpen className="h-4 w-4 text-gold" />
-                    Reading resources
+                    Video lessons
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm text-blue-100">
+                    <BookMarked className="h-4 w-4 text-gold" />
+                    Reading lists
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm text-blue-100">
+                    <School className="h-4 w-4 text-gold" />
+                    Calendar & key dates
                   </div>
 
                   <div className="flex items-center gap-3 text-sm text-blue-100">
                     <BookMarked className="h-4 w-4 text-gold" />
                     Islamic studies materials
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm text-blue-100">
-                    <School className="h-4 w-4 text-gold" />
-                    School documents
                   </div>
                 </div>
               </div>
@@ -186,8 +192,8 @@ export default function Resources() {
                 onClick={() => setSelectedCategory(category)}
                 className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
                   selectedCategory === category
-                    ? "border-navy bg-navy text-white"
-                    : "border-gray-200 bg-white text-navy hover:border-navy"
+                    ? "border-navy bg-navy text-gold-light"
+                    : "border-gray-200 bg-white text-navy hover:border-gold hover:bg-gold/10"
                 }`}
               >
                 {category}
@@ -197,69 +203,71 @@ export default function Resources() {
 
           {/* Resource Grid */}
 
-          <div className="mt-8">
-            {/* 
-              Resource cards will be populated from the client's
-              resource/content system.
+          <div className="mt-8 rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm md:px-10">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-navy text-2xl text-gold">
+              <BookOpen className="h-6 w-6" />
+            </div>
 
-              No placeholder resources are included here.
-            */}
+            <h2 className="mt-5 text-xl font-bold text-navy">
+              No resources uploaded yet
+            </h2>
 
-            <div className="min-h-[120px]" />
+            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+              Learning materials, worksheets, guides and school documents will
+              appear here once they are uploaded by the school.
+            </p>
           </div>
 
           {/* Forms & Policies */}
 
           <div className="mt-16">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[3px] text-gold">
-                Official School Documents
-              </p>
-
-              <h2 className="mt-2 text-2xl font-bold text-navy">
+              <h2 className="mt-2 text-lg font-semibold text-navy">
                 Forms & <span className="text-gold">Policies</span>
               </h2>
 
               <div className="mt-3 h-1 w-12 rounded-full bg-gold" />
             </div>
 
-            {/* 
-              Official documents will be added by the client.
-              No placeholder documents are displayed.
-            */}
-
-            <div className="mt-6 min-h-[80px]" />
+            <div className="mt-6 rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center">
+              <p className="text-sm font-semibold text-navy">
+                No forms or policies have been uploaded yet.
+              </p>
+              <p className="mt-2 text-xs leading-5 text-gray-500">
+                School forms, policies and official documents will appear here
+                when available.
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Parent Portal CTA */}
 
-      <section className="bg-navy px-10 py-16 text-center text-white">
+      <section className="bg-navy px-6 py-16 text-center text-white md:px-10">
         <div className="mx-auto max-w-3xl">
 
           <p className="text-[10px] font-semibold uppercase tracking-[3px] text-gold">
             Parent Portal
           </p>
 
-          <h2 className="mt-3 text-3xl font-bold">
+          <h2 className="mt-3 font-serif text-xl font-bold leading-tight">
             More resources in the{" "}
             <span className="text-gold">Parent Portal</span>
           </h2>
 
           <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-blue-100">
-            Access additional school resources and information through
-            the secure parent portal.
+            Authorised families may access additional resources and information
+            through the secure parent portal.
           </p>
 
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <button className="rounded-lg bg-gold px-6 py-3 text-xs font-semibold text-navy transition hover:opacity-90">
-              Sign in to your account
-            </button>
-
-            <button className="rounded-lg border border-white/30 px-6 py-3 text-xs font-semibold text-white transition hover:bg-white hover:text-navy">
-              Request access
-            </button>
+            <Link
+              href="/login"
+              className="rounded-lg bg-gold px-6 py-3 text-xs font-semibold text-navy transition hover:opacity-90"
+            >
+              Portal Login
+            </Link>
           </div>
 
         </div>

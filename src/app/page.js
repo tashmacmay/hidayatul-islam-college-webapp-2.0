@@ -39,7 +39,7 @@ const [currentImage, setCurrentImage] = useState(0);
 
       <main>
         
-        <section className="relative h-[640px] overflow-hidden bg-navy text-white">
+        <section className="relative min-h-[520px] overflow-hidden bg-navy text-white md:min-h-[600px]">
          //image slide for backgrund
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -50,7 +50,7 @@ const [currentImage, setCurrentImage] = useState(0);
 
           <div className="absolute inset-0 bg-navy/70" />
 
-          <div className="relative z-10 flex h-full items-center px-10">
+          <div className="relative z-10 flex min-h-[520px] items-center px-6 py-14 md:min-h-[600px] md:px-16 md:py-16">
             <div className="max-w-xl">
               <div className="mb-6 flex items-center gap-5">
                 <div className="flex h-28 w-28 items-center justify-center rounded-full border-[3px] border-gold bg-white">
@@ -62,7 +62,7 @@ const [currentImage, setCurrentImage] = useState(0);
                 </div>
 
                 <div>
-                  <h1 className="text-4xl font-bold leading-tight">
+                  <h1 className="font-serif text-2xl font-bold leading-tight md:text-[28px]">
                     Hidayatul Islam
                     <span className="block text-gold">College</span>
                   </h1>
@@ -85,12 +85,12 @@ const [currentImage, setCurrentImage] = useState(0);
                 Est. 1982 - Kensington, Cape Town
               </div>
 
-              <h2 className="text-5xl font-bold leading-tight">
+              <h2 className="font-serif text-3xl font-bold leading-tight md:text-[42px]">
                 Nurturing Minds,
                 <span className="block text-gold">Illuminating Futures</span>
               </h2>
 
-              <p className="mt-6 max-w-lg text-base leading-8 text-blue-100">
+              <p className="mt-6 max-w-lg text-sm leading-7 text-blue-100">
                 An independent community primary school rooted in Islamic values,
                 dedicated to academic excellence and holistic development from
                 Grade R to Grade 7.
@@ -152,19 +152,19 @@ const [currentImage, setCurrentImage] = useState(0);
           />
         </section>
 
-        <section className="px-10 py-20">
-          <div className="mx-auto max-w-5xl text-center">
+        <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+          <div className="mx-auto max-w-6xl text-center">
             <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
               Quick Access
             </p>
 
-            <h2 className="mt-3 text-3xl font-bold text-navy">
+            <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
               Everything you need, in one place
             </h2>
 
             <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gold" />
 
-            <div className="mx-auto mt-12 grid max-w-3xl gap-6 md:grid-cols-2">
+            <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
               <QuickCard
                 icon={<BookOpen />}
                 title="Educational Resources"
@@ -180,6 +180,66 @@ const [currentImage, setCurrentImage] = useState(0);
                 href="/news"
                 linkText="View News"
               />
+
+              <QuickCard
+                icon={<Landmark />}
+                title="Contact Us"
+                text="Find school contact details, location information, and enquiries support."
+                href="/contact"
+                linkText="Get in Touch"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
+          <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[280px_1fr] lg:items-center">
+            <div className="text-center lg:text-left">
+              <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full border-4 border-gold bg-white text-4xl font-bold text-navy lg:mx-0">
+                AF
+              </div>
+
+              <h3 className="mt-6 font-serif text-lg font-semibold text-navy">
+                Mrs. Ayesha Fridie
+              </h3>
+
+              <p className="mt-2 text-sm text-gold">
+                Principal, Hidayatul Islam College
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
+                A Word from Our Principal
+              </p>
+
+              <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
+                A Word from
+                <span className="block text-gold">Mrs. Fridie</span>
+              </h2>
+
+              <blockquote className="mt-8 border-l-4 border-gold pl-6 text-base italic leading-7 text-gray-600">
+                “At Hidayatul Islam College, we believe every child carries a
+                light within them. Our role is to help that light shine —
+                through knowledge, values, and a community that truly cares.”
+              </blockquote>
+
+              <p className="mt-8 leading-8 text-gray-600">
+                Bismillah. Welcome to Hidayatul Islam College, a school that
+                has served the Kensington community with pride and dedication
+                for over four decades.
+              </p>
+
+              <p className="mt-6 leading-8 text-gray-600">
+                We are an independent Islamic primary school where academic
+                achievement goes hand in hand with character, compassion and
+                faith.
+              </p>
+
+              <p className="mt-6 leading-8 text-gray-600">
+                Together, we are raising the next generation of thinkers,
+                leaders and believers. May Allah bless our collective efforts.
+              </p>
             </div>
           </div>
         </section>
@@ -195,7 +255,7 @@ function Highlight({ icon, title, text }) {
     <div className="flex items-center justify-center gap-4 border-r border-navy/15 px-6 py-6">
       <div className="text-navy [&>svg]:h-8 [&>svg]:w-8">{icon}</div>
       <div>
-        <h3 className="text-xl font-bold">{title}</h3>
+        <h3 className="text-base font-semibold">{title}</h3>
         <p className="text-sm">{text}</p>
       </div>
     </div>
@@ -206,13 +266,13 @@ function QuickCard({ icon, title, text, href, linkText }) {
   return (
     <a
       href={href}
-      className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md"
+      className="rounded-xl border border-gray-200 bg-off-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md"
     >
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-navy text-gold [&>svg]:h-7 [&>svg]:w-7">
         {icon}
       </div>
 
-      <h3 className="mt-5 text-lg font-bold text-navy">{title}</h3>
+      <h3 className="mt-5 text-sm font-semibold text-navy">{title}</h3>
 
       <p className="mt-3 text-sm leading-6 text-gray-600">{text}</p>
 
