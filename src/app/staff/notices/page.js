@@ -1,3 +1,4 @@
+//staff/notices-page.js
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -13,7 +14,6 @@ import {
   Trash2,
   ShieldCheck,
   X,
-  Menu,
   CheckCircle,
   Calendar,
   Save,
@@ -21,6 +21,7 @@ import {
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 
 export default function NoticeManagementPage() {
   const router = useRouter();

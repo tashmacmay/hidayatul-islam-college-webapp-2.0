@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { ChevronLeft, X } from "lucide-react";
 
 import {
   LayoutDashboard,
@@ -45,18 +46,23 @@ const links = [
   },
 ];
 
-export default function ParentSidebar() {
+export default function ParentSidebar({
+  isCollapsed,
+  onToggleCollapsed,
+  onCloseMobile,
+}) {
   const pathname = usePathname();
   const router = useRouter();
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Listen for auth changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -69,7 +75,11 @@ export default function ParentSidebar() {
     }
   };
 
-  const displayName = user?.displayName || user?.email?.split("@")[0] || "Parent";
+  const displayName =
+    user?.displayName ||
+    user?.email?.split("@")[0] ||
+    "Parent";
+
   const initials = displayName
     .split(" ")
     .map((n) => n[0])
@@ -77,23 +87,53 @@ export default function ParentSidebar() {
     .toUpperCase()
     .slice(0, 2);
 
+  const handleNavigation = () => {
+    onCloseMobile?.();
+  };
+
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 flex w-[240px] flex-col bg-navy-dark">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-4">
+    <aside className="flex h-full w-full flex-col bg-navy-dark">
+      {/* Logo / Header */}
+      <div
+        className={`flex items-center ${
+          isCollapsed ? "justify-center px-2" : "gap-3 px-5"
+        } py-4`}
+      >
         <img
           src="/images/HIC_Logo2.png"
-          alt="Logo"
-          className="h-[42px] w-[42px] rounded-full border-2 border-gold bg-white p-[2px]"
+          alt="Hidayatul Islam College"
+          className="h-[42px] w-[42px] shrink-0 rounded-full border-2 border-gold bg-white p-[2px]"
         />
-        <div>
-          <strong className="block font-serif text-[13px] font-bold text-white">
-            HIC Portal
-          </strong>
-          <span className="text-[10px] text-gold-light">
-            Hidayatul Islam College
-          </span>
-        </div>
+
+        {!isCollapsed && (
+          <div className="min-w-0">
+            <strong className="block truncate font-serif text-[13px] font-bold text-white">
+              HIC Portal
+            </strong>
+
+            <span className="block truncate text-[10px] text-gold-light">
+              Hidayatul Islam College
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop collapse button */}
+      <div className="hidden px-3 pb-2 md:block">
+        <button
+          type="button"
+          onClick={onToggleCollapsed}
+          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="flex w-full items-center justify-center rounded-lg p-2 text-[#7090b0] transition hover:bg-white/5 hover:text-white"
+        >
+          <ChevronLeft
+            size={18}
+            className={`transition-transform duration-300 ${
+              isCollapsed ? "rotate-180" : ""
+            }`}
+          />
+        </button>
       </div>
 
       {/* Navigation */}
@@ -101,22 +141,35 @@ export default function ParentSidebar() {
         {links.map((link) => {
           const Icon = link.icon;
           const active = pathname === link.href;
+
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`group flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+              onClick={handleNavigation}
+              title={isCollapsed ? link.name : undefined}
+              className={`group flex items-center ${
+                isCollapsed
+                  ? "justify-center px-2"
+                  : "gap-[11px] px-5"
+              } border-l-[3px] py-[9px] text-[13px] font-medium transition-all ${
                 active
                   ? "border-gold bg-[#c9a2271a] text-white"
                   : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
               }`}
             >
-              <Icon size={17} />
-              <span>{link.name}</span>
-              {link.badge && (
-                <span className="ml-auto rounded-full bg-gold px-[7px] py-[2px] text-[10px] font-bold text-navy-dark">
-                  {link.badge}
-                </span>
+              <Icon size={17} className="shrink-0" />
+
+              {!isCollapsed && (
+                <>
+                  <span>{link.name}</span>
+
+                  {link.badge && (
+                    <span className="ml-auto rounded-full bg-gold px-[7px] py-[2px] text-[10px] font-bold text-navy-dark">
+                      {link.badge}
+                    </span>
+                  )}
+                </>
               )}
             </Link>
           );
@@ -126,39 +179,75 @@ export default function ParentSidebar() {
 
         <Link
           href="/profile"
-          className="flex items-center gap-[11px] border-l-[3px] border-transparent px-5 py-[9px] text-[13px] font-medium text-[#7090b0] hover:bg-white/5 hover:text-white"
+          onClick={handleNavigation}
+          title={isCollapsed ? "My Profile" : undefined}
+          className={`flex items-center ${
+            isCollapsed
+              ? "justify-center px-2"
+              : "gap-[11px] px-5"
+          } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] hover:bg-white/5 hover:text-white`}
         >
-          <UserCircle size={17} />
-          My Profile
+          <UserCircle size={17} className="shrink-0" />
+
+          {!isCollapsed && <span>My Profile</span>}
         </Link>
 
         <div className="mx-4 my-2 h-px bg-white/10" />
 
         <button
+          type="button"
           onClick={handleLogout}
-          className="flex w-full items-center gap-[11px] border-l-[3px] border-transparent px-5 py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white"
+          title={isCollapsed ? "Logout" : undefined}
+          className={`flex w-full items-center ${
+            isCollapsed
+              ? "justify-center px-2"
+              : "gap-[11px] px-5"
+          } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white`}
         >
-          <LogOut size={17} />
-          Logout
+          <LogOut size={17} className="shrink-0" />
+
+          {!isCollapsed && <span>Logout</span>}
         </button>
       </div>
 
-      {/* Bottom User – now dynamic */}
-      <div className="border-t border-white/10 px-5 py-[14px]">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
+      {/* User information */}
+      <div
+        className={`border-t border-white/10 ${
+          isCollapsed ? "px-2" : "px-5"
+        } py-[14px]`}
+      >
+        <div
+          className={`flex items-center ${
+            isCollapsed ? "justify-center" : "gap-3"
+          }`}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
             {loading ? "..." : initials}
           </div>
-          <div>
-            <div className="text-sm font-semibold text-white">
-              {loading ? "Loading..." : displayName}
+
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="truncate text-sm font-semibold text-white">
+                {loading ? "Loading..." : displayName}
+              </div>
+
+              <div className="text-xs text-[#7090b0]">
+                {user ? "Parent" : "Not signed in"}
+              </div>
             </div>
-            <div className="text-xs text-[#7090b0]">
-              {user ? "Parent" : "Not signed in"}
-            </div>
-          </div>
+          )}
         </div>
       </div>
+
+      {/* Mobile close button */}
+      <button
+        type="button"
+        onClick={onCloseMobile}
+        aria-label="Close navigation menu"
+        className="absolute right-3 top-3 rounded-lg p-2 text-white hover:bg-white/10 md:hidden"
+      >
+        <X size={20} />
+      </button>
     </aside>
   );
 }
