@@ -19,8 +19,9 @@ import {
 } from "lucide-react";
 
 export default function StaffSidebar({
-  isCollapsed,
-  onToggleCollapsed,
+  collapsed = false,
+  mobileOpen = false,
+  onToggle,
   onCloseMobile,
 }) {
   const pathname = usePathname();
@@ -72,6 +73,33 @@ export default function StaffSidebar({
       console.error("Logout error:", error);
     }
   };
+
+    const sidebarClasses = `
+  z-50
+  flex
+  h-screen
+  shrink-0
+  flex-col
+  bg-navy-dark
+
+  fixed
+  inset-y-0
+  left-0
+  w-[240px]
+  transition-transform
+  duration-300
+  ease-in-out
+
+  ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+
+  md:sticky
+  md:top-0
+  md:translate-x-0
+  md:transition-[width]
+  md:duration-300
+
+  ${collapsed ? "md:w-16" : "md:w-[240px]"}
+`;
 
   const staffLinks = [
     {
@@ -139,9 +167,9 @@ export default function StaffSidebar({
         key={link.href}
         href={link.href}
         onClick={handleNavigation}
-        title={isCollapsed ? link.name : undefined}
+        title={collapsed ? link.name : undefined}
         className={`group flex items-center ${
-          isCollapsed
+          collapsed
             ? "justify-center px-2"
             : "gap-[11px] px-5"
         } border-l-[3px] py-[9px] text-[13px] font-medium transition-all ${
@@ -152,17 +180,19 @@ export default function StaffSidebar({
       >
         <Icon size={17} className="shrink-0" />
 
-        {!isCollapsed && <span>{link.name}</span>}
+        {!collapsed && <span>{link.name}</span>}
       </Link>
     );
   };
 
-  return (
-    <aside className="flex h-full w-full flex-col bg-navy-dark">
+
+
+return (
+  <aside className={sidebarClasses}>
       {/* Logo */}
       <div
         className={`flex items-center ${
-          isCollapsed ? "justify-center px-2" : "gap-3 px-5"
+          collapsed ? "justify-center px-2" : "gap-3 px-5"
         } py-4`}
       >
         <img
@@ -171,7 +201,7 @@ export default function StaffSidebar({
           className="h-[42px] w-[42px] shrink-0 rounded-full border-2 border-gold bg-white p-[2px]"
         />
 
-        {!isCollapsed && (
+        {!collapsed && (
           <div className="min-w-0">
             <strong className="block truncate font-serif text-[13px] font-bold text-white">
               HIC Portal
@@ -188,15 +218,15 @@ export default function StaffSidebar({
       <div className="hidden px-3 pb-2 md:block">
         <button
           type="button"
-          onClick={onToggleCollapsed}
-          title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          onClick={onToggle}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           className="flex w-full items-center justify-center rounded-lg p-2 text-[#7090b0] transition hover:bg-white/5 hover:text-white"
         >
           <ChevronLeft
             size={18}
             className={`transition-transform duration-300 ${
-              isCollapsed ? "rotate-180" : ""
+              collapsed ? "rotate-180" : ""
             }`}
           />
         </button>
@@ -210,7 +240,7 @@ export default function StaffSidebar({
           <>
             <div className="mx-4 my-2 h-px bg-white/10" />
 
-            {!isCollapsed && (
+            {!collapsed && (
               <p className="px-5 py-2 text-[10px] uppercase tracking-wider text-[#7090b0]">
                 Admin
               </p>
@@ -223,54 +253,54 @@ export default function StaffSidebar({
         <div className="mx-4 my-2 h-px bg-white/10" />
 
         <Link
-          href="/staff/profile"
-          onClick={handleNavigation}
-          title={isCollapsed ? "My Profile" : undefined}
-          className={`flex items-center ${
-            isCollapsed
-              ? "justify-center px-2"
-              : "gap-[11px] px-5"
-          } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] hover:bg-white/5 hover:text-white`}
-        >
-          <UserCircle size={17} className="shrink-0" />
+  href="/staff/profile"
+  onClick={handleNavigation}
+  title={collapsed ? "My Profile" : undefined}
+  className={`flex items-center ${
+    collapsed
+      ? "justify-center px-2"
+      : "gap-[11px] px-5"
+  } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] hover:bg-white/5 hover:text-white`}
+>
+  <UserCircle size={17} className="shrink-0" />
 
-          {!isCollapsed && <span>My Profile</span>}
-        </Link>
+  {!collapsed && <span>My Profile</span>}
+</Link>
 
-        <div className="mx-4 my-2 h-px bg-white/10" />
+<div className="mx-4 my-2 h-px bg-white/10" />
 
-        <button
-          type="button"
-          onClick={handleLogout}
-          title={isCollapsed ? "Logout" : undefined}
-          className={`flex w-full items-center ${
-            isCollapsed
-              ? "justify-center px-2"
-              : "gap-[11px] px-5"
-          } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white`}
-        >
-          <LogOut size={17} className="shrink-0" />
+<button
+  type="button"
+  onClick={handleLogout}
+  title={collapsed ? "Logout" : undefined}
+  className={`flex w-full items-center ${
+    collapsed
+      ? "justify-center px-2"
+      : "gap-[11px] px-5"
+  } border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white`}
+>
+  <LogOut size={17} className="shrink-0" />
 
-          {!isCollapsed && <span>Logout</span>}
-        </button>
+  {!collapsed && <span>Logout</span>}
+</button>
       </div>
 
       {/* User */}
       <div
         className={`border-t border-white/10 ${
-          isCollapsed ? "px-2" : "px-5"
+          collapsed ? "px-2" : "px-5"
         } py-[14px]`}
       >
         <div
           className={`flex items-center ${
-            isCollapsed ? "justify-center" : "gap-3"
+            collapsed ? "justify-center" : "gap-3"
           }`}
         >
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
             {loading ? "..." : initials}
           </div>
 
-          {!isCollapsed && (
+          {!collapsed && (
             <div className="min-w-0">
               <div className="truncate text-sm font-semibold text-white">
                 {loading ? "Loading..." : displayName}
