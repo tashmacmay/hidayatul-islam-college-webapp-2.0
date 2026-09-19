@@ -35,6 +35,17 @@ export default function LoginPage() {
         setError("Google sign-in failed. Please try again.");
       });
   }, []);
+  useEffect(() => {
+    console.log("🔍 Diagnostic — Chrome UA:", navigator.userAgent);
+    fetch(window.location.href, { method: "HEAD" })
+      .then((res) => {
+        console.log(
+          "🔍 COOP header seen:",
+          res.headers.get("cross-origin-opener-policy")
+        );
+      })
+      .catch(() => {});
+  }, []);
   
   // function to handle role-based redirect
   const redirectBasedOnRole = async (user) => {
