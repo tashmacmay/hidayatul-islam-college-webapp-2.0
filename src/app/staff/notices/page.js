@@ -1,3 +1,4 @@
+//staff/notices-page.js
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -13,7 +14,6 @@ import {
   Trash2,
   ShieldCheck,
   X,
-  Menu,
   CheckCircle,
   Calendar,
   Save,
@@ -21,6 +21,7 @@ import {
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 
 export default function NoticeManagementPage() {
   const router = useRouter();
@@ -40,9 +41,7 @@ export default function NoticeManagementPage() {
   const [selectedAction, setSelectedAction] = useState("publish"); // for UI highlight
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   // Toast helper
   const showToast = (message, type = "success") => {
@@ -202,18 +201,12 @@ export default function NoticeManagementPage() {
   const modalTitle = editingNotice ? "Edit Notice" : "Compose Notice";
 
   return (
-    <div className="flex min-h-screen bg-off-white">
-      <StaffSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-      <div
-        className={`flex-1 p-8 md:p-10 transition-all duration-300 ${
-          isSidebarOpen ? "ml-0 md:ml-64" : "ml-0"
-        }`}
-      >
-        {!isSidebarOpen && (
-          <button onClick={toggleSidebar} className="mb-4 text-navy md:hidden">
-            <Menu size={28} />
-          </button>
-        )}
+  <ResponsiveAppShell
+    sidebar={(sidebarProps) => (
+      <StaffSidebar {...sidebarProps} />
+    )}
+  >
+    <main className="p-5 md:p-8 lg:p-10">
 
         <div className="space-y-8">
           {/* Header */}
@@ -365,7 +358,8 @@ export default function NoticeManagementPage() {
             )}
           </div>
         </div>
-      </div>
+      </main>
+    
 
       {/* Floating Toast Notification */}
       {successMessage && (
@@ -555,6 +549,6 @@ export default function NoticeManagementPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }

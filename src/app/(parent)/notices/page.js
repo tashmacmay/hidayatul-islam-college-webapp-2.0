@@ -1,3 +1,4 @@
+// parents/notices-page.js
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -10,11 +11,11 @@ import {
   Search,
   Check,
   ChevronDown,
-  Menu,
   X,
 } from "lucide-react";
 
 import ParentSidebar from "@/components/parent/ParentSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -35,20 +36,10 @@ export default function ParentNoticesPage() {
 
   const [selectedNotice, setSelectedNotice] = useState(null);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   // Read status is currently stored locally in the browser.
   // This can later be moved to SQL if the team wants
   // read/unread status to persist across devices.
   const [readNotices, setReadNotices] = useState([]);
-
-  // ============================================================
-  // SIDEBAR
-  // ============================================================
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((previous) => !previous);
-  };
 
   // ============================================================
   // AUTHENTICATION
@@ -150,7 +141,6 @@ export default function ParentNoticesPage() {
           ? data
           : []
       );
-
     } catch (error) {
       console.error(
         "❌ Error fetching parent notices:",
@@ -158,7 +148,6 @@ export default function ParentNoticesPage() {
       );
 
       setNotices([]);
-
     } finally {
       setLoading(false);
     }
@@ -360,34 +349,18 @@ export default function ParentNoticesPage() {
   // ============================================================
 
   return (
-    <div className="min-h-screen bg-[#f0f2f7] text-[#1a2540]">
-
-      {/* ========================================================
-          SIDEBAR
-          ======================================================== */}
-
-      <ParentSidebar
-        isOpen={isSidebarOpen}
-        onToggle={toggleSidebar}
-      />
-
-      {/* ========================================================
-          MAIN CONTENT
-          ======================================================== */}
-
-      <main
-        className={`min-h-screen transition-all duration-300 ${
-          isSidebarOpen
-            ? "md:ml-[240px]"
-            : "ml-0"
-        }`}
-      >
+    <ResponsiveAppShell
+      sidebar={(sidebarProps) => (
+        <ParentSidebar {...sidebarProps} />
+      )}
+    >
+      <main className="min-h-screen bg-[#f0f2f7] text-[#1a2540]">
 
         {/* ======================================================
             TOP BAR
             ====================================================== */}
 
-        <div className="sticky top-0 z-40 flex h-[58px] items-center justify-between border-b border-[#0d2260]/10 bg-white px-6 shadow-sm md:px-8">
+        <div className="sticky top-0 z-30 flex h-[58px] items-center justify-between border-b border-[#0d2260]/10 bg-white px-5 shadow-sm sm:px-6 md:px-8">
 
           <div className="font-serif text-[17px] font-bold text-[#0d2260]">
             Parent Portal
@@ -432,18 +405,7 @@ export default function ParentNoticesPage() {
             BODY
             ====================================================== */}
 
-        <div className="w-full px-5 py-6 md:px-8 md:py-8 xl:px-10">
-
-          {/* Mobile menu */}
-
-          {!isSidebarOpen && (
-            <button
-              onClick={toggleSidebar}
-              className="mb-4 text-[#0d2260] md:hidden"
-            >
-              <Menu size={28} />
-            </button>
-          )}
+        <div className="w-full px-4 py-5 sm:px-5 md:px-8 md:py-8 xl:px-10">
 
           {/* ====================================================
               HEADER
@@ -769,7 +731,7 @@ export default function ParentNoticesPage() {
 
       {selectedNotice && (
 
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
 
           <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-7 shadow-xl">
 
@@ -795,6 +757,7 @@ export default function ParentNoticesPage() {
                   setSelectedNotice(null)
                 }
                 className="rounded-lg p-2 transition hover:bg-slate-100"
+                aria-label="Close notice"
               >
                 <X size={20} />
               </button>
@@ -838,7 +801,7 @@ export default function ParentNoticesPage() {
 
       )}
 
-    </div>
+    </ResponsiveAppShell>
   );
 }
 

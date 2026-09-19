@@ -17,8 +17,17 @@ export async function GET(req) {
 
     const pool = await getConnection();
     let query = `
-      SELECT id, title, category, content, recipients, status, scheduled_for, created_at 
-      FROM Notices 
+      SELECT
+          id,
+          title,
+          category,
+          content,
+          recipients,
+          status,
+          scheduled_for,
+          created_at,
+          updated_at
+      FROM Notices
       WHERE 1=1
     `;
     const params = [];
@@ -52,45 +61,112 @@ export async function GET(req) {
 
 export async function POST(req) {
   console.log('🔍 POST /api/notices called');
+
   try {
     const user = await verifyUser(req);
-    console.log('✅ User verified:', { uid: user.uid, role: user.role });
 
-    // Only staff/admins can create
+    console.log('✅ User verified:', {
+      uid: user.uid,
+      role: user.role
+    });
+
+    // Only staff/admins can create notices.
     if (user.role !== 'staff' && user.role !== 'admin') {
-      return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
+      return NextResponse.json(
+        { error: 'Permission denied' },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();
-    console.log('🔍 Request body:', body);
-    const { title, category, content, recipients, status, scheduled_for } = body;
 
-    // Validate required fields
+    console.log('🔍 Request body:', body);
+
+    const {
+      title,
+      category,
+      content,
+      recipients,
+      status,
+      scheduled_for
+    } = body;
+
+    // Validate required fields.
     if (!title || !category || !content || !recipients || !status) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
     const pool = await getConnection();
+
     const result = await pool.request()
       .input('title', sql.NVarChar, title)
       .input('category', sql.NVarChar, category)
       .input('content', sql.NVarChar, content)
       .input('recipients', sql.NVarChar, recipients)
       .input('status', sql.NVarChar, status)
-      .input('scheduled_for', sql.DateTime, scheduled_for ? new Date(scheduled_for) : null)
+      .input(
+        'scheduled_for',
+        sql.DateTime,
+        scheduled_for ? new Date(scheduled_for) : null
+      )
       .input('created_by_uid', sql.NVarChar, user.uid)
       .query(`
-        INSERT INTO Notices (title, category, content, recipients, status, scheduled_for, created_by_uid)
-        VALUES (@title, @category, @content, @recipients, @status, @scheduled_for, @created_by_uid);
-        SELECT SCOPE_IDENTITY() AS id
+        INSERT INTO Notices (
+          title,
+          category,
+          content,
+          recipients,
+          status,
+          scheduled_for,
+          created_by_uid,
+          created_at,
+          updated_at
+        )
+        VALUES (
+          @title,
+          @category,
+          @content,
+          @recipients,
+          @status,
+          @scheduled_for,
+          @created_by_uid,
+          GETUTCDATE(),
+          GETUTCDATE()
+        );
+
+        SELECT
+          SCOPE_IDENTITY() AS id;
       `);
 
     const newId = result.recordset[0].id;
+
     console.log(`✅ Notice created with ID: ${newId}`);
-    return NextResponse.json({ id: newId }, { status: 201 });
+
+    return NextResponse.json(
+      { id: newId },
+      { status: 201 }
+    );
+
   } catch (err) {
     console.error('❌ POST /api/notices error:', err);
-    // Return a detailed error message to help debug
-    return NextResponse.json({ error: err.message || 'Internal server error' }, { status: 500 });
+
+    if (
+      err.message === 'User not found in database' ||
+      err.message === 'Invalid token' ||
+      err.message === 'Missing or invalid Authorization header'
+    ) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

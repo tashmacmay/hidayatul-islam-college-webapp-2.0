@@ -29,8 +29,14 @@ export async function PUT(req, { params }) {
       .input('scheduled_for', sql.DateTime, scheduled_for ? new Date(scheduled_for) : null)
       .query(`
         UPDATE Notices
-        SET title=@title, category=@category, content=@content, recipients=@recipients,
-            status=@status, scheduled_for=@scheduled_for, updated_at=GETDATE()
+        SET
+          title=@title,
+          category=@category,
+          content=@content,
+          recipients=@recipients,
+          status=@status,
+          scheduled_for=@scheduled_for,
+          updated_at=GETUTCDATE()
         WHERE id=@id
       `);
 
