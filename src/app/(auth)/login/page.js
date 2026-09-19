@@ -4,13 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   signInWithEmailAndPassword,
-  signInWithPopup,
   signOut,
 } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { startGoogleSignIn, checkRedirectResult } from "@/lib/googleSignIn";
+import { useState, useEffect } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -21,6 +22,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    checkRedirectResult()
+      .then(async (result) => {
+        if (result?.user) {
+          setLoading(true);
+          await redirectBasedOnRole(result.user);
+        }
+      })
+      .catch((err) => {
+        console.error("Redirect sign-in error:", err);
+        setError("Google sign-in failed. Please try again.");
+      });
+  }, []);
   
   // function to handle role-based redirect
   const redirectBasedOnRole = async (user) => {
@@ -101,8 +115,12 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      await redirectBasedOnRole(result.user);
+      const result = await startGoogleSignIn();
+      // result is null when using redirect flow — the actual result
+      // arrives later via checkRedirectResult() in the useEffect below
+      if (result?.user) {
+        await redirectBasedOnRole(result.user);
+      }
     } catch (err) {
       console.error("Google sign-in error:", err);
       setError("Google sign-in failed. Please try again.");
