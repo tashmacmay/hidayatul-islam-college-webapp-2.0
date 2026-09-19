@@ -1,131 +1,152 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 
-const STORAGE_KEY = "hic-sidebar-collapsed";
+const SIDEBAR_STORAGE_KEY = "hic-sidebar-collapsed";
 
-export default function ResponsiveAppShell({
-  children,
-  sidebar,
-}) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [hydrated, setHydrated] = useState(false);
+export default function ResponsiveAppShell({ sidebar, children }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [initialised, setInitialised] = useState(false);
 
-  /*
-   * Restore the user's sidebar preference for the current browser session.
-   * sessionStorage is intentionally used instead of localStorage so that
-   * the preference does not persist indefinitely.
-   */
+  // ------------------------------------------------------------
+  // Load the sidebar preference once per browser session
+  // ------------------------------------------------------------
   useEffect(() => {
-    const savedState = sessionStorage.getItem(STORAGE_KEY);
+    const savedState = sessionStorage.getItem(SIDEBAR_STORAGE_KEY);
 
-    if (savedState !== null) {
-      setIsCollapsed(savedState === "true");
+    if (savedState === "true" || savedState === "false") {
+      setCollapsed(savedState === "true");
     } else {
-      /*
-       * On first use, tablets get the collapsed layout while larger
-       * desktop screens start expanded.
-       *
-       * This is only the initial default. Once the user changes the
-       * sidebar state, their choice is preserved for the session.
-       */
-      setIsCollapsed(window.innerWidth < 1200);
+      // Default:
+      // >= 1200px  -> expanded
+      // 768-1199px -> collapsed
+      const isLargeScreen = window.matchMedia(
+        "(min-width: 1200px)"
+      ).matches;
+
+      setCollapsed(!isLargeScreen);
     }
 
-    setHydrated(true);
+    setInitialised(true);
   }, []);
 
-  const toggleCollapsed = () => {
-    setIsCollapsed((current) => {
-      const next = !current;
-      sessionStorage.setItem(STORAGE_KEY, String(next));
-      return next;
-    });
-  };
-
-  const openMobileMenu = () => {
-    setIsMobileOpen(true);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileOpen(false);
-  };
-
-  /*
-   * Close the mobile drawer after navigating to another page.
-   */
+  // ------------------------------------------------------------
+  // Save the user's manual choice for the current session
+  // ------------------------------------------------------------
   useEffect(() => {
-    setIsMobileOpen(false);
-  }, [children]);
+    if (!initialised) return;
 
-  if (!hydrated) {
-    /*
-     * Prevent a visible layout jump while the saved sidebar preference
-     * is being restored from sessionStorage.
-     */
-    return (
-      <div className="min-h-screen bg-off-white">
-        {children}
-      </div>
+    sessionStorage.setItem(
+      SIDEBAR_STORAGE_KEY,
+      String(collapsed)
     );
-  }
+  }, [collapsed, initialised]);
+
+  // ------------------------------------------------------------
+  // Close mobile drawer when Escape is pressed
+  // ------------------------------------------------------------
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  // ------------------------------------------------------------
+  // Prevent page scrolling while mobile drawer is open
+  // ------------------------------------------------------------
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileOpen]);
+
+  const toggleSidebar = () => {
+    setCollapsed((current) => !current);
+  };
+
+  const openMobileSidebar = () => {
+    setMobileOpen(true);
+  };
+
+  const closeMobileSidebar = () => {
+    setMobileOpen(false);
+  };
 
   return (
-    <div className="flex min-h-screen bg-off-white">
-      {/* Mobile overlay */}
-      {isMobileOpen && (
+    <div className="min-h-screen bg-off-white md:flex">
+
+      {/* ======================================================
+          SIDEBAR
+
+          IMPORTANT:
+          The sidebar is rendered ONLY ONCE.
+
+          Desktop:
+          - It participates in the flex layout.
+          - It takes up 240px or 64px of actual space.
+
+          Mobile:
+          - It becomes a fixed drawer.
+          - It does not affect the page width.
+          ====================================================== */}
+
+      {sidebar({
+        collapsed,
+        mobileOpen,
+        onToggle: toggleSidebar,
+        onCloseMobile: closeMobileSidebar,
+      })}
+
+      {/* ======================================================
+          MAIN CONTENT
+          ====================================================== */}
+
+      <div className="min-w-0 flex-1">
+
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          onClick={openMobileSidebar}
+          aria-label="Open navigation menu"
+          className="fixed left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-lg bg-[#0d2260] text-white shadow-md transition hover:bg-[#1a3070] md:hidden"
+        >
+          <Menu size={20} />
+        </button>
+
+        {children}
+      </div>
+
+      {/* ======================================================
+          MOBILE OVERLAY
+
+          Only exists when the drawer is open.
+          Clicking it closes the drawer.
+          ====================================================== */}
+
+      {mobileOpen && (
         <button
           type="button"
           aria-label="Close navigation menu"
-          onClick={closeMobileMenu}
+          onClick={closeMobileSidebar}
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
         />
       )}
-
-      {/* Sidebar */}
-      <div
-        className={`
-          fixed inset-y-0 left-0 z-50
-          h-screen
-          transition-transform duration-300 ease-in-out
-          md:relative md:z-auto md:translate-x-0
-          ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-          md:block
-          ${isCollapsed ? "md:w-[64px]" : "md:w-[240px]"}
-          w-[240px]
-          shrink-0
-        `}
-      >
-        {sidebar({
-          isCollapsed,
-          isMobileOpen,
-          onToggleCollapsed: toggleCollapsed,
-          onCloseMobile: closeMobileMenu,
-        })}
-      </div>
-
-      {/* Main application area */}
-      <div className="min-w-0 flex-1">
-        {/* Mobile navigation button */}
-        <div className="flex items-center border-b border-border bg-white px-4 py-3 md:hidden">
-          <button
-            type="button"
-            onClick={openMobileMenu}
-            aria-label="Open navigation menu"
-            className="rounded-lg p-2 text-navy hover:bg-gray-100"
-          >
-            <Menu size={24} />
-          </button>
-
-          <span className="ml-3 text-sm font-semibold text-navy">
-            Hidayatul Islam College
-          </span>
-        </div>
-
-        {children}
-      </div>
     </div>
   );
 }
