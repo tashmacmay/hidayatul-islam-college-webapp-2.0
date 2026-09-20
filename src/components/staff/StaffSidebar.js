@@ -99,14 +99,27 @@ export default function StaffSidebar() {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto py-2">
+
+        {/* STAFF SECTION */}
+        <div className="px-5 py-2">
+          <div className="flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
+              Staff
+            </span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
+        </div>
+
         {staffLinks.map((link) => {
           const Icon = link.icon;
           const active = pathname === link.href;
+
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`group flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+              className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
                 active
                   ? "border-gold bg-[#c9a2271a] text-white"
                   : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
@@ -114,37 +127,48 @@ export default function StaffSidebar() {
             >
               <Icon size={17} />
               <span>{link.name}</span>
-              {/* Optional badge: you can add badge logic here if needed */}
             </Link>
           );
         })}
 
-        {isAdmin && (
-          <>
-            <div className="mx-4 my-2 h-px bg-white/10" />
-            <p className="px-5 py-2 text-[10px] uppercase tracking-wider text-[#7090b0]">
-              Admin
-            </p>
-            {adminLinks.map((link) => {
-              const Icon = link.icon;
-              const active = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`group flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-                    active
-                      ? "border-gold bg-[#c9a2271a] text-white"
-                      : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <Icon size={17} />
-                  <span>{link.name}</span>
-                </Link>
-              );
-            })}
-          </>
-        )}
+{/* ADMIN SECTION */}
+<div className="mt-4 px-5 py-2">
+  <div className="flex items-center gap-3">
+    <div className="h-px flex-1 bg-white/10" />
+    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
+      Admin
+    </span>
+    <div className="h-px flex-1 bg-white/10" />
+  </div>
+</div>
+
+{adminLinks.map((link) => {
+  const Icon = link.icon;
+  const active = pathname === link.href;
+
+  return (
+    <Link
+      key={link.href}
+      href={isAdmin ? link.href : "#"}
+      onClick={(e) => {
+        if (!isAdmin) {
+          e.preventDefault();
+          alert(
+            "This is restricted for Admins only. Please contact the administrator for details."
+          );
+        }
+      }}
+      className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+        active && isAdmin
+          ? "border-gold bg-[#c9a2271a] text-white"
+          : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
+      }`}
+    >
+      <Icon size={17} />
+      <span>{link.name}</span>
+    </Link>
+  );
+})}
 
         <div className="mx-4 my-2 h-px bg-white/10" />
 
@@ -165,6 +189,7 @@ export default function StaffSidebar() {
           <LogOut size={17} />
           Logout
         </button>
+
       </div>
 
       {/* Bottom User */}

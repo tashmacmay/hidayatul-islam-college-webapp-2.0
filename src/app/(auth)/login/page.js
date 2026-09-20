@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+} from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -19,35 +23,48 @@ export default function LoginPage() {
 
   // function to handle role-based redirect
   const redirectBasedOnRole = async (user) => {
-    try {
-      const res = await fetch(`/api/user-role?uid=${user.uid}`);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "User role not found");
-      }
-      const data = await res.json();
+  try {
+    // Get the Firebase ID token for the authenticated user.
+    const token = await user.getIdToken();
 
-      // Decide redirect path
-      if (data.role === "parent") {
-        router.push("/dashboard");
-      } else if (data.role === "staff") {
-        if (data.is_admin) {
-          router.push("/staff/notices");
-        } else {
-          router.push("/staff/dashboard");
-        }
-      } else {
-        // Fallback – maybe log out or go to home
-        throw new Error("Unknown role");
-      }
-    } catch (err) {
-      console.error("Role fetch error:", err);
-      setError(err.message || "Unable to determine your role. Please contact support.");
-      setLoading(false);
-      // Optionally sign out the user if they have no role in DB
-      await signOut(auth);
+    // Send the token to the server so verifyUser() can authenticate the request.
+    const res = await fetch(`/api/user-role?uid=${user.uid}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "User role not found");
     }
-  };
+
+    const data = await res.json();
+
+    // Decide redirect path
+    if (data.role === "parent") {
+      router.push("/dashboard");
+    } else if (data.role === "staff") {
+      if (data.is_admin) {
+        router.push("/staff/notices");
+      } else {
+        router.push("/staff/dashboard");
+      }
+    } else {
+      throw new Error("Unknown role");
+    }
+  } catch (err) {
+    console.error("Role fetch error:", err);
+    setError(
+      err.message ||
+        "Unable to determine your role. Please contact support."
+    );
+    setLoading(false);
+
+    // Sign out if the authenticated user has no valid role.
+    await signOut(auth);
+  }
+};
 
   // Email/password sign in
   const handleSubmit = async (e) => {

@@ -165,75 +165,22 @@ function DashboardCard({
 // ============================================================
 
 export default function DashboardPage() {
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
-  
-  useEffect(() => {
-  
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-  
-        if (!currentUser) {
-  
-          router.push("/login");
-  
-        } else {
-  
-          setUser(currentUser);
-  
-        }
-  
-        setAuthLoading(false);
-  
-      }
-    );
-  
-    return () => unsubscribe();
-  
-  }, [router]);
-  
-  
-  if (authLoading) {
-  
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-  
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#c9a227] border-t-transparent" />
-  
-      </div>
-    );
-  
-  }
-  
-  
-  if (!user) return null;
-
-  // ==========================================================
+  // ============================================================
   // ROUTER
-  // ==========================================================
-  // Router is NOT part of login.
-  //
-  // It is required for dashboard navigation.
-  //
-  // Examples:
-  //
-  // router.push("/staff/bookings")
-  // router.push("/staff/notices")
-  // router.push("/staff/resources")
-  // router.push("/staff/users")
-  // ==========================================================
+  // ============================================================
 
   const router = useRouter();
 
+  // ============================================================
+  // AUTH STATE
+  // ============================================================
 
-  // ==========================================================
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // ============================================================
   // DASHBOARD DATA
-  // ==========================================================
-  // Stores the information returned from:
-  //
-  // /api/staff/dashboard
-  // ==========================================================
+  // ============================================================
 
   const [dashboard, setDashboard] = useState({
     bookings: [],
@@ -242,83 +189,74 @@ export default function DashboardPage() {
     parentCount: 0,
   });
 
-
-  // ==========================================================
+  // ============================================================
   // LOADING STATE
-  // ==========================================================
+  // ============================================================
 
   const [loading, setLoading] = useState(true);
 
-
-  // ==========================================================
+  // ============================================================
   // ERROR STATE
-  // ==========================================================
+  // ============================================================
 
   const [error, setError] = useState("");
 
-
-  // ==========================================================
-  // LOAD DASHBOARD DATA
-  // ==========================================================
-  // Runs when the dashboard loads.
-  //
-  // Calls:
-  //
-  // GET /api/staff/dashboard
-  //
-  // The API gets information from SQL Server.
-  // ==========================================================
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
 
   useEffect(() => {
-
-    async function loadDashboard() {
-
-      try {
-
-        // ------------------------------------------------------
-        // START LOADING
-        // ------------------------------------------------------
-
-        setLoading(true);
-
-        setError("");
-
-
-        // ------------------------------------------------------
-        // REQUEST DASHBOARD DATA
-        // ------------------------------------------------------
-
-        const response = await fetch(
-          "/api/staff/dashboard"
-        );
-
-
-        // ------------------------------------------------------
-        // CHECK RESPONSE
-        // ------------------------------------------------------
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Failed to load dashboard"
-          );
-
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!currentUser) {
+          router.push("/login");
+        } else {
+          setUser(currentUser);
         }
 
+        setAuthLoading(false);
+      }
+    );
 
-        // ------------------------------------------------------
-        // CONVERT RESPONSE TO JSON
-        // ------------------------------------------------------
+    return () => unsubscribe();
+  }, [router]);
+
+  // ============================================================
+  // LOAD DASHBOARD DATA
+  // ============================================================
+
+  useEffect(() => {
+    // Do not attempt to load dashboard data until
+    // Firebase authentication has finished.
+    if (authLoading || !user) {
+      return;
+    }
+
+    async function loadDashboard() {
+      try {
+        setLoading(true);
+        setError("");
+
+        // Get the Firebase ID token for the logged-in user.
+        const token = await user.getIdToken();
+
+        const response = await fetch("/api/staff/dashboard", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to load dashboard (${response.status})`
+          );
+        }
 
         const data = await response.json();
 
-
-        // ------------------------------------------------------
-        // SAVE DASHBOARD DATA
-        // ------------------------------------------------------
-
         setDashboard({
-
           bookings: Array.isArray(data.bookings)
             ? data.bookings
             : [],
@@ -332,15 +270,8 @@ export default function DashboardPage() {
 
           parentCount:
             Number(data.parentCount) || 0,
-
         });
-
       } catch (err) {
-
-        // ------------------------------------------------------
-        // HANDLE ERROR
-        // ------------------------------------------------------
-
         console.error(
           "❌ Error loading staff dashboard:",
           err
@@ -349,52 +280,43 @@ export default function DashboardPage() {
         setError(
           "Unable to load dashboard data. Please try again."
         );
-
       } finally {
-
-        // ------------------------------------------------------
-        // STOP LOADING
-        // ------------------------------------------------------
-
         setLoading(false);
-
       }
-
     }
 
-
     loadDashboard();
+  }, [user, authLoading]);
 
-  }, []);
+  // ============================================================
+  // WAIT FOR AUTHENTICATION
+  // ============================================================
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#c9a227] border-t-transparent" />
+      </div>
+    );
+  }
 
-  // ==========================================================
+  if (!user) {
+    return null;
+  }
+
+  // ============================================================
   // DASHBOARD STATISTICS
-  // ==========================================================
+  // ============================================================
 
-  const bookingsToday =
-    dashboard.bookings.length;
+  const bookingsToday = dashboard.bookings.length;
 
-  const noticesCount =
-    dashboard.notices.length;
+  const noticesCount = dashboard.notices.length;
 
-
-  // ==========================================================
+  // ============================================================
   // FORMAT TIME
-  // ==========================================================
-  // Converts database date/time into readable time.
-  //
-  // Example:
-  //
-  // 2026-08-19T09:00:00
-  //
-  // becomes:
-  //
-  // 09:00
-  // ==========================================================
+  // ============================================================
 
   function formatTime(value) {
-
     if (!value) {
       return "";
     }
@@ -405,24 +327,18 @@ export default function DashboardPage() {
       return value;
     }
 
-    return date.toLocaleTimeString(
-      "en-ZA",
-      {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      }
-    );
-
+    return date.toLocaleTimeString("en-ZA", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
   }
 
-
-  // ==========================================================
+  // ============================================================
   // FORMAT DATE
-  // ==========================================================
+  // ============================================================
 
   function formatDate(value) {
-
     if (!value) {
       return "";
     }
@@ -433,21 +349,16 @@ export default function DashboardPage() {
       return "";
     }
 
-    return date.toLocaleDateString(
-      "en-ZA",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
-    );
-
+    return date.toLocaleDateString("en-ZA", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
   }
 
-
-  // ==========================================================
+  // ============================================================
   // PAGE
-  // ==========================================================
+  // ============================================================
 
   return (
 
@@ -720,11 +631,10 @@ export default function DashboardPage() {
 
                           <div>
 
-                            <p className="font-semibold text-[#0d2260]">
-                              {booking.title ||
-                                booking.service ||
-                                "Booking"}
-                            </p>
+            <p className="font-semibold text-[#0d2260]">
+{booking.title ||
+  booking.service ||
+  "Booking"}</p>
 
                             <p className="mt-1 text-sm text-[#5a6a82]">
 
