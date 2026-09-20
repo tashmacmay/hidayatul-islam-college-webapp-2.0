@@ -43,7 +43,7 @@ export async function getBookingsAsync() {
   }
 
   return _appClient
-    .api('/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments') //Interact with Microsoft Graph endpoint 
+    .api('/solutions/bookingBusinesses/HidayatulIslamCollegeParentMeetings@Hidayatulcpt.onmicrosoft.com/appointments') //Interact with Microsoft Graph endpoint 
     .get(); //Perform an HTTP GET request
 }
 
@@ -55,7 +55,7 @@ export async function cancelBookingAsync(appointmentId) {
 
   return _appClient
     .api( //"Cancel" API call to MS Booking with variable ID 
-      `/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments/${appointmentId}/cancel`
+      `/solutions/bookingBusinesses/HidayatulIslamCollegeParentMeetings@Hidayatulcpt.onmicrosoft.com/appointments/${appointmentId}/cancel`
     )
     .post({ //Document how booking was cancelled for documentation
       cancellationMessage: 'Cancelled by user via portal',
