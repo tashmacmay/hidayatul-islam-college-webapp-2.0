@@ -57,17 +57,20 @@ export default function StaffSidebar() {
 
   // Staff links
   const staffLinks = [
-    { name: "Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
-    { name: "Notices", href: "/staff/notices", icon: Bell },
-    { name: "Bookings", href: "/staff/bookings", icon: CalendarDays },
-    { name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
-    { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
+    { name: "My Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
+    { name: "My Notices", href: "/staff/notices", icon: Bell },
+    { name: "My Bookings", href: "/staff/bookings", icon: CalendarDays },
+   // { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
   ];
 
   // Admin-only links
   const adminLinks = [
+    { name: "School Bookings", href: "/admin/bookings", icon: CalendarDays },
     { name: "User Management", href: "/admin/users", icon: Users },
+    { name: "Media Management", href: "/admin/media", icon: CalendarDays },
+    { name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
     { name: "System Settings", href: "/admin/settings", icon: Settings },
+
   ];
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Staff";
