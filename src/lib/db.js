@@ -18,7 +18,6 @@ const config = {
     options: {
         encrypt: true,
         trustServerCertificate: false,
-        
     },
 
     /*
@@ -37,7 +36,7 @@ const config = {
     /*
      * How long a connection attempt may take before failing.
      */
-    connectionTimeout: 30000,
+    connectionTimeout: 15000,
 
     /*
      * Timeout for individual SQL requests.
