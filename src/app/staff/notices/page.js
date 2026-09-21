@@ -275,14 +275,14 @@ const fetchNotices = useCallback(async () => {
               </h2>
               <p className="mt-1 text-xs text-text-muted">Not published</p>
             </div>
-<div className="rounded-xl bg-white p-6 shadow-sm">
-  <Users className="mb-4 text-green-600" size={28} />
-  <p className="text-sm text-text-muted">Total</p>
-  <h2 className="mt-2 text-3xl font-bold text-navy">
-{totalNotices}
-  </h2>
-  <p className="mt-1 text-xs text-text-muted">All notices</p>
-</div>
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <Users className="mb-4 text-green-600" size={28} />
+                <p className="text-sm text-text-muted">Total</p>
+                  <h2 className="mt-2 text-3xl font-bold text-navy">
+                    {totalNotices}
+                  </h2>
+               <p className="mt-1 text-xs text-text-muted">All notices</p>
+              </div>
           </div>
 
           {/* Filters */}

@@ -60,16 +60,22 @@ export default function StaffSidebar() {
     { name: "My Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
     { name: "My Notices", href: "/staff/notices", icon: Bell },
     { name: "My Bookings", href: "/staff/bookings", icon: CalendarDays },
+
+    { name: "School Bookings", href: "/staff/admin/school-bookings", icon: CalendarDays },
+    { name: "User Management", href: "/staff/admin/user-management", icon: Users },
+    { name: "Media Management", href: "/staff/admin/media-management", icon: CalendarDays },
+    { name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
+    { name: "System Settings", href: "/staff/admin/settings", icon: Settings },
    // { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
   ];
 
   // Admin-only links
   const adminLinks = [
-    { name: "School Bookings", href: "/admin/bookings", icon: CalendarDays },
-    { name: "User Management", href: "/admin/users", icon: Users },
-    { name: "Media Management", href: "/admin/media", icon: CalendarDays },
-    { name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
-    { name: "System Settings", href: "/admin/settings", icon: Settings },
+    //{ name: "School Bookings", href: "/staff/admin/school-bookings", icon: CalendarDays },
+   // { name: "User Management", href: "/staff/admin/user-management", icon: Users },
+    //{ name: "Media Management", href: "/staff/admin/media-management", icon: CalendarDays },
+    //{ name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
+    //{ name: "System Settings", href: "/staff/admin/settings", icon: Settings },
 
   ];
 
