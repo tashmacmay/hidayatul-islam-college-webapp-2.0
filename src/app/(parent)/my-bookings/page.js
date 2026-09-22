@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+//Reads the currently signed-in Firebase user:
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   CalendarDays,
@@ -32,6 +34,12 @@ import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 // ============================================================
 
 export default function ParentBookingsPage() {
+
+  // ==========================================================
+  // AUTH — who is asking?
+  // ==========================================================
+
+  const { user, loading: authLoading } = useAuth(); //"user" = Firebase user object
 
   // ==========================================================
   // SEARCH / FILTER STATE
@@ -71,11 +79,18 @@ export default function ParentBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  async function loadBookings() {
+    async function loadBookings() {
     try {
       setLoading(true);
 
-      const response = await fetch("/api/bookings");
+      const token = await user.getIdToken(); //prove identity to API (token is signed by Google)
+
+      const response = await fetch("/api/bookings", {
+        //Attaches token as a Bearer header - API will know who caller is!
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to retrieve bookings");
@@ -104,8 +119,14 @@ export default function ParentBookingsPage() {
   }
 
   useEffect(() => {
+    if (authLoading) return; //Only if firebase has resolved identity
+
+    if (!user) return; //Only if user found
+
     loadBookings();
-  }, []);
+
+    //Re-run whenever auth resolves:
+  }, [authLoading, user]);
 
 
   // ==========================================================
@@ -121,11 +142,15 @@ export default function ParentBookingsPage() {
     if (!confirmed) return;
 
     try {
+      const token = await user.getIdToken(); //Same as loadBookings — prove who's asking
 
       const response = await fetch(
         `/api/bookings/${bookingId}`,
         {
           method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`, //Bearer header so the API can verify the caller
+          },
         }
       );
 
