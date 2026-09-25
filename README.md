@@ -22,15 +22,13 @@ Techstack:
 - Lucide React: icons
 - Framer Motion: animations
 
-- MySQL: user information
+- MSSQL: user information
 - Firebase Auth: email/password + Google OAuth
-- Firebase Storage (file uploads)
 
-- Microsoft Graph API: create/reference Outlook calendar events
+- MS Bookings & Microsoft Graph API: create/reference Outlook calendar events
 - Nodemailer (SMTP): confirmation/cancellation/reminder emails with .ics calendar attachments
-- iCalendar generator: produce calendar invite files (compatible with Outlook, Apple and Google Calendars)
 
-- Vercel: hosting (Afrihost fallback)
+Until project is complete, all development is contained by and pushed to the "develop" branch. Check this branch for the most up-to-date, stable functionality.
 
 ---
 
