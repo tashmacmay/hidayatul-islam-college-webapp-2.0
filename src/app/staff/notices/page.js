@@ -26,6 +26,7 @@ import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 export default function NoticeManagementPage() {
   const router = useRouter();
   const [notices, setNotices] = useState([]);
+  const [totalNotices, setTotalNotices] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingNotice, setEditingNotice] = useState(null);
@@ -52,30 +53,45 @@ export default function NoticeManagementPage() {
     }, 3000);
   };
 
-  const fetchNotices = useCallback(async () => {
-    try {
-      const token = await auth.currentUser.getIdToken();
-      const params = new URLSearchParams();
-      if (filterStatus !== "All") params.append("status", filterStatus);
-      if (searchTerm) params.append("search", searchTerm);
-      const res = await fetch(`/api/notices?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        if (res.status === 401) {
-          router.push("/login");
-          return;
-        }
-        throw new Error("Failed to fetch");
+const fetchNotices = useCallback(async () => {
+  try {
+    const token = await auth.currentUser.getIdToken();
+
+    // Fetch notices using the current filter/search
+    const params = new URLSearchParams();
+    if (filterStatus !== "All") params.append("status", filterStatus);
+    if (searchTerm) params.append("search", searchTerm);
+
+    const res = await fetch(`/api/notices?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      if (res.status === 401) {
+        router.push("/login");
+        return;
       }
-      const data = await res.json();
-      setNotices(data);
-    } catch (error) {
-      console.error("Error fetching notices:", error);
-    } finally {
-      setLoading(false);
+      throw new Error("Failed to fetch");
     }
-  }, [filterStatus, searchTerm, router]);
+
+    const data = await res.json();
+    setNotices(data);
+
+    // Fetch ALL notices separately for the Total count
+    const totalRes = await fetch("/api/notices", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (totalRes.ok) {
+      const totalData = await totalRes.json();
+      setTotalNotices(totalData.length);
+    }
+  } catch (error) {
+    console.error("Error fetching notices:", error);
+  } finally {
+    setLoading(false);
+  }
+}, [filterStatus, searchTerm, router]);
 
   useEffect(() => {
     fetchNotices();
@@ -252,12 +268,14 @@ export default function NoticeManagementPage() {
               </h2>
               <p className="mt-1 text-xs text-text-muted">Not published</p>
             </div>
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <Users className="mb-4 text-green-600" size={28} />
-              <p className="text-sm text-text-muted">Total</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">{notices.length}</h2>
-              <p className="mt-1 text-xs text-text-muted">All notices</p>
-            </div>
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <Users className="mb-4 text-green-600" size={28} />
+                <p className="text-sm text-text-muted">Total</p>
+                  <h2 className="mt-2 text-3xl font-bold text-navy">
+                    {totalNotices}
+                  </h2>
+               <p className="mt-1 text-xs text-text-muted">All notices</p>
+              </div>
           </div>
 
           {/* Filters */}
