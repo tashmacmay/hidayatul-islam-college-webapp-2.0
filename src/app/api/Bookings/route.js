@@ -1,3 +1,4 @@
+//app>Bookings>route.js
 //Adapting index.js from https://learn.microsoft.com/en-us/graph/tutorials/javascript-app-only to Next.js webapp
 import { NextResponse } from 'next/server';
 
