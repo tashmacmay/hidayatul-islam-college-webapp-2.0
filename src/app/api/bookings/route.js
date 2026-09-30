@@ -2,10 +2,10 @@
 import { NextResponse } from 'next/server';
 //Verifies Firebase token AND looks user up in SQL
 import { verifyUser } from '@/lib/auth';
-
 import { //Importing "export"ed functions from the graphHelper
   initializeGraphForAppOnlyAuth,
   getBookingsAsync,
+  getStaffMemberLookupAsync,
   formatParentBooking,
 } from '@/lib/graph/graphHelper';
 
@@ -33,9 +33,18 @@ export async function GET(request) { //Receives "request" to read Authorization 
       );
     }
 
-    initializeGraphForAppOnlyAuth(); //Calls to initialise graphHelper: make Client Secret Credential to make Microsoft Graph Client
+    initializeGraphForAppOnlyAuth();
 
-    const response = await getBookingsAsync(); //Calls graphHelper to return MS Bookings data
+    //Fetch bookings and the staff lookup in parallel.
+    //If the staff lookup fails, fall back to null so the page still loads
+    //(staff names degrade to raw IDs rather than the page 500ing).
+    const [response, staffLookup] = await Promise.all([
+      getBookingsAsync(),
+      getStaffMemberLookupAsync().catch((err) => {
+        console.error('Staff lookup fetch failed:', err);
+        return null;
+      }),
+    ]);
 
     //Filter the bookings by logged-in email:
     //Filter BEFORE mapping because formatParentBooking() drops email field
@@ -50,7 +59,7 @@ export async function GET(request) { //Receives "request" to read Authorization 
     });
 
     //Map remaining bookings to UI shape:
-    const bookings = mine.map(formatParentBooking); //Booking data isnt in right formation for the ui db table -> map to right cogfiguration!
+    const bookings = mine.map((booking) => formatParentBooking(booking, staffLookup)); //Booking data isnt in right formation for the ui db table -> map to right cogfiguration!
 
     return NextResponse.json(bookings); //In response to GET(), return the data through Next.js as JSON
 

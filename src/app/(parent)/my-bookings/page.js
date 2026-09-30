@@ -207,10 +207,6 @@ export default function ParentBookingsPage() {
         searchTerm.toLowerCase();
 
       const matchesSearch =
-        String(booking.ref || "")
-          .toLowerCase()
-          .includes(search) ||
-
         String(booking.learner || "")
           .toLowerCase()
           .includes(search) ||
@@ -469,10 +465,6 @@ export default function ParentBookingsPage() {
                   <tr className="border-b">
 
                     <th className="pb-3">
-                      Ref
-                    </th>
-
-                    <th className="pb-3">
                       Date
                     </th>
 
@@ -512,7 +504,7 @@ export default function ParentBookingsPage() {
                     <tr>
 
                       <td
-                        colSpan={7}
+                        colSpan={6}
                         className="py-10 text-center text-sm text-text-muted"
                       >
                         Loading bookings...
@@ -535,10 +527,6 @@ export default function ParentBookingsPage() {
                           key={booking.id}
                           className="border-b last:border-0"
                         >
-
-                          <td className="py-4 font-medium text-navy">
-                            {booking.ref}
-                          </td>
 
                           <td>
                             {booking.date}
@@ -607,7 +595,7 @@ export default function ParentBookingsPage() {
                       <tr>
 
                         <td
-                          colSpan={7}
+                          colSpan={6}
                           className="py-10 text-center"
                         >
 
