@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 import {
@@ -60,24 +57,7 @@ export default function ParentSidebar({
   const pathname = usePathname();
   const router = useRouter();
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // ------------------------------------------------------------
-  // Firebase user
-  // ------------------------------------------------------------
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-        setLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
+  const { user, loading } = useAuth();
 
   // ------------------------------------------------------------
   // Logout
