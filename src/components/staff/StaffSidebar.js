@@ -30,8 +30,13 @@ export default function StaffSidebar() {
       setUser(currentUser);
       if (currentUser) {
         try {
-          const res = await fetch(`/api/user-role?uid=${currentUser.uid}`);
-          if (res.ok) {
+const token = await currentUser.getIdToken();
+
+const res = await fetch("/api/user-role", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});          if (res.ok) {
             const data = await res.json();
             setIsAdmin(data.is_admin || false);
           }
