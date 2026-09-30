@@ -148,7 +148,6 @@ async function resetPool() {
  * Creates a new SQL connection pool with bounded retries
  * and exponential backoff.
  */
-
 async function createPoolWithRetry() {
     let lastError = null;
 
