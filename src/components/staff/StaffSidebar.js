@@ -30,7 +30,7 @@ export default function StaffSidebar() {
       setUser(currentUser);
 
       if (currentUser) {
-        try {
+            try {
           const token = await currentUser.getIdToken();
 
           const res = await fetch("/api/user-role", {

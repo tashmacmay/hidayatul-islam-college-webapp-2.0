@@ -1,3 +1,4 @@
+//api>Bookings>[id]>route.js
 import { NextResponse } from 'next/server';
 import { //Import the necessary functions from graphHelper to do the job: 
   initializeGraphForAppOnlyAuth,
