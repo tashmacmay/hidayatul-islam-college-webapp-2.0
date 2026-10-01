@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import {
+import { useEffect, useMemo, useState } from "react";import {
   BookOpen,
   FileText,
   Play,
@@ -22,6 +21,7 @@ const resourceCategories = [
 ];
 
 const grades = [
+  "All grades",
   "Grade R",
   "Grade 1",
   "Grade 2",
@@ -32,11 +32,156 @@ const grades = [
   "Grade 7",
 ];
 
+function ResourceCard({ resource }) {
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return "";
+
+    try {
+      const parsedUrl = new URL(url);
+      const hostname = parsedUrl.hostname.toLowerCase();
+
+      let videoId = "";
+
+      if (
+        hostname === "youtu.be" ||
+        hostname === "www.youtu.be"
+      ) {
+        videoId = parsedUrl.pathname
+          .replace(/^\/+/, "")
+          .split("/")[0];
+      }
+
+      if (
+        hostname === "youtube.com" ||
+        hostname === "www.youtube.com" ||
+        hostname === "m.youtube.com"
+      ) {
+        videoId = parsedUrl.searchParams.get("v") || "";
+
+        if (parsedUrl.pathname.startsWith("/embed/")) {
+          videoId = parsedUrl.pathname
+            .split("/embed/")[1]
+            .split("/")[0];
+        }
+
+        if (parsedUrl.pathname.startsWith("/shorts/")) {
+          videoId = parsedUrl.pathname
+            .split("/shorts/")[1]
+            .split("/")[0];
+        }
+      }
+
+      if (!videoId) return "";
+
+      return `https://www.youtube.com/embed/${videoId}`;
+    } catch {
+      return "";
+    }
+  };
+
+  const embedUrl = getYouTubeEmbedUrl(resource.youtube_url);
+
+  return (
+    <article className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+      {embedUrl ? (
+        <div className="aspect-video w-full bg-navy">
+          <iframe
+            src={embedUrl}
+            title={resource.title}
+            className="h-full w-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+        </div>
+      ) : (
+        <div className="flex aspect-video items-center justify-center bg-navy">
+          <BookOpen className="h-10 w-10 text-gold" />
+        </div>
+      )}
+
+      <div className="p-5">
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-gold/10 px-3 py-1 text-[10px] font-semibold text-navy">
+            {resource.grade}
+          </span>
+
+          <span className="rounded-full bg-navy/5 px-3 py-1 text-[10px] font-semibold text-navy">
+            {resource.category}
+          </span>
+        </div>
+
+        <h3 className="mt-4 text-lg font-bold text-navy">
+          {resource.title}
+        </h3>
+
+        <p className="mt-2 text-sm font-medium text-text-muted">
+          {resource.caption}
+        </p>
+
+        {resource.description && (
+          <p className="mt-3 text-sm leading-6 text-gray-500">
+            {resource.description}
+          </p>
+        )}
+
+        <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold">
+          <Play className="h-3.5 w-3.5" />
+          {resource.resource_type}
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function Resources() {
   const [selectedCategory, setSelectedCategory] =
     useState("All resources");
 
-  const [selectedGrade, setSelectedGrade] = useState("Grade R");
+const [selectedGrade, setSelectedGrade] = useState("All grades");
+const [resources, setResources] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
+
+useEffect(() => {
+  async function fetchResources() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch("/api/resources");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch resources.");
+      }
+
+      const data = await response.json();
+
+      setResources(data.resources || []);
+    } catch (err) {
+      console.error("Error fetching public resources:", err);
+      setError("Unable to load learning resources.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchResources();
+}, []);
+
+const filteredResources = useMemo(() => {
+  return resources.filter((resource) => {
+    const matchesCategory =
+      selectedCategory === "All resources" ||
+      resource.category === selectedCategory;
+
+    const matchesGrade =
+      selectedGrade === "All grades" ||
+      resource.grade === selectedGrade ||
+      resource.grade === "General";
+
+    return matchesCategory && matchesGrade;
+  });
+}, [resources, selectedCategory, selectedGrade]);
 
   return (
     <>
@@ -78,29 +223,6 @@ export default function Resources() {
 
       <section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
         <div className="mx-auto max-w-6xl">
-
-          {/* POPIA Notice */}
-
-          <div className="rounded-xl border border-[#E9D9A8] bg-[#FFF8E5] p-5">
-            <div className="flex gap-4">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F7EAC2]">
-                <ShieldCheck className="h-4 w-4 text-gold" />
-              </div>
-
-              <div>
-                <h3 className="text-xs font-bold text-navy">
-                  POPIA & Privacy Notice
-                </h3>
-
-                <p className="mt-1 text-xs leading-5 text-gray-600">
-                  Some resources may be available publicly, while others may
-                  require authorised access. Personal information must be handled
-                  in accordance with the Protection of Personal Information Act
-                  (POPIA).
-                </p>
-              </div>
-            </div>
-          </div>
 
           {/* Grade Resource Packs */}
 
@@ -200,24 +322,53 @@ export default function Resources() {
             ))}
           </div>
 
-          {/* Resource Grid */}
+{/* Resource Grid */}
 
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm md:px-10">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-navy text-2xl text-gold">
-              <BookOpen className="h-6 w-6" />
-            </div>
+<div className="mt-8">
+  {loading ? (
+    <div className="rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm">
+      <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-navy" />
 
-            <h2 className="mt-5 text-xl font-bold text-navy">
-              No resources uploaded yet
-            </h2>
+      <p className="mt-4 text-sm text-gray-500">
+        Loading learning resources...
+      </p>
+    </div>
+  ) : error ? (
+    <div className="rounded-2xl border border-red-200 bg-white px-6 py-14 text-center shadow-sm">
+      <h2 className="text-lg font-bold text-navy">
+        Unable to load resources
+      </h2>
 
-            <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
-              Learning materials, worksheets, guides and school documents will
-              appear here once they are uploaded by the school.
-            </p>
-          </div>
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+        {error}
+      </p>
+    </div>
+  ) : filteredResources.length === 0 ? (
+    <div className="rounded-2xl border border-gray-200 bg-white px-6 py-14 text-center shadow-sm md:px-10">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-navy text-gold">
+        <BookOpen className="h-6 w-6" />
+      </div>
 
-          {/* Forms & Policies */}
+      <h2 className="mt-5 text-xl font-bold text-navy">
+        No resources found
+      </h2>
+
+      <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+        There are currently no published resources matching the
+        selected grade and topic.
+      </p>
+    </div>
+  ) : (
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {filteredResources.map((resource) => (
+        <ResourceCard
+          key={resource.id}
+          resource={resource}
+        />
+      ))}
+    </div>
+  )}
+</div>
 
           <div className="mt-16">
             <div>
