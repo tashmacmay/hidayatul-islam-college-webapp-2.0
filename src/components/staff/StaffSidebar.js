@@ -28,24 +28,18 @@ export default function StaffSidebar() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
       if (currentUser) {
         try {
-<<<<<<< HEAD
-      const token = await currentUser.getIdToken();
-=======
-const token = await currentUser.getIdToken();
->>>>>>> SD/admin-media
+          const token = await currentUser.getIdToken();
 
-const res = await fetch("/api/user-role", {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-<<<<<<< HEAD
-});
+          const res = await fetch("/api/user-role", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
           if (res.ok) {
-=======
-});          if (res.ok) {
->>>>>>> SD/admin-media
             const data = await res.json();
             setIsAdmin(data.is_admin || false);
           }
@@ -55,8 +49,10 @@ const res = await fetch("/api/user-role", {
       } else {
         setIsAdmin(false);
       }
+
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
@@ -71,29 +67,54 @@ const res = await fetch("/api/user-role", {
 
   // Staff links
   const staffLinks = [
-    { name: "My Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
-    { name: "My Notices", href: "/staff/notices", icon: Bell },
-    { name: "My Bookings", href: "/staff/bookings", icon: CalendarDays },
-
-    { name: "School Bookings", href: "/staff/admin/school-bookings", icon: CalendarDays },
-    { name: "User Management", href: "/staff/admin/user-management", icon: Users },
-    { name: "Media Management", href: "/staff/admin/media-management", icon: CalendarDays },
-    { name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
-    { name: "System Settings", href: "/staff/admin/settings", icon: Settings },
-   // { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
+    {
+      name: "My Dashboard",
+      href: "/staff/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      name: "My Notices",
+      href: "/staff/notices",
+      icon: Bell,
+    },
+    {
+      name: "My Bookings",
+      href: "/staff/bookings",
+      icon: CalendarDays,
+    },
+    {
+      name: "School Bookings",
+      href: "/staff/admin/school-bookings",
+      icon: CalendarDays,
+    },
+    {
+      name: "User Management",
+      href: "/staff/admin/user-management",
+      icon: Users,
+    },
+    {
+      name: "Media Management",
+      href: "/staff/admin/media-management",
+      icon: CalendarDays,
+    },
+    {
+      name: "Learning Resources",
+      href: "/staff/resources",
+      icon: BookOpen,
+    },
+    {
+      name: "System Settings",
+      href: "/staff/admin/settings",
+      icon: Settings,
+    },
   ];
 
   // Admin-only links
-  const adminLinks = [
-    //{ name: "School Bookings", href: "/staff/admin/school-bookings", icon: CalendarDays },
-   // { name: "User Management", href: "/staff/admin/user-management", icon: Users },
-    //{ name: "Media Management", href: "/staff/admin/media-management", icon: CalendarDays },
-    //{ name: "Learning Resources", href: "/staff/resources", icon: BookOpen },
-    //{ name: "System Settings", href: "/staff/admin/settings", icon: Settings },
+  const adminLinks = [];
 
-  ];
+  const displayName =
+    user?.displayName || user?.email?.split("@")[0] || "Staff";
 
-  const displayName = user?.displayName || user?.email?.split("@")[0] || "Staff";
   const initials = displayName
     .split(" ")
     .map((n) => n[0])
@@ -110,10 +131,12 @@ const res = await fetch("/api/user-role", {
           alt="Logo"
           className="h-[42px] w-[42px] rounded-full border-2 border-gold bg-white p-[2px]"
         />
+
         <div>
           <strong className="block font-serif text-[13px] font-bold text-white">
             HIC Portal
           </strong>
+
           <span className="text-[10px] text-gold-light">
             Hidayatul Islam College
           </span>
@@ -122,14 +145,15 @@ const res = await fetch("/api/user-role", {
 
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto py-2">
-
         {/* STAFF SECTION */}
         <div className="px-5 py-2">
           <div className="flex items-center gap-3">
             <div className="h-px flex-1 bg-white/10" />
+
             <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
               Staff
             </span>
+
             <div className="h-px flex-1 bg-white/10" />
           </div>
         </div>
@@ -154,50 +178,61 @@ const res = await fetch("/api/user-role", {
           );
         })}
 
-{/* ADMIN SECTION */}
-<div className="mt-4 px-5 py-2">
-  <div className="flex items-center gap-3">
-    <div className="h-px flex-1 bg-white/10" />
-    <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
-      Admin
-    </span>
-    <div className="h-px flex-1 bg-white/10" />
-  </div>
-</div>
+        {/* ADMIN SECTION */}
+        {adminLinks.length > 0 && (
+          <>
+            <div className="mt-4 px-5 py-2">
+              <div className="flex items-center gap-3">
+                <div className="h-px flex-1 bg-white/10" />
 
-{adminLinks.map((link) => {
-  const Icon = link.icon;
-  const active = pathname === link.href;
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
+                  Admin
+                </span>
 
-  return (
-    <Link
-      key={link.href}
-      href={isAdmin ? link.href : "#"}
-      onClick={(e) => {
-        if (!isAdmin) {
-          e.preventDefault();
-          alert(
-            "This is restricted for Admins only. Please contact the administrator for details."
-          );
-        }
-      }}
-      className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-        active && isAdmin
-          ? "border-gold bg-[#c9a2271a] text-white"
-          : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-      }`}
-    >
-      <Icon size={17} />
-      <span>{link.name}</span>
-    </Link>
-  );
-})}
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
+            </div>
+
+            {adminLinks.map((link) => {
+              const Icon = link.icon;
+              const active = pathname === link.href;
+
+              return (
+                <Link
+                  key={link.href}
+                  href={isAdmin ? link.href : "#"}
+                  onClick={(e) => {
+                    if (!isAdmin) {
+                      e.preventDefault();
+                      alert(
+                        "This is restricted for Admins only. Please contact the administrator for details."
+                      );
+                    }
+                  }}
+                  className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+                    active && isAdmin
+                      ? "border-gold bg-[#c9a2271a] text-white"
+                      : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <Icon size={17} />
+                  <span>{link.name}</span>
+                </Link>
+              );
+            })}
+          </>
+        )}
 
         <div className="mx-4 my-2 h-px bg-white/10" />
 
+        {/* MY PROFILE */}
         <Link
           href="/staff/profile"
-          className="flex items-center gap-[11px] border-l-[3px] border-transparent px-5 py-[9px] text-[13px] font-medium text-[#7090b0] hover:bg-white/5 hover:text-white"
+          className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
+            pathname === "/staff/profile"
+              ? "border-gold bg-[#c9a2271a] text-white"
+              : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
+          }`}
         >
           <UserCircle size={17} />
           My Profile
@@ -205,6 +240,7 @@ const res = await fetch("/api/user-role", {
 
         <div className="mx-4 my-2 h-px bg-white/10" />
 
+        {/* LOGOUT */}
         <button
           onClick={handleLogout}
           className="flex w-full items-center gap-[11px] border-l-[3px] border-transparent px-5 py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white"
@@ -212,7 +248,6 @@ const res = await fetch("/api/user-role", {
           <LogOut size={17} />
           Logout
         </button>
-
       </div>
 
       {/* Bottom User */}
@@ -221,12 +256,14 @@ const res = await fetch("/api/user-role", {
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
             {loading ? "..." : initials}
           </div>
+
           <div>
             <div className="text-sm font-semibold text-white">
               {loading ? "Loading..." : displayName}
             </div>
+
             <div className="text-xs text-[#7090b0]">
-              {loading ? "" : (isAdmin ? "Admin / Staff" : "Staff")}
+              {loading ? "" : isAdmin ? "Admin / Staff" : "Staff"}
             </div>
           </div>
         </div>
