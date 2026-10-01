@@ -99,7 +99,7 @@ export default function StaffSidebar() {
     },
     {
       name: "Learning Resources",
-      href: "/staff/resources",
+      href: "/staff/admin/Learning-resources",
       icon: BookOpen,
     },
     {
