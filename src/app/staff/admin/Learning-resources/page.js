@@ -9,6 +9,7 @@ import {
   Edit,
   Eye,
   Filter,
+  FileText,
   Plus,
   RefreshCw,
   Search,
@@ -20,13 +21,14 @@ import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
 
 const emptyForm = {
+  grade: "General",
+  category: "",
+  resource_type: "Video",
   title: "",
   caption: "",
   description: "",
   youtube_url: "",
-  grade: "General",
-  category: "",
-  resource_type: "Video",
+  file_url: "",
   is_published: true,
 };
 
@@ -121,19 +123,17 @@ function formatDate(date) {
 function StatCard({ title, value, description }) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-      <div>
-        <p className="text-sm font-medium text-text-muted">
-          {title}
-        </p>
+      <p className="text-sm font-medium text-text-muted">
+        {title}
+      </p>
 
-        <p className="mt-2 text-3xl font-bold text-navy">
-          {value}
-        </p>
+      <p className="mt-2 text-3xl font-bold text-navy">
+        {value}
+      </p>
 
-        <p className="mt-1 text-xs text-text-muted">
-          {description}
-        </p>
-      </div>
+      <p className="mt-1 text-xs text-text-muted">
+        {description}
+      </p>
     </div>
   );
 }
@@ -168,6 +168,7 @@ export default function LearningResourcesManagementPage() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [formError, setFormError] = useState("");
 
   const [showFormModal, setShowFormModal] = useState(false);
   const [viewingResource, setViewingResource] = useState(null);
@@ -175,6 +176,7 @@ export default function LearningResourcesManagementPage() {
   const [deletingResource, setDeletingResource] = useState(null);
 
   const [form, setForm] = useState({ ...emptyForm });
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((current) => !current);
@@ -192,6 +194,20 @@ export default function LearningResourcesManagementPage() {
     return {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+    };
+  };
+
+  const getAuthTokenHeaders = async () => {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      throw new Error("You must be logged in.");
+    }
+
+    const token = await currentUser.getIdToken();
+
+    return {
+      Authorization: `Bearer ${token}`,
     };
   };
 
@@ -303,8 +319,8 @@ export default function LearningResourcesManagementPage() {
   const openCreateModal = () => {
     setEditingResource(null);
     setForm({ ...emptyForm });
-    setError("");
-    setSuccess("");
+    setSelectedFile(null);
+    setFormError("");
     setShowFormModal(true);
   };
 
@@ -312,18 +328,19 @@ export default function LearningResourcesManagementPage() {
     setEditingResource(resource);
 
     setForm({
+      grade: resource.grade || "General",
+      category: resource.category || "",
+      resource_type: resource.resource_type || "Video",
       title: resource.title || "",
       caption: resource.caption || "",
       description: resource.description || "",
       youtube_url: resource.youtube_url || "",
-      grade: resource.grade || "General",
-      category: resource.category || "",
-      resource_type: resource.resource_type || "Video",
+      file_url: resource.file_url || "",
       is_published: Boolean(resource.is_published),
     });
 
-    setError("");
-    setSuccess("");
+    setSelectedFile(null);
+    setFormError("");
     setShowFormModal(true);
   };
 
@@ -332,16 +349,91 @@ export default function LearningResourcesManagementPage() {
 
     setShowFormModal(false);
     setEditingResource(null);
+    setSelectedFile(null);
+    setFormError("");
     setForm({ ...emptyForm });
   };
 
   const handleFormChange = (event) => {
-    const { name, value, type, checked } = event.target;
+    const { name, value } = event.target;
 
     setForm((current) => ({
       ...current,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
+
+    setFormError("");
+  };
+
+  const handleResourceTypeChange = (event) => {
+    const value = event.target.value;
+
+    setForm((current) => ({
+      ...current,
+      resource_type: value,
+      ...(value === "Video"
+        ? { file_url: "" }
+        : {}),
+    }));
+
+    if (value === "Video") {
+      setSelectedFile(null);
+    }
+
+    setFormError("");
+  };
+
+  const handleStatusChange = (event) => {
+    setForm((current) => ({
+      ...current,
+      is_published: event.target.value === "published",
+    }));
+
+    setFormError("");
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0] || null;
+
+    setSelectedFile(file);
+    setFormError("");
+
+    if (file) {
+      setForm((current) => ({
+        ...current,
+        file_url: "",
+      }));
+    }
+  };
+
+  const uploadFile = async () => {
+    if (!selectedFile) {
+      return form.file_url || "";
+    }
+
+    const headers = await getAuthTokenHeaders();
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    const response = await fetch(
+      "/api/staff/admin/resources/upload",
+      {
+        method: "POST",
+        headers,
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || "Failed to upload file."
+      );
+    }
+
+    return data.file_url;
   };
 
   const handleSubmit = async (event) => {
@@ -349,8 +441,21 @@ export default function LearningResourcesManagementPage() {
 
     try {
       setSaving(true);
-      setError("");
-      setSuccess("");
+      setFormError("");
+
+      if (!form.grade) {
+        throw new Error("Please select a grade.");
+      }
+
+      if (!form.category) {
+        throw new Error("Please select a topic.");
+      }
+
+      if (!form.resource_type) {
+        throw new Error(
+          "Please select a resource type."
+        );
+      }
 
       if (!form.title.trim()) {
         throw new Error("Please enter a title.");
@@ -360,37 +465,59 @@ export default function LearningResourcesManagementPage() {
         throw new Error("Please enter a caption.");
       }
 
-      if (!form.category) {
-        throw new Error("Please select a topic.");
-      }
+      let youtubeUrl = form.youtube_url.trim();
+      let fileUrl = form.file_url || "";
 
-      if (!form.grade) {
-        throw new Error("Please select a grade.");
-      }
+      if (form.resource_type === "Video") {
+        if (!youtubeUrl) {
+          throw new Error(
+            "A YouTube URL is required for video resources."
+          );
+        }
 
-      if (!form.youtube_url.trim()) {
-        throw new Error("Please enter a YouTube URL.");
-      }
+        if (!getYouTubeEmbedUrl(youtubeUrl)) {
+          throw new Error(
+            "Please enter a valid YouTube URL."
+          );
+        }
 
-      if (!getYouTubeEmbedUrl(form.youtube_url)) {
-        throw new Error("Please enter a valid YouTube URL.");
+        fileUrl = "";
+      } else {
+        if (youtubeUrl && !getYouTubeEmbedUrl(youtubeUrl)) {
+          throw new Error(
+            "Please enter a valid YouTube URL or leave it blank."
+          );
+        }
+
+        if (selectedFile) {
+          fileUrl = await uploadFile();
+        }
+
+        if (!youtubeUrl && !fileUrl) {
+          throw new Error(
+            "Please provide a YouTube URL or upload a PDF/image for this resource."
+          );
+        }
       }
 
       const headers = await getAuthHeaders();
+
+      const payload = {
+        ...form,
+        youtube_url: youtubeUrl || "",
+        file_url: fileUrl || "",
+      };
+
+      if (editingResource) {
+        payload.id = editingResource.id;
+      }
 
       const response = await fetch(
         "/api/staff/admin/resources",
         {
           method: editingResource ? "PUT" : "POST",
           headers,
-          body: JSON.stringify(
-            editingResource
-              ? {
-                  id: editingResource.id,
-                  ...form,
-                }
-              : form
-          ),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -402,15 +529,18 @@ export default function LearningResourcesManagementPage() {
         );
       }
 
+      setShowFormModal(false);
+      setEditingResource(null);
+      setSelectedFile(null);
+      setForm({ ...emptyForm });
+
       setSuccess(
         editingResource
           ? "Learning resource updated successfully."
-          : "Learning resource published successfully."
+          : form.is_published
+            ? "Learning resource published successfully."
+            : "Learning resource saved as a draft."
       );
-
-      setShowFormModal(false);
-      setEditingResource(null);
-      setForm({ ...emptyForm });
 
       await fetchResources();
 
@@ -420,7 +550,7 @@ export default function LearningResourcesManagementPage() {
     } catch (err) {
       console.error(err);
 
-      setError(
+      setFormError(
         err.message || "Failed to save learning resource."
       );
     } finally {
@@ -483,7 +613,9 @@ export default function LearningResourcesManagementPage() {
     setStatusFilter("all");
   };
 
-  const previewUrl = getYouTubeEmbedUrl(form.youtube_url);
+  const previewUrl = getYouTubeEmbedUrl(
+    form.youtube_url
+  );
 
   return (
     <div className="flex min-h-screen bg-slate-100">
@@ -515,11 +647,11 @@ export default function LearningResourcesManagementPage() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
           >
             <Plus className="h-5 w-5" />
-            Publish Resource
+            Add Resource
           </button>
         </div>
 
-        {/* Alerts */}
+        {/* Alerts outside form */}
         {success && (
           <div className="mb-6 flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
             <CheckCircle className="h-5 w-5" />
@@ -578,7 +710,6 @@ export default function LearningResourcesManagementPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-            {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
 
@@ -593,7 +724,6 @@ export default function LearningResourcesManagementPage() {
               />
             </div>
 
-            {/* Grade */}
             <div className="relative">
               <select
                 value={gradeFilter}
@@ -614,7 +744,6 @@ export default function LearningResourcesManagementPage() {
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             </div>
 
-            {/* Topic */}
             <div className="relative">
               <select
                 value={topicFilter}
@@ -635,7 +764,6 @@ export default function LearningResourcesManagementPage() {
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             </div>
 
-            {/* Type */}
             <div className="relative">
               <select
                 value={typeFilter}
@@ -656,7 +784,6 @@ export default function LearningResourcesManagementPage() {
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
             </div>
 
-            {/* Status */}
             <div className="relative">
               <select
                 value={statusFilter}
@@ -753,7 +880,7 @@ export default function LearningResourcesManagementPage() {
                   className="mt-5 inline-flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy"
                 >
                   <Plus className="h-4 w-4" />
-                  Publish First Resource
+                  Add First Resource
                 </button>
               )}
             </div>
@@ -881,19 +1008,20 @@ export default function LearningResourcesManagementPage() {
                   <h2 className="text-xl font-bold text-navy">
                     {editingResource
                       ? "Edit Learning Resource"
-                      : "Publish New Resource"}
+                      : "Add Learning Resource"}
                   </h2>
 
                   <p className="mt-1 text-sm text-text-muted">
                     {editingResource
                       ? "Update the learning resource details."
-                      : "Add a YouTube learning resource to the public website."}
+                      : "Add a resource for learners and parents."}
                   </p>
                 </div>
 
                 <button
                   onClick={closeFormModal}
-                  className="rounded-lg p-2 text-text-muted hover:bg-slate-100"
+                  disabled={saving}
+                  className="rounded-lg p-2 text-text-muted hover:bg-slate-100 disabled:opacity-50"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -903,86 +1031,25 @@ export default function LearningResourcesManagementPage() {
                 onSubmit={handleSubmit}
                 className="p-6"
               >
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                  {/* Title */}
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      Title *
-                    </label>
+                {/* Form Error */}
+                {formError && (
+                  <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <X className="mt-0.5 h-5 w-5 shrink-0" />
 
-                    <input
-                      type="text"
-                      name="title"
-                      value={form.title}
-                      onChange={handleFormChange}
-                      placeholder="e.g. Introduction to Fractions"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    />
+                    <div>
+                      <p className="font-semibold">
+                        Unable to save resource
+                      </p>
+
+                      <p className="mt-1">
+                        {formError}
+                      </p>
+                    </div>
                   </div>
+                )}
 
-                  {/* Caption */}
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      Caption *
-                    </label>
-
-                    <input
-                      type="text"
-                      name="caption"
-                      value={form.caption}
-                      onChange={handleFormChange}
-                      placeholder="Short caption displayed with the resource"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    />
-                  </div>
-
-                  {/* Description */}
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      Description
-                    </label>
-
-                    <textarea
-                      name="description"
-                      value={form.description}
-                      onChange={handleFormChange}
-                      rows={4}
-                      placeholder="Provide more information about this resource..."
-                      className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    />
-                  </div>
-
-                  {/* YouTube URL */}
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      YouTube Video URL *
-                    </label>
-
-                    <input
-                      type="url"
-                      name="youtube_url"
-                      value={form.youtube_url}
-                      onChange={handleFormChange}
-                      placeholder="https://www.youtube.com/watch?v=..."
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    />
-
-                    {previewUrl && (
-                      <div className="mt-4 overflow-hidden rounded-xl bg-slate-100">
-                        <div className="aspect-video">
-                          <iframe
-                            src={previewUrl}
-                            title="YouTube preview"
-                            className="h-full w-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Grade */}
+                <div className="space-y-6">
+                  {/* 1. Grade */}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-navy">
                       Grade *
@@ -1002,7 +1069,7 @@ export default function LearningResourcesManagementPage() {
                     </select>
                   </div>
 
-                  {/* Topic */}
+                  {/* 2. Topic */}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-navy">
                       Topic *
@@ -1026,7 +1093,7 @@ export default function LearningResourcesManagementPage() {
                     </select>
                   </div>
 
-                  {/* Resource Type */}
+                  {/* 3. Resource Type */}
                   <div>
                     <label className="mb-2 block text-sm font-semibold text-navy">
                       Resource Type *
@@ -1035,7 +1102,7 @@ export default function LearningResourcesManagementPage() {
                     <select
                       name="resource_type"
                       value={form.resource_type}
-                      onChange={handleFormChange}
+                      onChange={handleResourceTypeChange}
                       className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                     >
                       {resourceTypes.map((type) => (
@@ -1046,21 +1113,187 @@ export default function LearningResourcesManagementPage() {
                     </select>
                   </div>
 
-                  {/* Publish */}
-                  <div className="flex items-center">
-                    <label className="flex cursor-pointer items-center gap-3">
+                  {/* 4. Title */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Title *
+                    </label>
+
+                    <input
+                      type="text"
+                      name="title"
+                      value={form.title}
+                      onChange={handleFormChange}
+                      placeholder="e.g. Introduction to Fractions"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    />
+                  </div>
+
+                  {/* 5. Caption */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Caption *
+                    </label>
+
+                    <input
+                      type="text"
+                      name="caption"
+                      value={form.caption}
+                      onChange={handleFormChange}
+                      placeholder="Short caption displayed with the resource"
+                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    />
+                  </div>
+
+                  {/* 6. Description */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Description
+                    </label>
+
+                    <textarea
+                      name="description"
+                      value={form.description}
+                      onChange={handleFormChange}
+                      rows={4}
+                      placeholder="Provide more information about this resource..."
+                      className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    />
+                  </div>
+
+                  {/* 7. Resource Content */}
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <h3 className="font-semibold text-navy">
+                      Resource Content
+                    </h3>
+
+                    <p className="mt-1 text-sm text-text-muted">
+                      {form.resource_type === "Video"
+                        ? "Video resources must include a YouTube link."
+                        : "You can provide a YouTube link, upload a file, or provide both."}
+                    </p>
+
+                    {/* YouTube */}
+                    <div className="mt-5">
+                      <label className="mb-2 block text-sm font-semibold text-navy">
+                        YouTube URL{" "}
+                        {form.resource_type === "Video"
+                          ? "*"
+                          : "(Optional)"}
+                      </label>
+
                       <input
-                        type="checkbox"
-                        name="is_published"
-                        checked={form.is_published}
+                        type="url"
+                        name="youtube_url"
+                        value={form.youtube_url}
                         onChange={handleFormChange}
-                        className="h-4 w-4 rounded border-slate-300 text-gold focus:ring-gold"
+                        placeholder="https://www.youtube.com/watch?v=..."
+                        className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                       />
 
-                      <span className="text-sm font-medium text-text">
-                        Publish resource
-                      </span>
+                      {previewUrl && (
+                        <div className="mt-4 overflow-hidden rounded-xl bg-slate-100">
+                          <div className="aspect-video">
+                            <iframe
+                              src={previewUrl}
+                              title="YouTube preview"
+                              className="h-full w-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* File upload */}
+                    {form.resource_type !== "Video" && (
+                      <div className="mt-5">
+                        <label className="mb-2 block text-sm font-semibold text-navy">
+                          Upload File{" "}
+                          <span className="font-normal text-text-muted">
+                            (PDF, PNG, JPG or JPEG)
+                          </span>
+                        </label>
+
+                        <input
+                          type="file"
+                          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+                          onChange={handleFileChange}
+                          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none file:mr-4 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-navy hover:file:bg-slate-200"
+                        />
+
+                        {selectedFile && (
+                          <div className="mt-3 flex items-center gap-3 rounded-lg bg-white p-3">
+                            <FileText className="h-5 w-5 text-navy" />
+
+                            <div>
+                              <p className="text-sm font-medium text-text">
+                                {selectedFile.name}
+                              </p>
+
+                              <p className="text-xs text-text-muted">
+                                {(
+                                  selectedFile.size /
+                                  1024 /
+                                  1024
+                                ).toFixed(2)}{" "}
+                                MB
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {!selectedFile &&
+                          form.file_url && (
+                            <div className="mt-3 rounded-lg bg-white p-3">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                                Current File
+                              </p>
+
+                              <a
+                                href={form.file_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-1 inline-flex items-center gap-2 text-sm font-medium text-navy hover:underline"
+                              >
+                                <FileText className="h-4 w-4" />
+                                View current file
+                              </a>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Status *
                     </label>
+
+                    <select
+                      value={
+                        form.is_published
+                          ? "published"
+                          : "draft"
+                      }
+                      onChange={handleStatusChange}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    >
+                      <option value="published">
+                        Published
+                      </option>
+
+                      <option value="draft">
+                        Draft
+                      </option>
+                    </select>
+
+                    <p className="mt-2 text-xs text-text-muted">
+                      Draft resources are saved but will not
+                      appear on the public website.
+                    </p>
                   </div>
                 </div>
 
@@ -1088,9 +1321,12 @@ export default function LearningResourcesManagementPage() {
                     ) : (
                       <>
                         <CheckCircle className="h-4 w-4" />
+
                         {editingResource
                           ? "Save Changes"
-                          : "Publish Resource"}
+                          : form.is_published
+                            ? "Publish Resource"
+                            : "Save Draft"}
                       </>
                     )}
                   </button>
@@ -1160,6 +1396,18 @@ export default function LearningResourcesManagementPage() {
                       {viewingResource.description}
                     </p>
                   </div>
+                )}
+
+                {viewingResource.file_url && (
+                  <a
+                    href={viewingResource.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-navy hover:bg-slate-50"
+                  >
+                    <FileText className="h-4 w-4" />
+                    Open Resource File
+                  </a>
                 )}
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">

@@ -20,6 +20,7 @@ export async function GET(req) {
         lr.grade,
         lr.resource_type,
         lr.youtube_url,
+        lr.file_url,
         lr.is_published,
         lr.created_by,
         lr.created_at,
@@ -59,22 +60,47 @@ export async function POST(req) {
       grade,
       resource_type,
       youtube_url,
+      file_url,
       is_published,
     } = body;
 
-    // Required fields
+    // Basic required fields
     if (
       !title ||
       !caption ||
       !category ||
       !grade ||
-      !resource_type ||
-      !youtube_url
+      !resource_type
     ) {
       return NextResponse.json(
         {
           error:
-            "Title, caption, topic, grade, resource type and YouTube URL are required.",
+            "Title, caption, topic, grade and resource type are required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Video resources must have a YouTube URL.
+    if (resource_type === "Video" && !youtube_url) {
+      return NextResponse.json(
+        {
+          error: "A YouTube URL is required for video resources.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Non-video resources must have either a YouTube URL or a file.
+    if (
+      resource_type !== "Video" &&
+      !youtube_url &&
+      !file_url
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Please provide a YouTube URL or upload a document/image for this resource.",
         },
         { status: 400 }
       );
@@ -101,7 +127,12 @@ export async function POST(req) {
       .input(
         "youtube_url",
         sql.NVarChar(1000),
-        youtube_url.trim()
+        youtube_url?.trim() || null
+      )
+      .input(
+        "file_url",
+        sql.NVarChar(1000),
+        file_url?.trim() || null
       )
       .input(
         "is_published",
@@ -118,6 +149,7 @@ export async function POST(req) {
           grade,
           resource_type,
           youtube_url,
+          file_url,
           is_published,
           created_by
         )
@@ -130,6 +162,7 @@ export async function POST(req) {
           @grade,
           @resource_type,
           @youtube_url,
+          @file_url,
           @is_published,
           @created_by
         )
@@ -168,6 +201,7 @@ export async function PUT(req) {
       grade,
       resource_type,
       youtube_url,
+      file_url,
       is_published,
     } = body;
 
@@ -183,13 +217,37 @@ export async function PUT(req) {
       !caption ||
       !category ||
       !grade ||
-      !resource_type ||
-      !youtube_url
+      !resource_type
     ) {
       return NextResponse.json(
         {
           error:
-            "Title, caption, topic, grade, resource type and YouTube URL are required.",
+            "Title, caption, topic, grade and resource type are required.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Video resources must have a YouTube URL.
+    if (resource_type === "Video" && !youtube_url) {
+      return NextResponse.json(
+        {
+          error: "A YouTube URL is required for video resources.",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Non-video resources must have either a YouTube URL or a file.
+    if (
+      resource_type !== "Video" &&
+      !youtube_url &&
+      !file_url
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Please provide a YouTube URL or upload a document/image for this resource.",
         },
         { status: 400 }
       );
@@ -217,7 +275,12 @@ export async function PUT(req) {
       .input(
         "youtube_url",
         sql.NVarChar(1000),
-        youtube_url.trim()
+        youtube_url?.trim() || null
+      )
+      .input(
+        "file_url",
+        sql.NVarChar(1000),
+        file_url?.trim() || null
       )
       .input(
         "is_published",
@@ -234,6 +297,7 @@ export async function PUT(req) {
           grade = @grade,
           resource_type = @resource_type,
           youtube_url = @youtube_url,
+          file_url = @file_url,
           is_published = @is_published,
           updated_at = GETDATE()
         OUTPUT INSERTED.*
