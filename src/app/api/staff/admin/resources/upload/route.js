@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { requireAdmin } from "@/lib/auth";
+import { createCanvas } from "canvas";
 
 export const runtime = "nodejs";
 
@@ -46,7 +47,8 @@ export async function POST(req) {
     }
 
     const extension = ALLOWED_TYPES[file.type];
-    const filename = `${crypto.randomUUID()}${extension}`;
+    const fileId = crypto.randomUUID();
+    const filename = `${fileId}${extension}`;
 
     const uploadDirectory = path.join(
       process.cwd(),
@@ -64,9 +66,61 @@ export async function POST(req) {
 
     const fileUrl = `/uploads/resources/${filename}`;
 
+    let thumbnailUrl = fileUrl;
+
+    // Generate a thumbnail from the first page of a PDF
+if (file.type === "application/pdf") {
+const pdfjs = await import("pdfjs-dist/legacy/build/pdf.js");
+
+pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+  process.cwd(),
+  "public",
+  "pdf.worker.js"
+);
+
+const pdf = await pdfjs.getDocument({
+  data: new Uint8Array(fileBuffer),
+}).promise;
+
+  const page = await pdf.getPage(1);
+
+  const viewport = page.getViewport({
+    scale: 1.2,
+  });
+
+  const canvas = createCanvas(
+    Math.ceil(viewport.width),
+    Math.ceil(viewport.height)
+  );
+
+  const context = canvas.getContext("2d");
+
+  await page.render({
+    canvasContext: context,
+    viewport,
+  }).promise;
+
+  const thumbnailFilename = `${fileId}-thumb.png`;
+
+  const thumbnailPath = path.join(
+    uploadDirectory,
+    thumbnailFilename
+  );
+
+  const thumbnailBuffer = canvas.toBuffer("image/png");
+
+  await writeFile(
+    thumbnailPath,
+    thumbnailBuffer
+  );
+
+  thumbnailUrl = `/uploads/resources/${thumbnailFilename}`;
+}
+
     return NextResponse.json({
       success: true,
       file_url: fileUrl,
+      thumbnail_url: thumbnailUrl,
     });
   } catch (error) {
     console.error(

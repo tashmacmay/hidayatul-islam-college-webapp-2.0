@@ -15,6 +15,8 @@ export async function GET() {
         grade,
         resource_type,
         youtube_url,
+        file_url,
+        thumbnail_url,
         is_published,
         created_at,
         updated_at

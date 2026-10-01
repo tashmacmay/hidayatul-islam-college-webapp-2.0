@@ -29,6 +29,8 @@ const emptyForm = {
   description: "",
   youtube_url: "",
   file_url: "",
+    thumbnail_url: "",
+
   is_published: true,
 };
 
@@ -335,6 +337,7 @@ export default function LearningResourcesManagementPage() {
       caption: resource.caption || "",
       description: resource.description || "",
       youtube_url: resource.youtube_url || "",
+      thumbnail_url: resource.thumbnail_url || "",
       file_url: resource.file_url || "",
       is_published: Boolean(resource.is_published),
     });
@@ -406,35 +409,41 @@ export default function LearningResourcesManagementPage() {
     }
   };
 
-  const uploadFile = async () => {
-    if (!selectedFile) {
-      return form.file_url || "";
+const uploadFile = async () => {
+  if (!selectedFile) {
+    return {
+      file_url: form.file_url || "",
+      thumbnail_url: form.thumbnail_url || "",
+    };
+  }
+
+  const headers = await getAuthTokenHeaders();
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+
+  const response = await fetch(
+    "/api/staff/admin/resources/upload",
+    {
+      method: "POST",
+      headers,
+      body: formData,
     }
+  );
 
-    const headers = await getAuthTokenHeaders();
+  const data = await response.json();
 
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
-    const response = await fetch(
-      "/api/staff/admin/resources/upload",
-      {
-        method: "POST",
-        headers,
-        body: formData,
-      }
+  if (!response.ok) {
+    throw new Error(
+      data.error || "Failed to upload file."
     );
+  }
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        data.error || "Failed to upload file."
-      );
-    }
-
-    return data.file_url;
+  return {
+    file_url: data.file_url || "",
+    thumbnail_url: data.thumbnail_url || "",
   };
+};
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -467,6 +476,7 @@ export default function LearningResourcesManagementPage() {
 
       let youtubeUrl = form.youtube_url.trim();
       let fileUrl = form.file_url || "";
+      let thumbnailUrl = form.thumbnail_url || "";
 
       if (form.resource_type === "Video") {
         if (!youtubeUrl) {
@@ -489,9 +499,12 @@ export default function LearningResourcesManagementPage() {
           );
         }
 
-        if (selectedFile) {
-          fileUrl = await uploadFile();
-        }
+      if (selectedFile) {
+  const uploadedFile = await uploadFile();
+
+  fileUrl = uploadedFile.file_url;
+  thumbnailUrl = uploadedFile.thumbnail_url;
+}
 
         if (!youtubeUrl && !fileUrl) {
           throw new Error(
@@ -502,11 +515,12 @@ export default function LearningResourcesManagementPage() {
 
       const headers = await getAuthHeaders();
 
-      const payload = {
-        ...form,
-        youtube_url: youtubeUrl || "",
-        file_url: fileUrl || "",
-      };
+const payload = {
+  ...form,
+  youtube_url: youtubeUrl || "",
+  file_url: fileUrl || "",
+  thumbnail_url: thumbnailUrl || "",
+};
 
       if (editingResource) {
         payload.id = editingResource.id;
@@ -1397,18 +1411,28 @@ export default function LearningResourcesManagementPage() {
                     </p>
                   </div>
                 )}
+{viewingResource.file_url && (
+  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+    <p className="text-sm font-semibold text-navy">
+      Resource File
+    </p>
 
-                {viewingResource.file_url && (
-                  <a
-                    href={viewingResource.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-navy hover:bg-slate-50"
-                  >
-                    <FileText className="h-4 w-4" />
-                    Open Resource File
-                  </a>
-                )}
+    <p className="mt-1 text-sm text-text-muted">
+      Open the document in a new tab to read it. You can
+      download it using the browser's download option.
+    </p>
+
+    <a
+      href={viewingResource.file_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-3 text-sm font-semibold text-navy transition hover:opacity-90"
+    >
+      <FileText className="h-4 w-4" />
+      Open Document
+    </a>
+  </div>
+)}
 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                   <Detail

@@ -21,6 +21,7 @@ export async function GET(req) {
         lr.resource_type,
         lr.youtube_url,
         lr.file_url,
+        lr.thumbnail_url,
         lr.is_published,
         lr.created_by,
         lr.created_at,
@@ -61,6 +62,7 @@ export async function POST(req) {
       resource_type,
       youtube_url,
       file_url,
+      thumbnail_url,
       is_published,
     } = body;
 
@@ -135,6 +137,11 @@ export async function POST(req) {
         file_url?.trim() || null
       )
       .input(
+  "thumbnail_url",
+  sql.NVarChar(1000),
+  thumbnail_url?.trim() || null
+)
+      .input(
         "is_published",
         sql.Bit,
         is_published === true
@@ -150,6 +157,7 @@ export async function POST(req) {
           resource_type,
           youtube_url,
           file_url,
+          thumbnail_url,
           is_published,
           created_by
         )
@@ -163,6 +171,7 @@ export async function POST(req) {
           @resource_type,
           @youtube_url,
           @file_url,
+          @thumbnail_url,
           @is_published,
           @created_by
         )
@@ -202,6 +211,7 @@ export async function PUT(req) {
       resource_type,
       youtube_url,
       file_url,
+        thumbnail_url,
       is_published,
     } = body;
 
@@ -283,6 +293,11 @@ export async function PUT(req) {
         file_url?.trim() || null
       )
       .input(
+  "thumbnail_url",
+  sql.NVarChar(1000),
+  thumbnail_url?.trim() || null
+)
+      .input(
         "is_published",
         sql.Bit,
         is_published === true
@@ -298,6 +313,7 @@ export async function PUT(req) {
           resource_type = @resource_type,
           youtube_url = @youtube_url,
           file_url = @file_url,
+          thumbnail_url = @thumbnail_url,
           is_published = @is_published,
           updated_at = GETDATE()
         OUTPUT INSERTED.*
