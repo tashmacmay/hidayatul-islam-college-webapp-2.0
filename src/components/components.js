@@ -1,8 +1,7 @@
 import Link from "next/link";
 
 export function Button({ href, children, variant = "primary", className = "" }) {
-  const baseStyles =
-    "inline-block rounded-lg px-5 py-3 text-sm font-semibold transition";
+  const baseStyles = "inline-block rounded-lg px-5 py-3 text-sm font-semibold transition";
 
   const variantStyles =
     variant === "secondary"
@@ -26,7 +25,7 @@ export function Button({ href, children, variant = "primary", className = "" }) 
 
 export function Card({ title, children, href }) {
   const cardContent = (
-    <div className="h-full rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
+    <div className="card-surface h-full transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
       <h3 className="text-lg font-bold text-navy">{title}</h3>
       <div className="mt-2 text-sm leading-6 text-text-muted">{children}</div>
     </div>

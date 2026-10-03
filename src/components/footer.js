@@ -2,51 +2,32 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-12 border-t border-white/5 bg-navy-dark text-white">
-      <div className="flex items-center justify-between px-8 py-2.5">
-
-        {/* Left Side */}
+    <footer className="site-footer">
+      <div className="site-footer-row">
         <div>
-          <h2 className="text-[13px] font-medium text-slate-300">
-            Hidayatul Islam College 
-          </h2>
-
-          <p className="mt-1 text-[11px] text-gray-500">
+          <h2 className="site-footer-title">Hidayatul Islam College</h2>
+          <p className="site-footer-copy">
             © 2026 Hidayatul Islam College · Kensington, Cape Town · All rights reserved.
           </p>
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-5 text-[11px] text-gray-500">
-          <Link
-            href="#"
-            className="transition-colors duration-200 hover:text-gray-300"
-          >
+        <div className="flex items-center gap-5">
+          <Link href="#" className="site-footer-link">
             POPIA Policy
           </Link>
 
-          <Link
-            href="#"
-            className="transition-colors duration-200 hover:text-gray-300"
-          >
+          <Link href="#" className="site-footer-link">
             Terms of Use
           </Link>
 
-          <Link
-            href="#"
-            className="transition-colors duration-200 hover:text-gray-300"
-          >
+          <Link href="#" className="site-footer-link">
             Accessibility
           </Link>
 
-          <Link
-            href="/staff/login"
-            className="transition-colors duration-200 hover:text-gray-300"
-          >
+          <Link href="/staff/login" className="site-footer-link">
             Staff Portal
           </Link>
         </div>
-
       </div>
     </footer>
   );

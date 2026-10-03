@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import { useEffect, useState } from "react";
 
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
@@ -14,33 +14,24 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const heroImages = [
-    "/images/HIC-kids.jpg",
-    "/images/HIC-image2.jpg",
-];
-const [currentImage, setCurrentImage] = useState(0);
+  const heroImages = ["/images/HIC-kids.jpg", "/images/HIC-image2.jpg"];
+  const [currentImage, setCurrentImage] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImage((prevImage) => (prevImage + 1) % heroImages.length);
-    }, 5000); // Change image every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-  useEffect(() => {
-    // Any client-side initialization logic can go here
-  }, []);
-
   return (
-
     <>
       <Navbar />
 
       <main>
-        
         <section className="relative min-h-[520px] overflow-hidden bg-navy text-white md:min-h-[600px]">
-         //image slide for backgrund
+          {/* image slide for background */}
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{
@@ -50,15 +41,11 @@ const [currentImage, setCurrentImage] = useState(0);
 
           <div className="absolute inset-0 bg-navy/70" />
 
-          <div className="relative z-10 flex min-h-[520px] items-center px-6 py-14 md:min-h-[600px] md:px-16 md:py-16">
+          <div className="relative z-10 flex min-h-[520px] items-center px-6 pt-24 pb-14 md:min-h-[600px] md:px-16 md:pt-28 md:pb-16">
             <div className="max-w-xl">
               <div className="mb-6 flex items-center gap-5">
                 <div className="flex h-28 w-28 items-center justify-center rounded-full border-[3px] border-gold bg-white">
-                  <img
-                    src="/images/HIC_Logo2.png"
-                    alt="Hidayatul Islam College Logo"
-                    className="h-24 w-24 object-contain"
-                  />
+                  <img src="/images/HIC_Logo2.png" alt="Hidayatul Islam College Logo" className="h-24 w-24 object-contain" />
                 </div>
 
                 <div>
@@ -67,18 +54,16 @@ const [currentImage, setCurrentImage] = useState(0);
                     <span className="block text-gold">College</span>
                   </h1>
 
-                  <p className="mt-2 text-sm font-medium text-gold">
-                    Knowledge is Light
+                  <p className="mt-2 text-sm font-medium text-gold">Knowledge is Light</p>
+                  <p
+                    className="mt-1 text-lg text-gold/90"
+                    dir="rtl"
+                    lang="ar"
+                    style={{ fontFamily: "'Amiri','Noto Naskh Arabic',serif" }}
+                  >
+                    النور هو المعرفة
                   </p>
-                  <p 
-                  className="mt-1 text-lg text-gold/90"
-                  dir="rtl"
-                  lang="ar"
-                  style={{fontFamily: "'Amiri','Noto Naskh Arabic',serif"}}
-                >
-                  النور هو المعرفة
-                </p>
-              </div>
+                </div>
               </div>
 
               <div className="mb-8 inline-block rounded-full border border-gold/40 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[2px] text-gold">
@@ -97,24 +82,18 @@ const [currentImage, setCurrentImage] = useState(0);
               </p>
 
               <div className="mt-8 flex gap-4">
-                <a
-                  href="/about"
-                  className="rounded-lg bg-gold px-6 py-3 text-sm font-semibold text-navy hover:bg-gold-light"
-                >
+                <a href="/about" className="button-primary">
                   Explore Our School
                 </a>
-
-                <a
-                  href="/academics"
-                  className="rounded-lg border border-white/50 px-6 py-3 text-sm font-semibold text-white hover:bg-white hover:text-navy"
-                >
+                <a href="/academics" className="button-secondary">
                   Academics
                 </a>
               </div>
             </div>
           </div>
-          //image slider dots
-           <div className="absolute bottom-8 left-10 z-20 flex gap-3">
+
+          {/* image slider dots */}
+          <div className="absolute bottom-8 left-10 z-20 flex gap-3">
             {heroImages.map((_, index) => (
               <button
                 key={index}
@@ -126,42 +105,20 @@ const [currentImage, setCurrentImage] = useState(0);
                 }`}
               />
             ))}
-          </div>  
+          </div>
         </section>
 
         <section className="grid bg-gold text-navy md:grid-cols-4">
-          <Highlight
-            icon={<GraduationCap />}
-            title="Grade R-7"
-            text="Grades Offered"
-          />
-          <Highlight
-            icon={<ShieldCheck />}
-            title="Registered & Accredited"
-            text="Department of Education"
-          />
-          <Highlight
-            icon={<Star />}
-            title="40+ Years of Excellence"
-            text="Established 1982"
-          />
-          <Highlight
-            icon={<Landmark />}
-            title="Islamic Values"
-            text="Character & Community"
-          />
+          <Highlight icon={<GraduationCap />} title="Grade R-7" text="Grades Offered" />
+          <Highlight icon={<ShieldCheck />} title="Registered & Accredited" text="Department of Education" />
+          <Highlight icon={<Star />} title="40+ Years of Excellence" text="Established 1982" />
+          <Highlight icon={<Landmark />} title="Islamic Values" text="Character & Community" />
         </section>
 
         <section className="bg-white px-6 py-20 md:px-10 md:py-24">
           <div className="mx-auto max-w-6xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Quick Access
-            </p>
-
-            <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
-              Everything you need, in one place
-            </h2>
-
+            <p className="section-label">Quick Access</p>
+            <h2 className="section-title">Everything you need, in one place</h2>
             <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-gold" />
 
             <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
@@ -172,7 +129,6 @@ const [currentImage, setCurrentImage] = useState(0);
                 href="/resources"
                 linkText="Explore Resources"
               />
-
               <QuickCard
                 icon={<Megaphone />}
                 title="News & Announcements"
@@ -180,7 +136,6 @@ const [currentImage, setCurrentImage] = useState(0);
                 href="/news"
                 linkText="View News"
               />
-
               <QuickCard
                 icon={<Landmark />}
                 title="Contact Us"
@@ -199,46 +154,31 @@ const [currentImage, setCurrentImage] = useState(0);
                 AF
               </div>
 
-              <h3 className="mt-6 font-serif text-lg font-semibold text-navy">
-                Mrs. Ayesha Fridie
-              </h3>
-
-              <p className="mt-2 text-sm text-gold">
-                Principal, Hidayatul Islam College
-              </p>
+              <h3 className="mt-6 font-serif text-lg font-semibold text-navy">Mrs. Ayesha Fridie</h3>
+              <p className="mt-2 text-sm text-gold">Principal, Hidayatul Islam College</p>
             </div>
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-                A Word from Our Principal
-              </p>
-
-              <h2 className="mt-3 font-serif text-xl font-bold leading-tight text-navy md:text-2xl">
+              <p className="section-label">A Word from Our Principal</p>
+              <h2 className="section-title">
                 A Word from
                 <span className="block text-gold">Mrs. Fridie</span>
               </h2>
 
               <blockquote className="mt-8 border-l-4 border-gold pl-6 text-base italic leading-7 text-gray-600">
-                “At Hidayatul Islam College, we believe every child carries a
-                light within them. Our role is to help that light shine —
-                through knowledge, values, and a community that truly cares.”
+                “At Hidayatul Islam College, we believe every child carries a light within them. Our role is to help that light shine — through knowledge, values, and a community that truly cares.”
               </blockquote>
 
               <p className="mt-8 leading-8 text-gray-600">
-                Bismillah. Welcome to Hidayatul Islam College, a school that
-                has served the Kensington community with pride and dedication
-                for over four decades.
+                Bismillah. Welcome to Hidayatul Islam College, a school that has served the Kensington community with pride and dedication for over four decades.
               </p>
 
               <p className="mt-6 leading-8 text-gray-600">
-                We are an independent Islamic primary school where academic
-                achievement goes hand in hand with character, compassion and
-                faith.
+                We are an independent Islamic primary school where academic achievement goes hand in hand with character, compassion and faith.
               </p>
 
               <p className="mt-6 leading-8 text-gray-600">
-                Together, we are raising the next generation of thinkers,
-                leaders and believers. May Allah bless our collective efforts.
+                Together, we are raising the next generation of thinkers, leaders and believers. May Allah bless our collective efforts.
               </p>
             </div>
           </div>
@@ -264,18 +204,10 @@ function Highlight({ icon, title, text }) {
 
 function QuickCard({ icon, title, text, href, linkText }) {
   return (
-    <a
-      href={href}
-      className="rounded-xl border border-gray-200 bg-off-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md"
-    >
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-navy text-gold [&>svg]:h-7 [&>svg]:w-7">
-        {icon}
-      </div>
-
+    <a href={href} className="card-surface h-full transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-navy text-gold [&>svg]:h-7 [&>svg]:w-7">{icon}</div>
       <h3 className="mt-5 text-sm font-semibold text-navy">{title}</h3>
-
       <p className="mt-3 text-sm leading-6 text-gray-600">{text}</p>
-
       <p className="mt-5 text-sm font-semibold text-gold">{linkText}</p>
     </a>
   );
