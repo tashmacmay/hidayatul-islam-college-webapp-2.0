@@ -104,7 +104,7 @@ export default function StaffSidebar() {
     },
     {
       name: "System Settings",
-      href: "/staff/admin/settings",
+      href: "/staff/settings",
       icon: Settings,
     },
   ];
