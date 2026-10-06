@@ -17,22 +17,31 @@ export async function GET() {
         published,
         published_at,
         created_at,
-        updated_at
+        updated_at,
+        image_contains_learners,
+        consent_confirmed
       FROM NewsAnnouncements
       WHERE published = 1
       ORDER BY
         COALESCE(published_at, created_at) DESC
     `);
 
+    console.log("PUBLIC NEWS RESULT:", result.recordset);
+
     return NextResponse.json({
       news: result.recordset,
     });
   } catch (error) {
-    console.error("Public News GET error:", error);
+    console.error("PUBLIC NEWS ERROR:", error);
 
     return NextResponse.json(
-      { error: "Failed to fetch news articles." },
-      { status: 500 }
+      {
+        error: "Failed to fetch news articles.",
+        details: error.message,
+      },
+      {
+        status: 500,
+      }
     );
   }
 }
