@@ -11,6 +11,9 @@ import { TokenCredentialAuthenticationProvider } from
 //Declares two private properties for initialising Graph: ClientSecretCredential object & Client object (outside of the initializeGraphForAppOnlyAuth() function as to persist)
 let _clientSecretCredential = undefined;
 let _appClient = undefined;
+const BOOKING_BUSINESS_ID =
+  'HidayatulIslamCollegeParentMeetings@Hidayatulcpt.onmicrosoft.com';
+let _staffMemberLookup = null;
 
 //Creates the Client Secret Credential, then creates the Microsoft Graph Client using that credential
 export function initializeGraphForAppOnlyAuth() {
@@ -43,10 +46,43 @@ export async function getBookingsAsync() {
   }
 
   return _appClient
-    .api('/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments') //Interact with Microsoft Graph endpoint 
+    .api(`/solutions/bookingBusinesses/${BOOKING_BUSINESS_ID}/appointments`) //Interact with Microsoft Graph endpoint 
     .get(); //Perform an HTTP GET request
 }
 
+//Fetches (and caches) staff members for the Bookings page.
+//byID: parent view renders the teacher's name from a booking's staffMemberIds bookings can be filtered the same way the parent view filters by email
+export async function getStaffMemberLookupAsync() {
+  if (!_appClient) {
+    throw new Error('Graph has not been initialized for app-only auth');
+  }
+
+  if (_staffMemberLookup) {
+    return _staffMemberLookup;
+  }
+
+  const response = await _appClient
+    .api(`/solutions/bookingBusinesses/${BOOKING_BUSINESS_ID}/staffMembers`)
+    .get();
+
+  const byId = new Map();
+  const byEmail = new Map();
+
+  for (const staff of response.value) {
+    byId.set(staff.id, {
+      id: staff.id,
+      displayName: staff.displayName,
+      emailAddress: staff.emailAddress,
+    });
+
+    if (staff.emailAddress) {
+      byEmail.set(staff.emailAddress.toLowerCase().trim(), staff.id);
+    }
+  }
+
+  _staffMemberLookup = { byId, byEmail };
+  return _staffMemberLookup;
+}
 
 export async function cancelBookingAsync(appointmentId) {
   if (!_appClient) { //Ensure that the Microsoft Graph Client has been created
@@ -55,14 +91,21 @@ export async function cancelBookingAsync(appointmentId) {
 
   return _appClient
     .api( //"Cancel" API call to MS Booking with variable ID 
-      `/solutions/bookingBusinesses/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/appointments/${appointmentId}/cancel`
+      `/solutions/bookingBusinesses/${BOOKING_BUSINESS_ID}/appointments/${appointmentId}/cancel`
     )
     .post({ //Document how booking was cancelled for documentation
       cancellationMessage: 'Cancelled by user via portal',
     });
 }
 
-export function formatParentBooking(booking) {
+function getStaffDisplayName(booking, staffLookup) {
+  const staffId = booking.staffMemberIds?.[0];
+  if (!staffId) return 'Unassigned';
+  const staff = staffLookup?.byId?.get(staffId);
+  return staff?.displayName || staffId;
+}
+
+export function formatParentBooking(booking, staffLookup) {
   const learnerAnswer = booking.customers?.[0]?.customQuestionAnswers?.find(
     (answer) => answer.question === "Learner's Full Name"
   );
@@ -77,7 +120,7 @@ export function formatParentBooking(booking) {
     time: `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
     appointmentType: booking.serviceName,
     learner: learnerAnswer?.answer || booking.customerName,
-    staff: booking.staffMemberIds?.[0] || "Unassigned",
+    staff: getStaffDisplayName(booking, staffLookup),
     status: start >= new Date() ? "upcoming" : "past",
   };
 }
