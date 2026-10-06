@@ -28,6 +28,8 @@ export async function GET(req) {
         excerpt,
         content,
         featured_image_url,
+        image_contains_learners,
+        consent_confirmed,
         published,
         published_at,
         created_by,
@@ -53,7 +55,6 @@ export async function GET(req) {
   }
 }
 
-
 // POST /api/staff/admin/news
 // Creates a new news article.
 export async function POST(req) {
@@ -68,6 +69,8 @@ export async function POST(req) {
       excerpt,
       content,
       featured_image_url,
+      image_contains_learners,
+      consent_confirmed,
       published,
     } = body;
 
@@ -101,26 +104,60 @@ export async function POST(req) {
       );
     }
 
-    const pool = await getConnection();
+    // Normalise image and consent values
+    const hasImage = Boolean(featured_image_url?.trim());
+    const containsLearners = image_contains_learners === true;
+    const consentConfirmed = consent_confirmed === true;
+    const isPublished = published === true;
 
-    // Check if slug already exists
-    const existing = await pool
-      .request()
-      .input("slug", sql.NVarChar(255), slug.trim())
-      .query(`
-        SELECT id
-        FROM NewsAnnouncements
-        WHERE slug = @slug
-      `);
-
-    if (existing.recordset.length > 0) {
+    // Learners cannot be marked as present if there is no image.
+    if (containsLearners && !hasImage) {
       return NextResponse.json(
-        { error: "A news article with this slug already exists" },
-        { status: 409 }
+        {
+          error:
+            "An image must be provided if the image is marked as containing learners.",
+        },
+        { status: 400 }
       );
     }
 
-    const isPublished = Boolean(published);
+    // Learner images require consent before publishing.
+    // Drafts are allowed without consent so they can be completed later.
+    if (
+      hasImage &&
+      containsLearners &&
+      isPublished &&
+      !consentConfirmed
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Images containing learners require confirmed consent before the article can be published.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const pool = await getConnection();
+
+    // Check if slug already exists
+const existing = await pool
+  .request()
+  .input("slug", sql.NVarChar(255), slug.trim())
+  .query(`
+    SELECT id
+    FROM NewsAnnouncements
+    WHERE slug = @slug
+  `);
+
+    if (existing.recordset.length > 0) {
+      return NextResponse.json(
+        {
+          error: "A news article with this slug already exists",
+        },
+        { status: 409 }
+      );
+    }
 
     const result = await pool
       .request()
@@ -138,6 +175,16 @@ export async function POST(req) {
         sql.NVarChar(500),
         featured_image_url?.trim() || null
       )
+      .input(
+        "image_contains_learners",
+        sql.Bit,
+        containsLearners
+      )
+      .input(
+        "consent_confirmed",
+        sql.Bit,
+        consentConfirmed
+      )
       .input("published", sql.Bit, isPublished)
       .input(
         "published_at",
@@ -153,6 +200,8 @@ export async function POST(req) {
           excerpt,
           content,
           featured_image_url,
+          image_contains_learners,
+          consent_confirmed,
           published,
           published_at,
           created_by
@@ -165,6 +214,8 @@ export async function POST(req) {
           @excerpt,
           @content,
           @featured_image_url,
+          @image_contains_learners,
+          @consent_confirmed,
           @published,
           @published_at,
           @created_by

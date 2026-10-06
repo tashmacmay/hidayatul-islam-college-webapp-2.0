@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Images, ShieldCheck } from "lucide-react";
 
 const categories = [
@@ -15,6 +15,48 @@ const categories = [
 
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Fetch gallery images from the database through the public API
+  useEffect(() => {
+    async function fetchGallery() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch("/api/gallery", {
+          cache: "no-store",
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to load gallery.");
+        }
+
+        setGalleryImages(data.gallery || []);
+      } catch (error) {
+        console.error("Gallery fetch error:", error);
+        setError("Unable to load gallery photos. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchGallery();
+  }, []);
+
+  // Filter gallery images by selected category
+  const filteredImages =
+    selectedCategory === "All"
+      ? galleryImages
+      : galleryImages.filter(
+          (image) =>
+            image.category?.toLowerCase() ===
+            selectedCategory.toLowerCase()
+        );
 
   return (
     <>
@@ -32,10 +74,15 @@ export default function Gallery() {
 
         <div className="relative z-10 w-full px-6 pb-10 md:px-16 md:pb-[52px]">
           <p className="mb-3.5 flex items-center gap-2 text-[9px] text-blue-200 md:text-[10px]">
-            <Link href="/" className="text-gold-light transition-colors hover:text-gold">
+            <Link
+              href="/"
+              className="text-gold-light transition-colors hover:text-gold"
+            >
               Home
             </Link>
+
             <span className="text-navy-dark">›</span>
+
             <span className="text-blue-200/75">Gallery & Media</span>
           </p>
 
@@ -115,25 +162,114 @@ export default function Gallery() {
           {/* Gallery Grid */}
 
           <div className="mt-10">
-            <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14">
-              <div className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-xl text-gold">
-                  <Images className="h-6 w-6" />
+
+            {/* Loading */}
+
+            {loading && (
+              <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14">
+                <div className="text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-gold">
+                    <Images className="h-6 w-6 animate-pulse" />
+                  </div>
+
+                  <h3 className="mt-4 text-sm font-semibold text-navy">
+                    Loading gallery...
+                  </h3>
+
+                  <p className="mt-2 text-sm text-gray-500">
+                    Please wait while we load the latest photos.
+                  </p>
                 </div>
-
-                <h3 className="mt-4 text-sm font-semibold text-navy">
-                  No gallery photos yet
-                </h3>
-
-                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
-                  Photos from school events, learning activities, sport, outings
-                  and community moments will appear here once they are uploaded
-                  by the school.
-                </p>
               </div>
-            </div>
-          </div>
+            )}
 
+            {/* Error */}
+
+            {!loading && error && (
+              <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-6 py-14">
+                <div className="text-center">
+                  <h3 className="text-sm font-semibold text-red-700">
+                    Unable to load gallery
+                  </h3>
+
+                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-red-600">
+                    {error}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* No Results */}
+
+            {!loading && !error && filteredImages.length === 0 && (
+              <div className="flex min-h-[320px] items-center justify-center rounded-2xl border border-dashed border-gray-200 bg-gray-50 px-6 py-14">
+                <div className="text-center">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-xl text-gold">
+                    <Images className="h-6 w-6" />
+                  </div>
+
+                  <h3 className="mt-4 text-sm font-semibold text-navy">
+                    No gallery photos yet
+                  </h3>
+
+                  <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
+                    Photos from school events, learning activities, sport,
+                    outings and community moments will appear here once they
+                    are uploaded by the school.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Gallery Images */}
+
+            {!loading && !error && filteredImages.length > 0 && (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredImages.map((image) => (
+                  <Link
+                    key={image.id}
+                    href={`/gallery/${image.id}`}
+                    className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                  >
+                    {/* Image */}
+
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+                      <img
+                        src={image.image_url}
+                        alt={image.alt_text || image.title || "Gallery image"}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+
+                      {/* Category */}
+
+                      {image.category && (
+                        <div className="absolute left-3 top-3 rounded-full bg-navy/90 px-3 py-1.5 text-[10px] font-semibold text-gold-light">
+                          {image.category}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image Information */}
+
+                    <div className="p-5">
+                      {image.title && (
+                        <h3 className="text-sm font-bold text-navy">
+                          {image.title}
+                        </h3>
+                      )}
+
+                      {image.caption && (
+                        <p className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">
+                          {image.caption}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+          </div>
         </div>
       </section>
 
