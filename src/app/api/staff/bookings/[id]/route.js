@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 import { verifyUser } from "@/lib/auth";
 import {
   initializeGraphForAppOnlyAuth,
-  getBookingsAsync,
+  getAppointmentAsync,
   getStaffMemberLookupAsync,
-  formatParentBooking,
+  cancelBookingAsync,
 } from "@/lib/graph/graphHelper";
 
-export async function GET(request) {
+export async function DELETE(request, { params }) {
   try {
     //Identify the caller:
     let user;
@@ -36,42 +36,46 @@ export async function GET(request) {
       );
     }
 
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json(
+        { error: "Missing booking id" },
+        { status: 400 }
+      );
+    }
+
     initializeGraphForAppOnlyAuth();
 
-    //Need the staff lookup to know which staffMemberId belongs to this user,
-    //so unlike the parent GET we cannot fall back to null here.
-    const [response, staffLookup] = await Promise.all([
-      getBookingsAsync(),
+    const [appointment, staffLookup] = await Promise.all([
+      getAppointmentAsync(id),
       getStaffMemberLookupAsync(),
     ]);
 
     const myStaffId = staffLookup.byEmail.get(email);
     if (!myStaffId) {
       return NextResponse.json(
-        {
-          error:
-            "You are not registered as a staff member in this booking business.",
-        },
+        { error: "You are not registered as a staff member" },
         { status: 403 }
       );
     }
 
-    //A staff member owns an appointment iff their staffMemberId is in it.
-    const mine = response.value.filter((booking) =>
-      (booking.staffMemberIds || []).includes(myStaffId)
-    );
+    const assigned = (appointment.staffMemberIds || []).includes(myStaffId);
+    if (!assigned) {
+      return NextResponse.json(
+        { error: "You are not assigned to this appointment" },
+        { status: 403 }
+      );
+    }
 
-    const bookings = mine.map((booking) =>
-      formatParentBooking(booking, staffLookup)
-    );
+    await cancelBookingAsync(id);
 
-    return NextResponse.json(bookings);
+    return NextResponse.json({ success: true, id });
   } catch (error) {
-    console.error("STAFF BOOKINGS GRAPH ERROR:", error);
+    console.error("STAFF CANCEL ERROR:", error);
 
     return NextResponse.json(
       {
-        error: "Failed to retrieve Microsoft Bookings",
+        error: "Failed to cancel booking",
         statusCode: error.statusCode,
         code: error.code,
         message: error.message,

@@ -42,47 +42,74 @@ export default function BookingsPage() {
     return () => unsubscribe();
   }, []);
 
-  /*
-   * Retrieve bookings from Microsoft Graph.
-   */
-  useEffect(() => {
+    async function loadBookings() {
     if (!user) return;
 
-    async function loadBookings() {
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        const token = await user.getIdToken();
+      const token = await user.getIdToken();
 
-        const response = await fetch("/api/staff/bookings", {
-          method: "GET",
+      const response = await fetch("/api/staff/bookings", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Failed to retrieve bookings"
+        );
+      }
+
+      setBookings(data);
+    } catch (error) {
+      console.error("Failed to load staff bookings:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!user) return;
+    loadBookings();
+  }, [user]);
+
+  async function handleCancel(bookingId) {
+    const confirmed = window.confirm("Cancel this booking?");
+    if (!confirmed) return;
+
+    try {
+      const token = await user.getIdToken();
+
+      const response = await fetch(
+        `/api/staff/bookings/${bookingId}`,
+        {
+          method: "DELETE",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(
-            data.error || "Failed to retrieve bookings"
-          );
         }
+      );
 
-        console.log("Microsoft Bookings returned:", data);
-
-        setBookings(data);
-      } catch (error) {
-        console.error("Failed to load staff bookings:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to cancel booking");
       }
-    }
 
-    loadBookings();
-  }, [user]);
+      await loadBookings();
+    } catch (error) {
+      console.error("Cancel failed:", error);
+      alert(
+        error.message || "Something went wrong cancelling this booking."
+      );
+    }
+  }
 
   const upcomingCount = bookings.filter(
     (booking) => booking.status === "upcoming"
@@ -279,9 +306,8 @@ export default function BookingsPage() {
                           {booking.status === "upcoming" ? (
                             <button
                               type="button"
-                              disabled
-                              title="Cancellation will be connected after staff booking ownership is implemented"
-                              className="inline-flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-400"
+                              onClick={() => handleCancel(booking.id)}
+                              className="inline-flex items-center gap-2 rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100"
                             >
                               <X size={16} />
                               Cancel
