@@ -8,8 +8,9 @@ const filters = [
   "News",
   "Events",
   "Achievements",
-  "Notices",
-  "Islamic",
+  "Islamic Life",
+  "Community",
+  "Announcements",
 ];
 
 export default function News() {
@@ -17,6 +18,7 @@ export default function News() {
   const [newsArticles, setNewsArticles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
 
   useEffect(() => {
     const loadNews = async () => {
@@ -53,6 +55,7 @@ export default function News() {
           (article) =>
             article.category?.toLowerCase() === activeFilter.toLowerCase()
         );
+
 
   return (
     <>
@@ -92,8 +95,7 @@ export default function News() {
           </h1>
 
           <p className="max-w-[560px] text-sm leading-7 text-blue-100">
-            Stay up to date with everything happening at Hidayatul Islam
-            College — events, achievements, notices, and community news.
+            Stay up to date with everything happening at Hidayatul Islam College — school news, announcements, events, achievements, and Islamic life.
           </p>
         </div>
       </section>
@@ -172,7 +174,7 @@ export default function News() {
 
               <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-gray-500">
                 {activeFilter === "All"
-                  ? "School news, events, achievements and important notices will appear here."
+                  ? "School news, announcements, events, achievements and Islamic updates will appear here."
                   : "There are currently no published items in this category."}
               </p>
             </div>

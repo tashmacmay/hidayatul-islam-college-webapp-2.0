@@ -1155,8 +1155,7 @@ return (
                   : "text-[#5a6a82]"
               }`}
             >
-              Create and manage school news, events, achievements,
-              notices and Islamic announcements.
+              Create and manage school news and announcements for the public website.
             </p>
 
             <div className="mt-4">
@@ -1715,19 +1714,18 @@ return (
                     Category <span className="text-red-500">*</span>
                   </label>
 
-                  <select
-                    name="category"
-                    value={newsForm.category}
-                    onChange={handleNewsFormChange}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  >
-                    <option value="News">News</option>
-                    <option value="Announcements">Announcements</option>
-                    <option value="Events">Events</option>
-                    <option value="Achievements">Achievements</option>
-                    <option value="Notices">Notices</option>
-                    <option value="Islamic">Islamic</option>
-                  </select>
+<select
+  name="category"
+  value={newsForm.category}
+  onChange={handleNewsFormChange}
+  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+>
+  <option value="News">News</option>
+  <option value="Announcements">Announcements</option>
+  <option value="Events">Events</option>
+  <option value="Achievements">Achievements</option>
+  <option value="Islamic Life">Islamic Life</option>
+</select>
                 </div>
 
                 {/* EXCERPT */}
@@ -2194,19 +2192,11 @@ return (
                     onChange={handleGalleryFormChange}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
                   >
-                    <option value="School Events">
-                      School Events
-                    </option>
-                    <option value="Academics">Academics</option>
-                    <option value="Sport">Sport</option>
-                    <option value="Outings">Outings</option>
-                    <option value="Islamic Activities">
-                      Islamic Activities
-                    </option>
-                    <option value="Achievements">
-                      Achievements
-                    </option>
-                    <option value="General">General</option>
+  <option value="News">News</option>
+  <option value="Announcements">Announcements</option>
+  <option value="Events">Events</option>
+  <option value="Achievements">Achievements</option>
+  <option value="Islamic Life">Islamic Life</option>
                   </select>
                 </div>
 

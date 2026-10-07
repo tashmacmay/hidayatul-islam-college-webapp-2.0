@@ -5,10 +5,10 @@ import { requireAdmin } from "@/lib/auth";
 
 const NEWS_CATEGORIES = [
   "News",
+  "Announcements",
   "Events",
   "Achievements",
-  "Notices",
-  "Islamic",
+  "Islamic Life",
 ];
 
 // GET /api/staff/admin/news
