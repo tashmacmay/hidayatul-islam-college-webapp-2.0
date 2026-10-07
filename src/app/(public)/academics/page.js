@@ -1,6 +1,4 @@
-"use client";
-
-import Link from "next/link";
+import { PageHero, SectionHeader } from "@/components/components";
 import {
   BookOpen,
   HeartHandshake,
@@ -11,39 +9,58 @@ import {
   Users,
 } from "lucide-react";
 import GradeExplorer from "@/components/GradeExplorer";
+import { IconCard } from "@/components/components";
+
+const islamicTopics = [
+  { icon: BookOpen, title: "Quran Recitation & Hifz", description: "Daily Quran lessons focus on Tajweed, understanding and memorisation." },
+  { icon: ShieldCheck, title: "Aqeedah & Fiqh", description: "Foundational Islamic theology and jurisprudence for everyday life." },
+  { icon: Star, title: "Seerah & Islamic History", description: "Inspiring lessons from the life of the Prophet ﷺ and Islamic civilisation." },
+  { icon: Languages, title: "Arabic Language", description: "Reading, writing and conversational Arabic taught progressively." },
+  { icon: HeartHandshake, title: "Akhlaq & Character", description: "Islamic ethics and good character integrated into daily school life." },
+  { icon: MapPin, title: "Salah & Daily Practice", description: "Practical worship, du'a and daily Islamic habits reinforced throughout the school day." },
+];
+
+const teachingApproaches = [
+  { number: "01", title: "Differentiated Instruction", description: "Our educators plan lessons that meet learners where they are, adapting teaching strategies to ensure every child can thrive." },
+  { number: "02", title: "Values-Integrated Learning", description: "Islamic values are woven throughout the curriculum, shaping character alongside academic growth." },
+  { number: "03", title: "Active & Collaborative Learning", description: "Learners participate through discussion, teamwork, projects, presentations and hands-on activities." },
+  { number: "04", title: "Parent & Community Partnership", description: "We work closely with parents to support every learner's educational journey both at school and at home." },
+];
+
+const languageCards = [
+  { icon: "🇿🇦", title: "English", subtitle: "Home Language / FAL", description: "English serves as the primary language of learning and teaching, developing strong reading, writing and communication skills." },
+  { icon: "🇿🇦", title: "Afrikaans", subtitle: "First Additional Language", description: "Afrikaans is offered as a First Additional Language, recognising its importance in our local context." },
+  { icon: "🕌", title: "Arabic", subtitle: "Islamic & Quran Studies", description: "Arabic is taught from Grade R as both a language of worship and a gateway to understanding the Quran." },
+];
+
+const assessmentMethods = [
+  { icon: BookOpen, title: "Continuous Assessment (CASS)", description: "Projects, class activities, oral tasks and written work contribute to term marks." },
+  { icon: ShieldCheck, title: "Formal Examinations", description: "Mid-year and end-of-year examinations prepare learners for future academic success." },
+  { icon: Users, title: "Term Reports", description: "Four comprehensive reports are issued annually with opportunities for parent consultations." },
+  { icon: HeartHandshake, title: "Islamic Studies Assessment", description: "Quran recitation, Islamic Studies tests and character development form part of our holistic assessment approach." },
+];
 
 export default function Academics() {
   return (
     <>
-      <section className="relative flex min-h-[320px] items-end overflow-hidden bg-navy md:min-h-[340px]">
-        <img src="/images/HIC-image2.jpg" alt="Academics" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/45" />
-        <div className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:18px_18px]" />
+      <PageHero
+        pattern="dots"
+        image="/images/HIC-image2.jpg"
+        imageAlt="Academics"
+        breadcrumb="Academics"
+        title={<>Our <span className="text-gold">Academics</span></>}
+        description="A balanced, enriching curriculum that combines the South African national programme with Islamic studies, preparing every learner for life in all its dimensions."
+      />
 
-        <div className="relative z-10 w-full px-6 pb-10 md:px-16 md:pb-[52px]">
-          <p className="page-breadcrumb">
-            <Link href="/" className="page-breadcrumb-link">Home</Link>
-            <span className="text-navy-dark">›</span>
-            <span className="text-blue-200/75">Academics</span>
-          </p>
-
-          <div className="mb-5 h-[3px] w-[60px] rounded-full bg-gold" />
-          <h1 className="page-hero-title">Our <span className="text-gold">Academics</span></h1>
-          <p className="page-hero-copy">
-            A balanced, enriching curriculum that combines the South African national programme with Islamic studies, preparing every learner for life in all its dimensions.
-          </p>
-        </div>
-      </section>
-
-      <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+      <section className="section-shell section-shell--white">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
           <div>
-            <p className="section-label">Our Curriculum</p>
-            <h2 className="section-title">
-              A Whole-Child
-              <span className="block">Education</span>
-            </h2>
-            <div className="gold-divider" />
+            <SectionHeader
+              label="Our Curriculum"
+              title={<>A Whole-Child{" "}<span className="block">Education</span></>}
+              className="text-left"
+              dividerClassName="gold-divider"
+            />
 
             <p className="mt-8 body-copy">
               At Hidayatul Islam College, we follow the South African national curriculum as prescribed by the Department of Basic Education, offering the full Grades R through 7 programme.
@@ -87,168 +104,129 @@ export default function Academics() {
 
       <GradeExplorer />
 
-      <section className="bg-navy px-6 py-20 text-white md:px-10 md:py-24">
+      <section className="section-shell section-shell--navy">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <p className="section-label">Faith & Knowledge</p>
-            <h2 className="mt-3 text-xl font-bold leading-tight md:text-2xl">Islamic Studies Programme</h2>
-            <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
-            <p className="mx-auto mt-6 max-w-3xl leading-7 text-blue-100">
-              Our Islamic curriculum runs alongside the national programme from Grade R to Grade 7, nurturing learners who are grounded in their faith and equipped for the world.
-            </p>
-          </div>
+          <SectionHeader
+            label="Faith & Knowledge"
+            title="Islamic Studies Programme"
+            description="Our Islamic curriculum runs alongside the national programme from Grade R to Grade 7, nurturing learners who are grounded in their faith and equipped for the world."
+            titleClassName="mt-3 text-xl font-bold leading-tight md:text-2xl"
+            descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-blue-100"
+            className="text-center"
+          />
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <BookOpen className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Quran Recitation & Hifz</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Daily Quran lessons focus on Tajweed, understanding and memorisation.</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <ShieldCheck className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Aqeedah & Fiqh</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Foundational Islamic theology and jurisprudence for everyday life.</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <Star className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Seerah & Islamic History</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Inspiring lessons from the life of the Prophet ﷺ and Islamic civilisation.</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <Languages className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Arabic Language</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Reading, writing and conversational Arabic taught progressively.</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <HeartHandshake className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Akhlaq & Character</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Islamic ethics and good character integrated into daily school life.</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <MapPin className="h-5 w-5 text-gold" />
-              <h3 className="mt-3 text-base font-semibold text-gold">Salah & Daily Practice</h3>
-              <p className="mt-3 text-sm leading-6 text-blue-100">Practical worship, du&apos;a and daily Islamic habits reinforced throughout the school day.</p>
-            </div>
+            {islamicTopics.map(({ icon: Icon, title, description }) => (
+              <IconCard
+                key={title}
+                icon={<Icon className="h-5 w-5 text-gold" />}
+                title={title}
+                className="card-academic-dark"
+                iconClassName=""
+                contentClassName=""
+                titleClassName="mt-3 text-base font-semibold text-gold"
+              >
+                <p className="mt-3 text-sm leading-6 text-blue-100">{description}</p>
+              </IconCard>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+      <section className="section-shell section-shell--white">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="section-label">How We Teach</p>
-            <h2 className="section-title">Our Teaching Philosophy</h2>
-            <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
-            <p className="mx-auto mt-6 max-w-3xl leading-7 text-gray-600">
-              We draw on evidence-based pedagogical approaches and Islamic educational traditions to create classrooms where every learner is seen, heard, and challenged.
-            </p>
+            <SectionHeader
+              label="How We Teach"
+              title="Our Teaching Philosophy"
+              description="We draw on evidence-based pedagogical approaches and Islamic educational traditions to create classrooms where every learner is seen, heard, and challenged."
+              descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
+            />
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2">
-            <div className="card-soft">
-              <span className="text-2xl font-bold text-gold/30">01</span>
-              <h3 className="mt-3 text-base font-semibold text-navy">Differentiated Instruction</h3>
-              <p className="mt-3 text-sm leading-7 text-gray-600">Our educators plan lessons that meet learners where they are, adapting teaching strategies to ensure every child can thrive.</p>
-            </div>
-            <div className="card-soft">
-              <span className="text-2xl font-bold text-gold/30">02</span>
-              <h3 className="mt-3 text-base font-semibold text-navy">Values-Integrated Learning</h3>
-              <p className="mt-3 text-sm leading-7 text-gray-600">Islamic values are woven throughout the curriculum, shaping character alongside academic growth.</p>
-            </div>
-            <div className="card-soft">
-              <span className="text-2xl font-bold text-gold/30">03</span>
-              <h3 className="mt-3 text-base font-semibold text-navy">Active & Collaborative Learning</h3>
-              <p className="mt-3 text-sm leading-7 text-gray-600">Learners participate through discussion, teamwork, projects, presentations and hands-on activities.</p>
-            </div>
-            <div className="card-soft">
-              <span className="text-2xl font-bold text-gold/30">04</span>
-              <h3 className="mt-3 text-base font-semibold text-navy">Parent & Community Partnership</h3>
-              <p className="mt-3 text-sm leading-7 text-gray-600">We work closely with parents to support every learner&apos;s educational journey both at school and at home.</p>
-            </div>
+            {teachingApproaches.map((item) => (
+              <div key={item.number} className="card-soft">
+                <span className="text-2xl font-bold text-gold/30">{item.number}</span>
+                <h3 className="mt-3 text-base font-semibold text-navy">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-gray-600">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-off-white px-6 py-20 md:px-10 md:py-24">
+      <section className="section-shell section-shell--off-white">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <p className="section-label">Language of Learning</p>
-            <h2 className="section-title">Languages at HIC</h2>
-            <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
-            <p className="mx-auto mt-6 max-w-3xl leading-7 text-gray-600">
-              We honour the multilingual identities of our learners while providing strong foundations in English, Afrikaans and Arabic.
-            </p>
+            <SectionHeader
+              label="Language of Learning"
+              title="Languages at HIC"
+              description="We honour the multilingual identities of our learners while providing strong foundations in English, Afrikaans and Arabic."
+              descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
+            />
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-              <div className="text-2xl">🇿🇦</div>
-              <h3 className="mt-4 text-base font-semibold text-navy">English</h3>
-              <p className="mt-2 text-gold font-semibold">Home Language / FAL</p>
-              <p className="mt-4 text-sm leading-7 text-gray-600">English serves as the primary language of learning and teaching, developing strong reading, writing and communication skills.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-              <div className="text-2xl">🇿🇦</div>
-              <h3 className="mt-4 text-base font-semibold text-navy">Afrikaans</h3>
-              <p className="mt-2 text-gold font-semibold">First Additional Language</p>
-              <p className="mt-4 text-sm leading-7 text-gray-600">Afrikaans is offered as a First Additional Language, recognising its importance in our local context.</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm">
-              <div className="text-2xl">🕌</div>
-              <h3 className="mt-4 text-base font-semibold text-navy">Arabic</h3>
-              <p className="mt-2 text-gold font-semibold">Islamic & Quran Studies</p>
-              <p className="mt-4 text-sm leading-7 text-gray-600">Arabic is taught from Grade R as both a language of worship and a gateway to understanding the Quran.</p>
-            </div>
+            {languageCards.map((item) => (
+              <IconCard
+                key={item.title}
+                icon={item.icon}
+                title={item.title}
+                className="card-academic-light text-center"
+                iconClassName="text-2xl"
+                contentClassName=""
+                titleClassName="mt-4 text-base font-semibold text-navy"
+              >
+                <p className="mt-2 text-gold font-semibold">{item.subtitle}</p>
+                <p className="mt-4 text-sm leading-7 text-gray-600">{item.description}</p>
+              </IconCard>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-gold-pale px-6 py-20 md:px-10 md:py-24">
+      <section className="section-shell section-shell--gold-pale">
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
           <div>
-            <p className="section-label">How We Track Progress</p>
-            <h2 className="section-title">Assessment & Reporting</h2>
-            <div className="gold-divider" />
+            <SectionHeader
+              label="How We Track Progress"
+              title="Assessment & Reporting"
+              className="text-left"
+              dividerClassName="gold-divider"
+            />
             <p className="mt-8 body-copy">Assessment at Hidayatul Islam College is continuous, formative, and designed to support learning — not just measure it.</p>
             <p className="mt-6 body-copy">We follow CAPS assessment requirements while also tracking learners&apos; growth in Islamic character, leadership and personal development.</p>
             <p className="mt-6 body-copy">Parents receive regular progress reports and have opportunities to engage directly with teachers throughout the year.</p>
           </div>
 
           <div className="space-y-3">
-            <div className="rounded-xl border border-gold/20 bg-white p-5 shadow-sm">
-              <BookOpen className="h-5 w-5 text-navy" />
-              <h3 className="mt-3 font-bold text-navy">Continuous Assessment (CASS)</h3>
-              <p className="mt-2 text-sm text-gray-600">Projects, class activities, oral tasks and written work contribute to term marks.</p>
-            </div>
-            <div className="rounded-xl border border-gold/20 bg-white p-5 shadow-sm">
-              <ShieldCheck className="h-5 w-5 text-navy" />
-              <h3 className="mt-3 font-bold text-navy">Formal Examinations</h3>
-              <p className="mt-2 text-sm text-gray-600">Mid-year and end-of-year examinations prepare learners for future academic success.</p>
-            </div>
-            <div className="rounded-xl border border-gold/20 bg-white p-5 shadow-sm">
-              <Users className="h-5 w-5 text-navy" />
-              <h3 className="mt-3 font-bold text-navy">Term Reports</h3>
-              <p className="mt-2 text-sm text-gray-600">Four comprehensive reports are issued annually with opportunities for parent consultations.</p>
-            </div>
-            <div className="rounded-xl border border-gold/20 bg-white p-5 shadow-sm">
-              <HeartHandshake className="h-5 w-5 text-navy" />
-              <h3 className="mt-3 font-bold text-navy">Islamic Studies Assessment</h3>
-              <p className="mt-2 text-sm text-gray-600">Quran recitation, Islamic Studies tests and character development form part of our holistic assessment approach.</p>
-            </div>
+            {assessmentMethods.map(({ icon: Icon, title, description }) => (
+              <IconCard
+                key={title}
+                icon={<Icon className="h-5 w-5 text-navy" />}
+                title={title}
+                className="card-assessment"
+                iconClassName=""
+                contentClassName=""
+                titleClassName="mt-3 font-bold text-navy"
+              >
+                <p className="mt-2 text-sm text-gray-600">{description}</p>
+              </IconCard>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white px-6 py-20 md:px-10 md:py-24">
+      <section className="section-shell section-shell--white">
         <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <p className="section-label">Beyond the Classroom</p>
-            <h2 className="section-title">Extramural & Enrichment Activities</h2>
-            <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
-            <p className="mx-auto mt-6 max-w-3xl leading-7 text-gray-600">
-              Learning doesn&apos;t stop at the classroom door. We provide opportunities that develop the whole child.
-            </p>
-          </div>
+          <SectionHeader
+            label="Beyond the Classroom"
+            title="Extramural & Enrichment Activities"
+            description="Learning doesn&apos;t stop at the classroom door. We provide opportunities that develop the whole child."
+            descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
+            className="text-center"
+          />
 
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[
@@ -270,22 +248,6 @@ export default function Academics() {
         </div>
       </section>
 
-      <section className="bg-navy px-6 py-20 text-center text-white md:px-10 md:py-24">
-        <div className="mx-auto max-w-3xl">
-          <h2 className="text-xl font-bold leading-tight md:text-2xl">
-            Ready to join the
-            <span className="block text-gold">HIC family?</span>
-          </h2>
-          <p className="mx-auto mt-6 max-w-2xl leading-7 text-blue-100">
-            We welcome applications from families who share our commitment to faith, knowledge and character.
-          </p>
-
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <button className="rounded-lg bg-gold px-7 py-3 font-semibold text-navy transition hover:opacity-90">Apply for 2026</button>
-            <button className="rounded-lg border border-white px-7 py-3 font-semibold text-white transition hover:bg-white hover:text-navy">Contact Us</button>
-          </div>
-        </div>
-      </section>
     </>
   );
 }
