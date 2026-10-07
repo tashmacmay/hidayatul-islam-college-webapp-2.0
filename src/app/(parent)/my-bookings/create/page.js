@@ -1,19 +1,10 @@
 "use client";
 
-// ============================================================
-// CREATE BOOKING — PARENT
-// ============================================================
-//
-// Microsoft Bookings is responsible for the actual appointment
-// booking process.
-//
-// This page embeds the school's Microsoft Bookings calendar and
-// also provides a direct link as a fallback.
-//
-// ============================================================
-
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+
+const BookingPageURL =
+  "https://bookings.cloud.microsoft/book/HidayatulIslamCollegeParentMeetings@Hidayatulcpt.onmicrosoft.com/?ismsaljsauthenabled";
 
 export default function CreateBookingPage() {
   return (
@@ -35,7 +26,7 @@ export default function CreateBookingPage() {
           </p>
 
           <a
-            href="https://outlook.office.com/book/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/?ismsaljsauthenabled"
+            href={BookingPageURL}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-[#ECC33B] hover:text-[#BA8E00]"
@@ -53,9 +44,10 @@ export default function CreateBookingPage() {
         <div className="w-full overflow-hidden bg-white">
 
           <iframe
-            src="https://outlook.office.com/book/HidayatulIslamCollegeBookings@HidayatulProject.onmicrosoft.com/?ismsaljsauthenabled"
+            src={BookingPageURL}
             className="h-[800px] w-full border-0 sm:h-[850px] lg:h-[900px]"
-            title="Hidayatul Islam College Bookings"
+            title="Hidayatul Islam College Parent Meetings"
+            scrolling="yes"
           />
 
         </div>
