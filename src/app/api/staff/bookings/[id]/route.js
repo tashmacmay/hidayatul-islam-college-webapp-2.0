@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+
 import { verifyUser } from "@/lib/auth";
 import {
   initializeGraphForAppOnlyAuth,
   getAppointmentAsync,
+  getStaffMemberLookupAsync,
   cancelBookingAsync,
 } from "@/lib/graph/graphHelper";
 
@@ -16,6 +18,13 @@ export async function DELETE(request, { params }) {
       return NextResponse.json(
         { error: error.message || "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    if (user.role !== "staff") {
+      return NextResponse.json(
+        { error: "Staff access required" },
+        { status: 403 }
       );
     }
 
@@ -37,16 +46,23 @@ export async function DELETE(request, { params }) {
 
     initializeGraphForAppOnlyAuth();
 
-    const appointment = await getAppointmentAsync(id);
+    const [appointment, staffLookup] = await Promise.all([
+      getAppointmentAsync(id),
+      getStaffMemberLookupAsync(),
+    ]);
 
-    //One parent per booking: owner is the booker email.
-    const bookerEmail = (appointment.customerEmailAddress || "")
-      .toLowerCase()
-      .trim();
-
-    if (!bookerEmail || bookerEmail !== email) {
+    const myStaffId = staffLookup.byEmail.get(email);
+    if (!myStaffId) {
       return NextResponse.json(
-        { error: "You are not the owner of this booking" },
+        { error: "You are not registered as a staff member" },
+        { status: 403 }
+      );
+    }
+
+    const assigned = (appointment.staffMemberIds || []).includes(myStaffId);
+    if (!assigned) {
+      return NextResponse.json(
+        { error: "You are not assigned to this appointment" },
         { status: 403 }
       );
     }
@@ -55,7 +71,7 @@ export async function DELETE(request, { params }) {
 
     return NextResponse.json({ success: true, id });
   } catch (error) {
-    console.error("CANCEL BOOKING ERROR:", error);
+    console.error("STAFF CANCEL ERROR:", error);
 
     return NextResponse.json(
       {

@@ -84,6 +84,18 @@ export async function getStaffMemberLookupAsync() {
   return _staffMemberLookup;
 }
 
+//Fetches a single appointment by Graph id. Used by the DELETE routes
+//to verify ownership before cancelling.
+export async function getAppointmentAsync(appointmentId) {
+  if (!_appClient) {
+    throw new Error('Graph has not been initialized for app-only auth');
+  }
+
+  return _appClient
+    .api(`/solutions/bookingBusinesses/${BOOKING_BUSINESS_ID}/appointments/${appointmentId}`)
+    .get();
+}
+
 export async function cancelBookingAsync(appointmentId) {
   if (!_appClient) { //Ensure that the Microsoft Graph Client has been created
     throw new Error('Graph has not been initialized for app-only auth');
