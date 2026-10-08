@@ -1,6 +1,10 @@
+// src/app/staff/admin/user-management/page.js
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 import {
   Users,
   UserRound,
@@ -41,27 +45,21 @@ export default function UsersPage() {
 
   const [success, setSuccess] = useState("");
 
-  const [showUserModal, setShowUserModal] =
-    useState(false);
+  const [showUserModal, setShowUserModal] = useState(false);
 
-  const [showImportModal, setShowImportModal] =
-    useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
-  const [editingUser, setEditingUser] =
-    useState(null);
+  const [editingUser, setEditingUser] = useState(null);
 
-  const [viewingUser, setViewingUser] =
-    useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
 
-  const [deletingUser, setDeletingUser] =
-    useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
 
   const [saving, setSaving] = useState(false);
 
   const [importing, setImporting] = useState(false);
 
-  const [importPreview, setImportPreview] =
-    useState([]);
+  const [importPreview, setImportPreview] = useState([]);
 
   const fileInputRef = useRef(null);
 
@@ -70,7 +68,6 @@ export default function UsersPage() {
   // ============================================================
 
   const emptyForm = {
-    firebase_uid: "",
     email: "",
     display_name: "",
     role: "parent",
@@ -88,31 +85,82 @@ export default function UsersPage() {
   };
 
   // ============================================================
+  // AUTHENTICATION
+  // ============================================================
+
+  /*
+    The /api/users endpoint is protected.
+
+    Therefore, every request from this page must include:
+
+    Authorization: Bearer <Firebase ID token>
+
+    We listen for Firebase's authentication state first so that
+    auth.currentUser has been restored before trying to load users.
+  */
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setLoading(false);
+        setError("You must be signed in to manage users.");
+        return;
+      }
+
+      await fetchUsers(user);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // ============================================================
+  // AUTH HEADERS
+  // ============================================================
+
+  async function getAuthHeaders(user = auth.currentUser) {
+    if (!user) {
+      throw new Error("You must be signed in to manage users.");
+    }
+
+    const token = await user.getIdToken();
+
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    };
+  }
+
+  // ============================================================
   // LOAD USERS
   // ============================================================
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  async function fetchUsers() {
+  async function fetchUsers(user = auth.currentUser) {
     try {
       setLoading(true);
       setError("");
 
-      const response = await fetch("/api/users");
+      const headers = await getAuthHeaders(user);
 
-      if (!response.ok) {
-        throw new Error("Failed to load users.");
-      }
+      const response = await fetch("/api/users", {
+        method: "GET",
+        headers,
+      });
 
       const data = await response.json();
 
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Failed to load users."
+        );
+      }
+
       setUsers(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error(error);
+      console.error("❌ Failed to load users:", error);
 
-      setError("Unable to load users.");
+      setError(
+        error.message || "Unable to load users."
+      );
     } finally {
       setLoading(false);
     }
@@ -123,13 +171,14 @@ export default function UsersPage() {
   // ============================================================
 
   function handleFormChange(event) {
-    const { name, value, type, checked } =
-      event.target;
+    const { name, value, type, checked } = event.target;
 
     setForm((previous) => ({
       ...previous,
       [name]:
-        type === "checkbox" ? checked : value,
+        type === "checkbox"
+          ? checked
+          : value,
     }));
   }
 
@@ -139,9 +188,14 @@ export default function UsersPage() {
 
   function openAddUser() {
     setEditingUser(null);
-    setForm(emptyForm);
+
+    setForm({
+      ...emptyForm,
+    });
+
     setError("");
     setSuccess("");
+
     setShowUserModal(true);
   }
 
@@ -153,7 +207,6 @@ export default function UsersPage() {
     setEditingUser(user);
 
     setForm({
-      firebase_uid: user.firebase_uid || "",
       email: user.email || "",
       display_name: user.display_name || "",
       role: user.role || "parent",
@@ -187,11 +240,11 @@ export default function UsersPage() {
           }
         : form;
 
+      const headers = await getAuthHeaders();
+
       const response = await fetch("/api/users", {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify(body),
       });
 
@@ -206,7 +259,11 @@ export default function UsersPage() {
       await fetchUsers();
 
       setShowUserModal(false);
-      setForm(emptyForm);
+
+      setForm({
+        ...emptyForm,
+      });
+
       setEditingUser(null);
 
       setSuccess(
@@ -215,9 +272,11 @@ export default function UsersPage() {
           : "User added successfully."
       );
     } catch (error) {
-      console.error(error);
+      console.error("❌ Failed to save user:", error);
 
-      setError(error.message);
+      setError(
+        error.message || "Failed to save user."
+      );
     } finally {
       setSaving(false);
     }
@@ -228,16 +287,22 @@ export default function UsersPage() {
   // ============================================================
 
   async function deleteUser() {
-    if (!deletingUser) return;
+    if (!deletingUser) {
+      return;
+    }
 
     try {
       setSaving(true);
       setError("");
+      setSuccess("");
+
+      const headers = await getAuthHeaders();
 
       const response = await fetch(
         `/api/users?id=${deletingUser.id}`,
         {
           method: "DELETE",
+          headers,
         }
       );
 
@@ -257,9 +322,11 @@ export default function UsersPage() {
         "User deleted successfully."
       );
     } catch (error) {
-      console.error(error);
+      console.error("❌ Failed to delete user:", error);
 
-      setError(error.message);
+      setError(
+        error.message || "Failed to delete user."
+      );
     } finally {
       setSaving(false);
     }
@@ -272,7 +339,9 @@ export default function UsersPage() {
   function handleFile(event) {
     const file = event.target.files?.[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setError("");
     setSuccess("");
@@ -294,49 +363,52 @@ export default function UsersPage() {
             workbook.SheetNames[0]
           ];
 
-        const rows = XLSX.utils.sheet_to_json(
-          firstSheet,
-          {
-            defval: "",
-          }
+        const rows =
+          XLSX.utils.sheet_to_json(
+            firstSheet,
+            {
+              defval: "",
+            }
+          );
+
+        const formattedRows = rows.map(
+          (row) => ({
+            email:
+              row.email ||
+              row.Email ||
+              "",
+
+            display_name:
+              row.display_name ||
+              row.Display_Name ||
+              row.displayName ||
+              row.name ||
+              row.Name ||
+              "",
+
+            role:
+              row.role ||
+              row.Role ||
+              "parent",
+
+            is_admin:
+              row.is_admin === true ||
+              row.is_admin === 1 ||
+              String(
+                row.is_admin
+              ).toLowerCase() === "true" ||
+              String(row.is_admin) === "1",
+          })
         );
 
-        const formattedRows = rows.map((row) => ({
-          firebase_uid:
-            row.firebase_uid ||
-            row.Firebase_UID ||
-            row.firebaseUid ||
-            "",
-
-          email:
-            row.email ||
-            row.Email ||
-            "",
-
-          display_name:
-            row.display_name ||
-            row.Display_Name ||
-            row.displayName ||
-            row.name ||
-            row.Name ||
-            "",
-
-          role:
-            row.role ||
-            row.Role ||
-            "parent",
-
-          is_admin:
-            row.is_admin === true ||
-            row.is_admin === 1 ||
-            String(row.is_admin)
-              .toLowerCase() === "true" ||
-            String(row.is_admin) === "1",
-        }));
-
-        setImportPreview(formattedRows);
+        setImportPreview(
+          formattedRows
+        );
       } catch (error) {
-        console.error(error);
+        console.error(
+          "❌ Unable to read file:",
+          error
+        );
 
         setError(
           "Unable to read this file. Please check the format."
@@ -353,7 +425,10 @@ export default function UsersPage() {
 
   async function importUsers() {
     if (importPreview.length === 0) {
-      setError("There are no users to import.");
+      setError(
+        "There are no users to import."
+      );
+
       return;
     }
 
@@ -367,14 +442,14 @@ export default function UsersPage() {
 
       for (const user of importPreview) {
         try {
+          const headers =
+            await getAuthHeaders();
+
           const response = await fetch(
             "/api/users",
             {
               method: "POST",
-              headers: {
-                "Content-Type":
-                  "application/json",
-              },
+              headers,
               body: JSON.stringify(user),
             }
           );
@@ -384,7 +459,12 @@ export default function UsersPage() {
           } else {
             failed++;
           }
-        } catch {
+        } catch (error) {
+          console.error(
+            "❌ Failed to import user:",
+            error
+          );
+
           failed++;
         }
       }
@@ -407,7 +487,10 @@ export default function UsersPage() {
         }`
       );
     } catch (error) {
-      console.error(error);
+      console.error(
+        "❌ Import error:",
+        error
+      );
 
       setError(
         "An error occurred while importing users."
@@ -421,62 +504,76 @@ export default function UsersPage() {
   // FILTER USERS
   // ============================================================
 
-  const filteredUsers = users.filter((user) => {
-    const name = user.display_name || "";
+  const filteredUsers = users.filter(
+    (user) => {
+      const name =
+        user.display_name || "";
 
-    const email = user.email || "";
+      const email =
+        user.email || "";
 
-    const role = user.role || "";
+      const role =
+        user.role || "";
 
-    const searchTerm =
-      search.toLowerCase();
+      const searchTerm =
+        search.toLowerCase();
 
-    const matchesSearch =
-      name
-        .toLowerCase()
-        .includes(searchTerm) ||
-      email
-        .toLowerCase()
-        .includes(searchTerm);
+      const matchesSearch =
+        name
+          .toLowerCase()
+          .includes(searchTerm) ||
+        email
+          .toLowerCase()
+          .includes(searchTerm);
 
-    let matchesRole = true;
+      let matchesRole = true;
 
-    if (roleFilter === "parent") {
-      matchesRole = role === "parent";
+      if (roleFilter === "parent") {
+        matchesRole =
+          role === "parent";
+      }
+
+      if (roleFilter === "staff") {
+        matchesRole =
+          role === "staff";
+      }
+
+      if (roleFilter === "admin") {
+        matchesRole =
+          user.is_admin === true;
+      }
+
+      return (
+        matchesSearch &&
+        matchesRole
+      );
     }
-
-    if (roleFilter === "staff") {
-      matchesRole = role === "staff";
-    }
-
-    if (roleFilter === "admin") {
-      matchesRole =
-        user.is_admin === true;
-    }
-
-    return (
-      matchesSearch &&
-      matchesRole
-    );
-  });
+  );
 
   // ============================================================
   // STATISTICS
   // ============================================================
 
-  const totalUsers = users.length;
+  const totalUsers =
+    users.length;
 
-  const parentCount = users.filter(
-    (user) => user.role === "parent"
-  ).length;
+  const parentCount =
+    users.filter(
+      (user) =>
+        user.role === "parent"
+    ).length;
 
-  const staffCount = users.filter(
-    (user) => user.role === "staff"
-  ).length;
+  const staffCount =
+    users.filter(
+      (user) =>
+        user.role === "staff"
+    ).length;
 
-  const adminCount = users.filter(
-    (user) => user.is_admin === true
-  ).length;
+  const adminCount =
+    users.filter(
+      (user) =>
+        user.is_admin === true
+    ).length;
 
   // ============================================================
   // PAGE
@@ -495,11 +592,11 @@ export default function UsersPage() {
       />
 
       {/* ======================================================
-          MAIN
+          MAIN CONTENT
       ====================================================== */}
 
       <main
-        className={`flex-1 p-6 md:p-8 lg:p-10 transition-all duration-300 ${
+        className={`flex-1 p-6 transition-all duration-300 md:p-8 lg:p-10 ${
           isSidebarOpen
             ? "md:ml-64"
             : "ml-0"
@@ -524,6 +621,7 @@ export default function UsersPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
             <div>
+
               <p className="text-sm text-text-muted">
                 Manage system users and access
               </p>
@@ -531,6 +629,7 @@ export default function UsersPage() {
               <h1 className="mt-1 text-4xl font-bold text-navy">
                 User Management
               </h1>
+
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -542,6 +641,7 @@ export default function UsersPage() {
                 className="flex items-center justify-center gap-2 rounded-lg border border-gold px-4 py-2 font-semibold text-gold hover:bg-gold hover:text-navy"
               >
                 <Upload size={18} />
+
                 Import Users
               </button>
 
@@ -550,6 +650,7 @@ export default function UsersPage() {
                 className="flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy hover:opacity-90"
               >
                 <Plus size={18} />
+
                 Add User
               </button>
 
@@ -574,7 +675,7 @@ export default function UsersPage() {
           )}
 
           {/* ==================================================
-              STATS
+              STATISTICS
           ================================================== */}
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -582,27 +683,35 @@ export default function UsersPage() {
             <StatCard
               title="Total Users"
               value={totalUsers}
-              icon={<Users size={22} />}
+              icon={
+                <Users size={22} />
+              }
             />
 
             <StatCard
               title="Parents"
               value={parentCount}
-              icon={<UserRound size={22} />}
+              icon={
+                <UserRound size={22} />
+              }
             />
 
             <StatCard
               title="Staff"
               value={staffCount}
               icon={
-                <GraduationCap size={22} />
+                <GraduationCap
+                  size={22}
+                />
               }
             />
 
             <StatCard
               title="Admins"
               value={adminCount}
-              icon={<Shield size={22} />}
+              icon={
+                <Shield size={22} />
+              }
             />
 
           </div>
@@ -620,23 +729,27 @@ export default function UsersPage() {
                 ["parent", "Parents"],
                 ["staff", "Staff"],
                 ["admin", "Admins"],
-              ].map(([value, label]) => (
+              ].map(
+                ([value, label]) => (
 
-                <button
-                  key={value}
-                  onClick={() =>
-                    setRoleFilter(value)
-                  }
-                  className={`rounded-lg px-4 py-2 text-sm font-medium ${
-                    roleFilter === value
-                      ? "bg-navy text-white"
-                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
-                  }`}
-                >
-                  {label}
-                </button>
+                  <button
+                    key={value}
+                    onClick={() =>
+                      setRoleFilter(
+                        value
+                      )
+                    }
+                    className={`rounded-lg px-4 py-2 text-sm font-medium ${
+                      roleFilter === value
+                        ? "bg-navy text-white"
+                        : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    {label}
+                  </button>
 
-              ))}
+                )
+              )}
 
             </div>
 
@@ -672,6 +785,7 @@ export default function UsersPage() {
             <div className="flex items-center justify-between border-b border-slate-200 p-6">
 
               <div>
+
                 <h2 className="text-xl font-bold text-navy">
                   Users
                 </h2>
@@ -679,10 +793,13 @@ export default function UsersPage() {
                 <p className="mt-1 text-sm text-text-muted">
                   {filteredUsers.length} users displayed
                 </p>
+
               </div>
 
               <button
-                onClick={fetchUsers}
+                onClick={() =>
+                  fetchUsers()
+                }
                 className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
                 title="Refresh users"
               >
@@ -696,9 +813,11 @@ export default function UsersPage() {
             {loading ? (
 
               <div className="p-16 text-center">
+
                 <p className="text-sm text-gray-500">
                   Loading users...
                 </p>
+
               </div>
 
             ) : filteredUsers.length === 0 ? (
@@ -728,6 +847,7 @@ export default function UsersPage() {
                 <table className="w-full text-left">
 
                   <thead>
+
                     <tr className="border-b bg-slate-50">
 
                       <th className="px-6 py-4 text-sm font-semibold text-navy">
@@ -751,6 +871,7 @@ export default function UsersPage() {
                       </th>
 
                     </tr>
+
                   </thead>
 
                   <tbody>
@@ -768,10 +889,14 @@ export default function UsersPage() {
                             <div className="flex items-center gap-3">
 
                               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 font-semibold text-navy">
-                                {(user.display_name ||
-                                  "U")
+
+                                {(
+                                  user.display_name ||
+                                  "U"
+                                )
                                   .charAt(0)
                                   .toUpperCase()}
+
                               </div>
 
                               <span className="font-medium">
@@ -801,13 +926,17 @@ export default function UsersPage() {
 
                             {user.is_admin ===
                             true ? (
+
                               <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
                                 Yes
                               </span>
+
                             ) : (
+
                               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">
                                 No
                               </span>
+
                             )}
 
                           </td>
@@ -894,6 +1023,7 @@ export default function UsersPage() {
             <div className="flex items-center justify-between border-b p-6">
 
               <div>
+
                 <h2 className="text-xl font-bold text-navy">
                   {editingUser
                     ? "Edit User"
@@ -905,6 +1035,7 @@ export default function UsersPage() {
                     ? "Update user information."
                     : "Add a new system user."}
                 </p>
+
               </div>
 
               <button
@@ -923,22 +1054,33 @@ export default function UsersPage() {
               className="space-y-5 p-6"
             >
 
+              {/* NAME */}
+
               <div>
+
                 <label className="mb-1 block text-sm font-medium">
                   Full Name
                 </label>
 
                 <input
                   name="display_name"
-                  value={form.display_name}
-                  onChange={handleFormChange}
+                  value={
+                    form.display_name
+                  }
+                  onChange={
+                    handleFormChange
+                  }
                   required
                   className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
                   placeholder="e.g. John Smith"
                 />
+
               </div>
 
+              {/* EMAIL */}
+
               <div>
+
                 <label className="mb-1 block text-sm font-medium">
                   Email
                 </label>
@@ -947,28 +1089,20 @@ export default function UsersPage() {
                   type="email"
                   name="email"
                   value={form.email}
-                  onChange={handleFormChange}
+                  onChange={
+                    handleFormChange
+                  }
                   required
                   className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
                   placeholder="user@example.com"
                 />
+
               </div>
 
-              <div>
-                <label className="mb-1 block text-sm font-medium">
-                  Firebase UID
-                </label>
-
-                <input
-                  name="firebase_uid"
-                  value={form.firebase_uid}
-                  onChange={handleFormChange}
-                  className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
-                  placeholder="Firebase UID"
-                />
-              </div>
+              {/* ROLE */}
 
               <div>
+
                 <label className="mb-1 block text-sm font-medium">
                   Role
                 </label>
@@ -976,9 +1110,12 @@ export default function UsersPage() {
                 <select
                   name="role"
                   value={form.role}
-                  onChange={handleFormChange}
+                  onChange={
+                    handleFormChange
+                  }
                   className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
                 >
+
                   <option value="parent">
                     Parent
                   </option>
@@ -990,16 +1127,24 @@ export default function UsersPage() {
                   <option value="admin">
                     Admin
                   </option>
+
                 </select>
+
               </div>
+
+              {/* ADMIN */}
 
               <label className="flex items-center gap-3">
 
                 <input
                   type="checkbox"
                   name="is_admin"
-                  checked={form.is_admin}
-                  onChange={handleFormChange}
+                  checked={
+                    form.is_admin
+                  }
+                  onChange={
+                    handleFormChange
+                  }
                   className="h-4 w-4"
                 />
 
@@ -1008,6 +1153,28 @@ export default function UsersPage() {
                 </span>
 
               </label>
+
+              {/* INVITATION INFORMATION */}
+
+              {!editingUser && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+
+                  <p className="text-sm font-semibold text-blue-800">
+                    Parent account activation
+                  </p>
+
+                  <p className="mt-1 text-sm text-blue-700">
+                    The Firebase account will
+                    be created when the invited
+                    user activates their account.
+                    You do not need to enter a
+                    Firebase UID or password.
+                  </p>
+
+                </div>
+              )}
+
+              {/* ACTIONS */}
 
               <div className="flex justify-end gap-3 pt-4">
 
@@ -1056,6 +1223,7 @@ export default function UsersPage() {
             <div className="flex items-center justify-between border-b p-6">
 
               <div>
+
                 <h2 className="text-xl font-bold text-navy">
                   Import Users
                 </h2>
@@ -1063,6 +1231,7 @@ export default function UsersPage() {
                 <p className="text-sm text-gray-500">
                   Upload a CSV or Excel file.
                 </p>
+
               </div>
 
               <button
@@ -1078,7 +1247,7 @@ export default function UsersPage() {
 
             <div className="space-y-6 p-6">
 
-              {/* Upload */}
+              {/* UPLOAD */}
 
               <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
 
@@ -1105,7 +1274,7 @@ export default function UsersPage() {
 
               </div>
 
-              {/* Preview */}
+              {/* PREVIEW */}
 
               {importPreview.length >
                 0 && (
@@ -1195,7 +1364,7 @@ export default function UsersPage() {
 
               )}
 
-              {/* Actions */}
+              {/* ACTIONS */}
 
               <div className="flex justify-end gap-3">
 
@@ -1270,20 +1439,24 @@ export default function UsersPage() {
 
               <Detail
                 label="Email"
-                value={viewingUser.email}
+                value={
+                  viewingUser.email
+                }
               />
 
               <Detail
                 label="Firebase UID"
                 value={
                   viewingUser.firebase_uid ||
-                  "—"
+                  "Not activated yet"
                 }
               />
 
               <Detail
                 label="Role"
-                value={viewingUser.role}
+                value={
+                  viewingUser.role
+                }
               />
 
               <Detail
@@ -1314,10 +1487,12 @@ export default function UsersPage() {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
 
             <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+
               <Trash2
                 size={22}
                 className="text-red-600"
               />
+
             </div>
 
             <h2 className="text-xl font-bold text-navy">
@@ -1325,11 +1500,16 @@ export default function UsersPage() {
             </h2>
 
             <p className="mt-2 text-sm text-gray-600">
+
               Are you sure you want to delete{" "}
+
               <strong>
-                {deletingUser.display_name}
+                {deletingUser.display_name ||
+                  deletingUser.email}
               </strong>
+
               ? This action cannot be undone.
+
             </p>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -1397,9 +1577,13 @@ function StatCard({
 // DETAIL
 // ============================================================
 
-function Detail({ label, value }) {
+function Detail({
+  label,
+  value,
+}) {
   return (
     <div>
+
       <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
         {label}
       </p>
@@ -1407,6 +1591,7 @@ function Detail({ label, value }) {
       <p className="mt-1 break-all text-sm font-medium text-slate-800">
         {value || "—"}
       </p>
+
     </div>
   );
 }

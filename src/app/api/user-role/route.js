@@ -1,3 +1,5 @@
+//app/api/user-role/route.js
+
 import { NextResponse } from 'next/server';
 import { getConnection } from '@/lib/db';
 import { verifyUser } from '@/lib/auth';
