@@ -12,7 +12,7 @@ import {
   Megaphone,
 } from "lucide-react";
 
-import ParentSidebar from "@/components/parent/ParentSidebar";
+import StaffSidebar from "@/components/staff/StaffSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -259,27 +259,26 @@ const filteredNotices = notices.filter((notice) => {
   // PAGE
   // ============================================================
 
-  return (
-    <ResponsiveAppShell
-      sidebar={(sidebarProps) => <ParentSidebar {...sidebarProps} />}
-    >
-      <main className="min-w-0 flex-1 bg-slate-100">
-        <div className="min-w-0 p-5 sm:p-6 md:p-8 lg:p-10">
+return (
+  <ResponsiveAppShell
+    sidebar={(sidebarProps) => <StaffSidebar {...sidebarProps} />}
+  >
+    <main className="relative min-w-0 flex-1 bg-slate-100">
+      <div className="w-full min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10">
 
-          {/* ====================================================
-              PAGE HEADER
-              ==================================================== */}
+        {/* ====================================================
+            PAGE HEADER
+            ==================================================== */}
 
-          <div className="mb-7">
-            <p className="text-sm font-medium text-text-muted">
-              Stay informed with the latest school communications
-            </p>
+        <div className="mb-6">
+          <p className="text-sm font-medium text-text-muted">
+            Stay informed with the latest school communications
+          </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
-              Notices & Announcements
-            </h1>
-          </div>
-
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-navy sm:text-3xl">
+            Notices & Announcements
+          </h1>
+        </div>
           {/* ====================================================
               STATISTICS
               ==================================================== */}
