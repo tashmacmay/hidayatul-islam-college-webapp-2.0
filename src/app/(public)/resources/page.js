@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import {
   BookOpen,
   FileText,
@@ -9,6 +6,7 @@ import {
   School,
 } from "lucide-react";
 import { EmptyState, PageHero, PopiaNote, SectionHeader } from "@/components/components";
+import FilterButtons from "@/components/public/FilterButtons";
 
 const resourceCategories = [
   "All resources",
@@ -32,9 +30,6 @@ const includedResources = [
 ];
 
 export default function Resources() {
-  const [selectedCategory, setSelectedCategory] = useState("All resources");
-  const [selectedGrade, setSelectedGrade] = useState("Grade R");
-
   return (
     <>
       <PageHero
@@ -60,19 +55,7 @@ export default function Resources() {
                   Grade-specific materials will appear here once they are uploaded by the school.
                 </p>
 
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {grades.map((grade) => (
-                    <button
-                      key={grade}
-                      onClick={() => setSelectedGrade(grade)}
-                      className={`filter-chip--on-navy ${
-                        selectedGrade === grade ? "filter-chip--on-navy-active" : "filter-chip--on-navy-inactive"
-                      }`}
-                    >
-                      {grade}
-                    </button>
-                  ))}
-                </div>
+                <FilterButtons items={grades} tone="navy" className="mt-6 flex flex-wrap gap-2" />
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
@@ -86,33 +69,20 @@ export default function Resources() {
             </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-2">
-            {resourceCategories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`filter-chip ${selectedCategory === category ? "filter-chip--active" : "filter-chip--inactive"}`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
+          <FilterButtons items={resourceCategories} className="mt-8 flex flex-wrap gap-2" />
 
           <div className="mt-8">
             <EmptyState
               icon={<BookOpen className="h-6 w-6" />}
               title="No resources uploaded yet"
               description="Learning materials, worksheets, guides and school documents will appear here once they are uploaded by the school."
-              titleClassName="mt-5 text-xl font-bold text-navy"
             />
           </div>
 
           <div className="mt-16">
             <SectionHeader
               title={<>Forms & <span className="text-gold">Policies</span></>}
-              titleClassName="mt-2 text-lg font-semibold text-navy"
-              dividerClassName="mt-3 h-1 w-12 rounded-full bg-gold"
-              className="text-left"
+              variant="left"
             />
 
             <div className="mt-6 rounded-xl border border-dashed border-gray-200 bg-white px-5 py-8 text-center">

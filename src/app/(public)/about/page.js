@@ -1,4 +1,4 @@
-import { IconCard, PageHero, SectionHeader } from "@/components/components";
+import { IconCard, PageHero, SectionHeader, StatStrip } from "@/components/components";
 import {
   BookOpen,
   HeartHandshake,
@@ -80,10 +80,10 @@ const schoolValues = [
 ];
 
 const schoolStats = [
-  ["40+", "Years of Service"],
-  ["R–7", "Grades Offered"],
-  ["100%", "Dept. of Ed. Compliant"],
-  ["Cape Town", "Kensington Community"],
+  { title: "40+", text: "Years of Service" },
+  { title: "R–7", text: "Grades Offered" },
+  { title: "100%", text: "Dept. of Ed. Compliant" },
+  { title: "Cape Town", text: "Kensington Community" },
 ];
 
 const communityHighlights = [
@@ -120,7 +120,7 @@ export default function About() {
               label="Who We Are"
               title={<>Rooted in Faith,{" "}<span className="block text-gold">Built for Excellence</span></>}
               className="text-left"
-              dividerClassName="gold-divider"
+              variant="left"
             />
 
             <p className="mt-8 body-copy">
@@ -148,7 +148,7 @@ export default function About() {
             label="Our Foundation"
             title="Mission, Vision & Values"
             className="mb-8 text-center"
-            dividerClassName="mx-auto mt-4 h-1 w-16 rounded-full bg-gold"
+            variant="centered--tight"
           />
 
           <div className="grid gap-6 lg:grid-cols-3">
@@ -179,16 +179,7 @@ export default function About() {
         </div>
       </section>
 
-      <section className="section-shell--gold py-10">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4 md:px-10">
-          {schoolStats.map(([value, label]) => (
-            <div key={label}>
-              <h3 className="text-lg font-bold text-navy">{value}</h3>
-              <p className="mt-1 text-sm text-navy">{label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <StatStrip items={schoolStats} />
 
       <section className="section-shell section-shell--off-white">
         <div className="mx-auto max-w-5xl">
@@ -196,8 +187,7 @@ export default function About() {
             label="Our Story"
             title="A Legacy of Learning"
             description="From humble beginnings in Kensington to a fully accredited primary school, our journey reflects the dedication of an entire community."
-            descriptionClassName="mx-auto mt-6 max-w-3xl leading-8 text-gray-600"
-            className="text-center"
+            variant="centered"
           />
 
           <div className="relative mt-16">
@@ -222,8 +212,7 @@ export default function About() {
             <SectionHeader
               label="Life At HIC"
               title="Our School In Pictures"
-              labelClassName="text-sm font-semibold uppercase tracking-[3px] text-gold"
-              titleClassName="mt-3 text-xl font-bold leading-tight text-white md:text-2xl"
+              variant="onNavy"
             />
           </div>
 
@@ -241,8 +230,7 @@ export default function About() {
             label="Our People"
             title="School Leadership"
             description="Our dedicated leadership team works tirelessly to ensure every learner thrives academically, spiritually, and socially."
-            descriptionClassName="mx-auto mt-6 max-w-3xl leading-8 text-gray-600"
-            className="text-center"
+            variant="centered"
           />
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -339,7 +327,7 @@ export default function About() {
           label="Community & Culture"
           title={<>More than a school —{" "}<span className="block text-gold">a community</span></>}
           className="text-left"
-          dividerClassName="gold-divider"
+          variant="left"
         />
 
       <p className="mt-8 leading-8 text-gray-600">

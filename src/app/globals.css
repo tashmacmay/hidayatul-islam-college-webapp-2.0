@@ -18,6 +18,8 @@
   --border: rgba(13, 34, 96, 0.15);
   --shadow-soft: 0 12px 30px rgba(13, 34, 96, 0.08);
   --shadow-card: 0 12px 32px rgba(13, 34, 96, 0.12);
+  --popia-border: #eadcae;
+  --popia-bg: #fff9e8;
 
   --background: var(--white);
   --foreground: var(--text);
@@ -83,7 +85,7 @@ select {
   }
 
   .section-header-divider {
-    @apply mx-auto mt-5 h-1 w-20 rounded-full bg-gold;
+    @apply gold-divider;
   }
 
   .page-hero {
@@ -185,15 +187,11 @@ select {
   }
 
   .popia-note--gallery {
-    @apply border-[#eadcae] bg-[#fff9e8];
+    @apply border-[var(--popia-border)] bg-[var(--popia-bg)];
   }
 
   .popia-note--resources {
-    @apply border-[#E9D9A8] bg-[#FFF8E5] p-5;
-  }
-
-  .popia-note--resources .popia-note-icon {
-    @apply bg-[#F7EAC2];
+    @apply border-[var(--popia-border)] bg-[var(--popia-bg)] p-5;
   }
 
   .popia-note-icon {

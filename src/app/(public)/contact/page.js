@@ -1,4 +1,11 @@
-import { IconCard, PageHero, SectionHeader } from "@/components/components";
+import { InfoRow, PageHero, SectionHeader } from "@/components/components";
+
+const contactRows = [
+  { icon: "⌖", title: "Address", content: <p className="mt-1 text-sm leading-6 text-gray-600">Hidayatul Islam College<br />Cape Town, South Africa</p> },
+  { icon: "☎", title: "Phone", content: <a href="tel:+27000000000" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">+27 21 593 7544</a> },
+  { icon: "✉", title: "Email", content: <a href="mailto:info@hidayatulislamcollege.co.za" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">hislaam@telkomsa.net</a> },
+  { icon: "◷", title: "School Hours", content: <p className="mt-1 text-sm leading-6 text-gray-600">Monday – Friday<br />School hours vary by phase.</p> },
+];
 
 export default function Contact() {
   return (
@@ -19,7 +26,7 @@ export default function Contact() {
                 label="Find Us"
                 title="Contact Information"
                 className="text-left"
-                dividerClassName="mt-5 h-1 w-16 rounded-full bg-gold"
+                variant="left"
               />
 
               <p className="mt-6 max-w-xl text-sm leading-7 text-gray-600">
@@ -27,18 +34,9 @@ export default function Contact() {
               </p>
 
               <div className="mt-8 space-y-4">
-                <IconCard icon={<span className="text-lg">⌖</span>} title="Address" className="card-muted flex gap-4" iconClassName="info-badge" contentClassName="" titleClassName="font-semibold text-navy" groupContent>
-                  <p className="mt-1 text-sm leading-6 text-gray-600">Hidayatul Islam College<br />Cape Town, South Africa</p>
-                </IconCard>
-                <IconCard icon={<span className="text-lg">☎</span>} title="Phone" className="card-muted flex gap-4" iconClassName="info-badge" contentClassName="" titleClassName="font-semibold text-navy" groupContent>
-                  <a href="tel:+27000000000" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">+27 21 593 7544</a>
-                </IconCard>
-                <IconCard icon={<span className="text-lg">✉</span>} title="Email" className="card-muted flex gap-4" iconClassName="info-badge" contentClassName="" titleClassName="font-semibold text-navy" groupContent>
-                  <a href="mailto:info@hidayatulislamcollege.co.za" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">hislaam@telkomsa.net</a>
-                </IconCard>
-                <IconCard icon={<span className="text-lg">◷</span>} title="School Hours" className="card-muted flex gap-4" iconClassName="info-badge" contentClassName="" titleClassName="font-semibold text-navy" groupContent>
-                  <p className="mt-1 text-sm leading-6 text-gray-600">Monday – Friday<br />School hours vary by phase.</p>
-                </IconCard>
+                {contactRows.map((row) => (
+                  <InfoRow key={row.title} icon={<span className="text-lg">{row.icon}</span>} title={row.title}>{row.content}</InfoRow>
+                ))}
               </div>
             </div>
 
@@ -62,8 +60,7 @@ export default function Contact() {
               label="Other Ways to Reach Us"
               title="Quick Contacts"
               description="For more information, please get in touch with the school through the contact details provided above."
-              descriptionClassName="mx-auto mt-5 max-w-2xl text-sm leading-7 text-gray-600"
-              dividerClassName="mx-auto mt-5 h-1 w-16 rounded-full bg-gold"
+              variant="centered"
             />
           </div>
 

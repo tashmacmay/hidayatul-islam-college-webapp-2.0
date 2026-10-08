@@ -1,13 +1,9 @@
-"use client";
-
-import { useState } from "react";
-import { EmptyState, PageHero } from "@/components/components";
+import { CtaBanner, EmptyState, PageHero } from "@/components/components";
+import FilterButtons from "@/components/public/FilterButtons";
 
 const filters = ["All", "News", "Events", "Achievements", "Notices", "Islamic"];
 
 export default function News() {
-  const [activeFilter, setActiveFilter] = useState("All");
-
   return (
     <>
       <PageHero
@@ -22,17 +18,7 @@ export default function News() {
         <div className="mx-auto max-w-6xl">
           <div className="mb-10 flex flex-wrap items-center gap-3">
             <span className="mr-2 text-xs font-semibold text-navy">Filter:</span>
-            {filters.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`filter-chip ${
-                  activeFilter === filter ? "filter-chip--active" : "filter-chip--inactive"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
+            <FilterButtons items={filters} className="flex flex-wrap items-center gap-3" />
           </div>
 
           <div className="mx-auto max-w-4xl">
@@ -44,6 +30,12 @@ export default function News() {
           </div>
         </div>
       </section>
+
+      <CtaBanner
+        title="Stay connected with HIC"
+        description="Keep up with school news, events, achievements and important notices."
+        actions={[{ label: "Contact Us", href: "/contact", variant: "secondary-dark" }]}
+      />
 
     </>
   );

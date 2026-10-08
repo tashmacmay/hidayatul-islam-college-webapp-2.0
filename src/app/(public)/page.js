@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { SectionHeader } from "@/components/components";
+import { SectionHeader, StatStrip } from "@/components/components";
 import HomeHeroSlider from "@/components/home/HomeHeroSlider";
 
 import {
@@ -12,27 +12,24 @@ import {
 } from "lucide-react";
 
 export default function Home() {
+  const highlights = [
+    { icon: <GraduationCap />, title: "Grade R-7", text: "Grades Offered" },
+    { icon: <ShieldCheck />, title: "Registered & Accredited", text: "Department of Education" },
+    { icon: <Star />, title: "40+ Years of Excellence", text: "Established 1982" },
+    { icon: <Landmark />, title: "Islamic Values", text: "Character & Community" },
+  ];
   return (
     <>
       <HomeHeroSlider />
 
-        <section className="section-shell--gold grid text-navy md:grid-cols-4">
-          {[
-            { icon: <GraduationCap />, title: "Grade R-7", text: "Grades Offered" },
-            { icon: <ShieldCheck />, title: "Registered & Accredited", text: "Department of Education" },
-            { icon: <Star />, title: "40+ Years of Excellence", text: "Established 1982" },
-            { icon: <Landmark />, title: "Islamic Values", text: "Character & Community" },
-          ].map((item) => (
-            <Highlight key={item.title} {...item} />
-          ))}
-        </section>
+        <StatStrip items={highlights} />
 
         <section className="section-shell section-shell--white">
           <div className="mx-auto max-w-6xl text-center">
             <SectionHeader
               label="Quick Access"
               title="Everything you need, in one place"
-              dividerClassName="mx-auto mt-4 h-1 w-16 rounded-full bg-gold"
+              variant="centered--tight"
             />
 
             <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
@@ -63,7 +60,7 @@ export default function Home() {
                 label="A Word from Our Principal"
                 title={<>A Word from{" "}<span className="block text-gold">Mrs. Fridie</span></>}
                 className="text-left"
-                dividerClassName=""
+                divider={false}
               />
 
               <blockquote className="mt-8 border-l-4 border-gold pl-6 text-base italic leading-7 text-gray-600">
@@ -85,18 +82,6 @@ export default function Home() {
           </div>
         </section>
     </>
-  );
-}
-
-function Highlight({ icon, title, text }) {
-  return (
-    <div className="flex items-center justify-center gap-4 border-r border-navy/15 px-6 py-6">
-      <div className="text-navy [&>svg]:h-8 [&>svg]:w-8">{icon}</div>
-      <div>
-        <h3 className="text-base font-semibold">{title}</h3>
-        <p className="text-sm">{text}</p>
-      </div>
-    </div>
   );
 }
 

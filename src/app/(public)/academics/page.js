@@ -1,4 +1,4 @@
-import { PageHero, SectionHeader } from "@/components/components";
+import { CtaBanner, PageHero, SectionHeader, SubjectList, IconCard } from "@/components/components";
 import {
   BookOpen,
   HeartHandshake,
@@ -9,7 +9,23 @@ import {
   Users,
 } from "lucide-react";
 import GradeExplorer from "@/components/GradeExplorer";
-import { IconCard } from "@/components/components";
+
+const nationalSubjects = [
+  "Home Language (English / Afrikaans)",
+  "First Additional Language",
+  "Mathematics",
+  "Life Skills / Social Sciences",
+  "Natural Sciences & Technology",
+  "Economic & Management Sciences",
+];
+
+const islamicSubjects = [
+  "Islamic Studies (Fiqh, Aqeedah, Seerah)",
+  "Quran Recitation & Memorisation",
+  "Arabic Language",
+  "Islamic History & Ethics",
+  "Du'a and Salah",
+];
 
 const islamicTopics = [
   { icon: BookOpen, title: "Quran Recitation & Hifz", description: "Daily Quran lessons focus on Tajweed, understanding and memorisation." },
@@ -59,7 +75,7 @@ export default function Academics() {
               label="Our Curriculum"
               title={<>A Whole-Child{" "}<span className="block">Education</span></>}
               className="text-left"
-              dividerClassName="gold-divider"
+              variant="left"
             />
 
             <p className="mt-8 body-copy">
@@ -77,26 +93,13 @@ export default function Academics() {
             <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">National Curriculum (CAPS)</p>
             <h3 className="mt-4 text-lg font-semibold">DoE-Registered Subjects</h3>
 
-            <ul className="mt-6 space-y-3 text-sm text-blue-100">
-              <li><span className="mr-2 text-gold">•</span>Home Language (English / Afrikaans)</li>
-              <li><span className="mr-2 text-gold">•</span>First Additional Language</li>
-              <li><span className="mr-2 text-gold">•</span>Mathematics</li>
-              <li><span className="mr-2 text-gold">•</span>Life Skills / Social Sciences</li>
-              <li><span className="mr-2 text-gold">•</span>Natural Sciences & Technology</li>
-              <li><span className="mr-2 text-gold">•</span>Economic & Management Sciences</li>
-            </ul>
+            <SubjectList items={nationalSubjects} />
 
             <div className="mt-10 border-t border-white/20 pt-8">
               <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">Islamic Enrichment</p>
               <h3 className="mt-4 text-lg font-semibold">Faith & Character Subjects</h3>
 
-              <ul className="mt-6 space-y-3 text-sm text-blue-100">
-                <li><span className="mr-2 text-gold">•</span>Islamic Studies (Fiqh, Aqeedah, Seerah)</li>
-                <li><span className="mr-2 text-gold">•</span>Quran Recitation & Memorisation</li>
-                <li><span className="mr-2 text-gold">•</span>Arabic Language</li>
-                <li><span className="mr-2 text-gold">•</span>Islamic History & Ethics</li>
-                <li><span className="mr-2 text-gold">•</span>Du&apos;a and Salah</li>
-              </ul>
+              <SubjectList items={islamicSubjects} />
             </div>
           </div>
         </div>
@@ -110,9 +113,7 @@ export default function Academics() {
             label="Faith & Knowledge"
             title="Islamic Studies Programme"
             description="Our Islamic curriculum runs alongside the national programme from Grade R to Grade 7, nurturing learners who are grounded in their faith and equipped for the world."
-            titleClassName="mt-3 text-xl font-bold leading-tight md:text-2xl"
-            descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-blue-100"
-            className="text-center"
+            variant="onNavy"
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -121,10 +122,7 @@ export default function Academics() {
                 key={title}
                 icon={<Icon className="h-5 w-5 text-gold" />}
                 title={title}
-                className="card-academic-dark"
-                iconClassName=""
-                contentClassName=""
-                titleClassName="mt-3 text-base font-semibold text-gold"
+                variant="dark"
               >
                 <p className="mt-3 text-sm leading-6 text-blue-100">{description}</p>
               </IconCard>
@@ -140,7 +138,7 @@ export default function Academics() {
               label="How We Teach"
               title="Our Teaching Philosophy"
               description="We draw on evidence-based pedagogical approaches and Islamic educational traditions to create classrooms where every learner is seen, heard, and challenged."
-              descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
+              variant="centered"
             />
           </div>
 
@@ -163,7 +161,7 @@ export default function Academics() {
               label="Language of Learning"
               title="Languages at HIC"
               description="We honour the multilingual identities of our learners while providing strong foundations in English, Afrikaans and Arabic."
-              descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
+              variant="centered"
             />
           </div>
 
@@ -173,10 +171,7 @@ export default function Academics() {
                 key={item.title}
                 icon={item.icon}
                 title={item.title}
-                className="card-academic-light text-center"
-                iconClassName="text-2xl"
-                contentClassName=""
-                titleClassName="mt-4 text-base font-semibold text-navy"
+                variant="language"
               >
                 <p className="mt-2 text-gold font-semibold">{item.subtitle}</p>
                 <p className="mt-4 text-sm leading-7 text-gray-600">{item.description}</p>
@@ -193,7 +188,7 @@ export default function Academics() {
               label="How We Track Progress"
               title="Assessment & Reporting"
               className="text-left"
-              dividerClassName="gold-divider"
+              variant="left"
             />
             <p className="mt-8 body-copy">Assessment at Hidayatul Islam College is continuous, formative, and designed to support learning — not just measure it.</p>
             <p className="mt-6 body-copy">We follow CAPS assessment requirements while also tracking learners&apos; growth in Islamic character, leadership and personal development.</p>
@@ -206,10 +201,7 @@ export default function Academics() {
                 key={title}
                 icon={<Icon className="h-5 w-5 text-navy" />}
                 title={title}
-                className="card-assessment"
-                iconClassName=""
-                contentClassName=""
-                titleClassName="mt-3 font-bold text-navy"
+                variant="assessment"
               >
                 <p className="mt-2 text-sm text-gray-600">{description}</p>
               </IconCard>
@@ -224,8 +216,7 @@ export default function Academics() {
             label="Beyond the Classroom"
             title="Extramural & Enrichment Activities"
             description="Learning doesn&apos;t stop at the classroom door. We provide opportunities that develop the whole child."
-            descriptionClassName="mx-auto mt-6 max-w-3xl leading-7 text-gray-600"
-            className="text-center"
+            variant="centered"
           />
 
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -247,6 +238,15 @@ export default function Academics() {
           </div>
         </div>
       </section>
+
+      <CtaBanner
+        title="Ready to join the HIC family?"
+        description="We welcome applications from families who share our commitment to faith, knowledge and character."
+        actions={[
+          { label: "Apply for 2026", href: "/contact", variant: "primary" },
+          { label: "Contact Us", href: "/contact", variant: "secondary-dark" },
+        ]}
+      />
 
     </>
   );

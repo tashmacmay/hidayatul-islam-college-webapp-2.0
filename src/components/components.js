@@ -42,22 +42,110 @@ export function PageHero({
   );
 }
 
+const sectionHeaderVariants = {
+  centered: {
+    wrapper: "text-center",
+    divider: "gold-divider mx-auto",
+    description: "mx-auto mt-6 max-w-3xl text-gray-600",
+  },
+  "centered--tight": {
+    wrapper: "text-center",
+    divider: "mx-auto mt-4 h-1 w-16 rounded-full bg-gold",
+    description: "mx-auto mt-6 max-w-3xl text-gray-600",
+  },
+  left: {
+    wrapper: "text-left",
+    divider: "gold-divider",
+    description: "max-w-prose text-gray-600",
+  },
+  onNavy: {
+    wrapper: "text-center",
+    divider: "gold-divider mx-auto",
+    description: "mx-auto mt-6 max-w-3xl text-blue-100",
+  },
+};
+
 export function SectionHeader({
   label,
   title,
   description,
+  variant = "centered",
+  divider = true,
   className = "",
-  labelClassName = "section-label",
-  titleClassName = "section-title",
-  descriptionClassName = "section-subtitle",
-  dividerClassName = "section-header-divider",
 }) {
+  const styles = sectionHeaderVariants[variant] || sectionHeaderVariants.centered;
+  const titleClass = variant === "onNavy" ? "section-title text-white" : "section-title";
   return (
-    <div className={className}>
-      {label && <p className={labelClassName}>{label}</p>}
-      <h2 className={titleClassName}>{title}</h2>
-      {dividerClassName && <div className={dividerClassName} />}
-      {description && <p className={descriptionClassName}>{description}</p>}
+    <div className={`${styles.wrapper} ${className}`}>
+      {label && <p className="section-label">{label}</p>}
+      <h2 className={titleClass}>{title}</h2>
+      {divider && <div className={styles.divider} />}
+      {description && <p className={`section-subtitle ${styles.description}`}>{description}</p>}
+    </div>
+  );
+}
+
+const iconCardVariants = {
+  dark: {
+    card: "card-academic-dark",
+    icon: "",
+    title: "mt-3 text-base font-semibold text-gold",
+    description: "mt-3 text-sm leading-6 text-blue-100",
+  },
+  light: {
+    card: "card-academic-light",
+    icon: "text-2xl",
+    title: "mt-4 text-base font-semibold text-navy",
+    description: "mt-4 text-sm leading-7 text-gray-600",
+  },
+  assessment: {
+    card: "card-assessment",
+    icon: "",
+    title: "mt-3 font-bold text-navy",
+    description: "mt-2 text-sm text-gray-600",
+  },
+  community: {
+    card: "card-community",
+    icon: "text-gold",
+    title: "font-bold text-navy",
+    description: "mt-2 text-sm text-gray-600",
+  },
+  person: {
+    card: "card-person",
+    icon: "mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold",
+    title: "mt-5 text-base font-semibold text-navy",
+    description: "mt-3 text-sm leading-6 text-gray-600",
+  },
+  language: {
+    card: "card-academic-light text-center",
+    icon: "text-2xl",
+    title: "mt-4 text-base font-semibold text-navy",
+    description: "mt-4 text-sm leading-7 text-gray-600",
+  },
+};
+
+export function IconCard({
+  icon,
+  title,
+  description,
+  variant = "light",
+  className = "",
+  children,
+}) {
+  const styles = iconCardVariants[variant] || iconCardVariants.light;
+  const content = (
+    <>
+      <h3 className={styles.title}>{title}</h3>
+      {variant === "language" && children}
+      {description && <p className={styles.description}>{description}</p>}
+      {variant !== "language" && children}
+    </>
+  );
+
+  return (
+    <div className={`${styles.card} ${className}`}>
+      <div className={styles.icon}>{icon}</div>
+      {variant === "community" ? <div className="flex items-center gap-3">{content}</div> : content}
     </div>
   );
 }
@@ -66,47 +154,16 @@ export function EmptyState({
   icon,
   title,
   description,
-  className = "empty-state-card",
-  iconClassName = "empty-state-icon",
-  titleClassName = "empty-state-title",
-  descriptionClassName = "empty-state-copy",
+  variant = "default",
   titleElement = "h2",
 }) {
   const TitleElement = titleElement;
-
+  const cardClass = variant === "gallery" ? "empty-state-gallery" : "empty-state-card";
   return (
-    <div className={className}>
-      <div className={iconClassName}>{icon}</div>
-      <TitleElement className={titleClassName}>{title}</TitleElement>
-      <p className={descriptionClassName}>{description}</p>
-    </div>
-  );
-}
-
-export function IconCard({
-  icon,
-  title,
-  children,
-  className,
-  iconClassName,
-  contentClassName,
-  titleClassName,
-  groupContent = false,
-}) {
-  return (
-    <div className={className}>
-      <div className={iconClassName}>{icon}</div>
-      {groupContent ? (
-        <div className={contentClassName}>
-          <h3 className={titleClassName}>{title}</h3>
-          {children}
-        </div>
-      ) : (
-        <>
-          <h3 className={titleClassName}>{title}</h3>
-          {children}
-        </>
-      )}
+    <div className={cardClass}>
+      <div className="empty-state-icon">{icon}</div>
+      <TitleElement className="empty-state-title">{title}</TitleElement>
+      <p className="empty-state-copy">{description}</p>
     </div>
   );
 }
@@ -123,76 +180,55 @@ export function PopiaNote({ title = "POPIA Notice", children, variant = "gallery
   );
 }
 
-export function Button({ href, children, variant = "primary", className = "" }) {
-  const baseStyles = "inline-block rounded-lg px-5 py-3 text-sm font-semibold transition";
-
-  const variantStyles =
-    variant === "secondary"
-      ? "border border-navy text-navy hover:bg-navy hover:text-white"
-      : "bg-gold text-navy hover:bg-gold-light";
-
-  if (href) {
-    return (
-      <Link href={href} className={`${baseStyles} ${variantStyles} ${className}`}>
-        {children}
-      </Link>
-    );
-  }
-
+export function SubjectList({ items }) {
   return (
-    <button className={`${baseStyles} ${variantStyles} ${className}`}>
-      {children}
-    </button>
+    <ul className="mt-6 space-y-3 text-sm text-blue-100">
+      {items.map((item) => <li key={item}><span className="mr-2 text-gold">•</span>{item}</li>)}
+    </ul>
   );
 }
 
-export function Card({ title, children, href }) {
-  const cardContent = (
-    <div className="card-surface h-full transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
-      <h3 className="text-lg font-bold text-navy">{title}</h3>
-      <div className="mt-2 text-sm leading-6 text-text-muted">{children}</div>
-    </div>
+export function StatStrip({ items, tone = "gold" }) {
+  return (
+    <section className={`section-shell--${tone} grid text-navy md:grid-cols-4`}>
+      {items.map(({ icon, title, text }) => (
+        <div key={`${title}-${text}`} className="flex items-center justify-center gap-4 border-r border-navy/15 px-6 py-6 last:border-r-0">
+          {icon && <div className="text-navy [&>svg]:h-8 [&>svg]:w-8">{icon}</div>}
+          <div>
+            <h3 className={icon ? "text-base font-semibold" : "text-lg font-bold"}>{title}</h3>
+            <p className={icon ? "text-sm" : "mt-1 text-sm"}>{text}</p>
+          </div>
+        </div>
+      ))}
+    </section>
   );
-
-  if (href) {
-    return (
-      <Link href={href} className="block h-full">
-        {cardContent}
-      </Link>
-    );
-  }
-
-  return cardContent;
 }
 
-export function HeroBanner() {
+export function CtaBanner({ title, description, actions }) {
   return (
-    <section className="bg-navy px-6 py-24 text-white">
-      <div className="mx-auto max-w-7xl">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[2px] text-gold">
-          Welcome to Hidayatul Islam College
-        </p>
-
-        <h1 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">
-          A caring school community rooted in learning and values.
-        </h1>
-
-        <p className="mt-5 max-w-2xl text-base leading-7 text-blue-100">
-          Hidayatul Islam College offers primary school education focused on
-          academic growth, character development, and community connection.
-        </p>
-
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Button href="/contact">Contact Us</Button>
-          <Button
-            href="/academics"
-            variant="secondary"
-            className="border-white text-white hover:bg-white hover:text-navy"
-          >
-            View Academics
-          </Button>
+    <section className="section-shell section-shell--navy">
+      <div className="mx-auto max-w-4xl text-center">
+        <SectionHeader title={title} description={description} variant="onNavy" />
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          {actions.map(({ label, href, variant = "primary" }) => (
+            <Link key={label} href={href} className={variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`}>
+              {label}
+            </Link>
+          ))}
         </div>
       </div>
     </section>
+  );
+}
+
+export function InfoRow({ icon, title, children }) {
+  return (
+    <div className="card-muted flex gap-4">
+      <div className="info-badge">{icon}</div>
+      <div>
+        <h3 className="font-semibold text-navy">{title}</h3>
+        {children}
+      </div>
+    </div>
   );
 }
