@@ -136,3 +136,23 @@ export function formatParentBooking(booking, staffLookup) {
     status: start >= new Date() ? "upcoming" : "past",
   };
 }
+
+export function formatStaffBooking(booking, staffLookup) {
+  const base = formatParentBooking(booking, staffLookup);
+
+  const parentEmail =
+    booking.customerEmailAddress ||
+    booking.customers?.[0]?.emailAddress ||
+    "";
+
+  const parentName =
+    booking.customerName ||
+    booking.customers?.[0]?.displayName ||
+    "";
+
+  return {
+    ...base,
+    parentEmail,
+    parentName,
+  };
+}
