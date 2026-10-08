@@ -1054,7 +1054,26 @@ const filteredGalleryImages = galleryImages.filter((image) => {
 if (galleryFilter === "draft") {return image.published === false;}
 return true;
 });
-   // ============================================================
+  // ============================================================
+// Stats
+// ============================================================
+
+const activeMediaItems =
+  activeSection === "news"
+    ? newsArticles
+    : galleryImages;
+
+const totalMediaItems = activeMediaItems.length;
+
+const publishedMediaItems = activeMediaItems.filter(
+  (item) => item.published
+).length;
+
+const draftMediaItems = activeMediaItems.filter(
+  (item) => !item.published
+).length;
+
+// ============================================================
 // RENDER
 // ============================================================
 
@@ -1062,23 +1081,23 @@ return (
   <div className="min-h-screen bg-[#f0f2f7]">
     <StaffSidebar />
 
-    <main className="min-h-screen md:ml-[240px]">
-      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+    <main className="min-h-screen min-w-0 md:ml-[240px]">
+      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-5 md:px-8 md:py-8">
 
         {/* ======================================================
             PAGE HEADER
             ====================================================== */}
 
-        <div className="mb-8">
-          <p className="text-sm font-medium text-[#5a6a82]">
+        <div className="mb-6">
+          <p className="text-xs font-medium uppercase tracking-wide text-[#5a6a82]">
             Staff Portal
           </p>
 
-          <h1 className="mt-1 text-3xl font-bold tracking-tight text-[#0d2260] md:text-4xl">
+          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#0d2260] md:text-3xl">
             Media Management
           </h1>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#5a6a82]">
+          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#5a6a82]">
             Manage the news, announcements and gallery content
             displayed on the public website.
           </p>
@@ -1089,14 +1108,14 @@ return (
             ====================================================== */}
 
         {message && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
             <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" />
             <p>{message}</p>
           </div>
         )}
 
         {errorMessage && (
-          <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mb-5 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
             <p>{errorMessage}</p>
           </div>
@@ -1106,31 +1125,32 @@ return (
             SECTION SELECTOR
             ====================================================== */}
 
-        <div className="mb-8 grid gap-4 md:grid-cols-2">
+        <div className="mb-5 grid gap-3 md:grid-cols-2">
 
           {/* NEWS CARD */}
           <button
             type="button"
             onClick={() => setActiveSection("news")}
-            className={`group rounded-2xl border p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+            className={`group rounded-xl border p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
               activeSection === "news"
                 ? "border-[#0d2260] bg-[#0d2260]"
                 : "border-gray-200 bg-white hover:border-[#c9a227]"
             }`}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-center justify-between">
+
               <div
-                className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                className={`flex h-9 w-9 items-center justify-center rounded-lg ${
                   activeSection === "news"
                     ? "bg-[#c9a227]/20 text-[#c9a227]"
                     : "bg-[#0d2260] text-[#c9a227]"
                 }`}
               >
-                <Newspaper className="h-5 w-5" />
+                <Newspaper className="h-4 w-4" />
               </div>
 
               <ArrowRight
-                className={`h-5 w-5 transition-transform group-hover:translate-x-1 ${
+                className={`h-4 w-4 transition-transform group-hover:translate-x-1 ${
                   activeSection === "news"
                     ? "text-[#c9a227]"
                     : "text-gray-300"
@@ -1139,7 +1159,7 @@ return (
             </div>
 
             <h2
-              className={`mt-5 text-base font-bold ${
+              className={`mt-3 text-sm font-bold ${
                 activeSection === "news"
                   ? "text-white"
                   : "text-[#0d2260]"
@@ -1149,16 +1169,17 @@ return (
             </h2>
 
             <p
-              className={`mt-2 text-sm leading-6 ${
+              className={`mt-1 line-clamp-2 text-xs leading-5 ${
                 activeSection === "news"
                   ? "text-blue-100"
                   : "text-[#5a6a82]"
               }`}
             >
-              Create and manage school news and announcements for the public website.
+              Create and manage school news and announcements for
+              the public website.
             </p>
 
-            <div className="mt-4">
+            <div className="mt-2">
               <span
                 className={`text-xs font-semibold ${
                   activeSection === "news"
@@ -1167,7 +1188,9 @@ return (
                 }`}
               >
                 {newsArticles.length}{" "}
-                {newsArticles.length === 1 ? "article" : "articles"}
+                {newsArticles.length === 1
+                  ? "article"
+                  : "articles"}
               </span>
             </div>
           </button>
@@ -1176,25 +1199,26 @@ return (
           <button
             type="button"
             onClick={() => setActiveSection("gallery")}
-            className={`group rounded-2xl border p-5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
+            className={`group rounded-xl border p-4 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${
               activeSection === "gallery"
                 ? "border-[#0d2260] bg-[#0d2260]"
                 : "border-gray-200 bg-white hover:border-[#c9a227]"
             }`}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-center justify-between">
+
               <div
-                className={`flex h-11 w-11 items-center justify-center rounded-xl ${
+                className={`flex h-9 w-9 items-center justify-center rounded-lg ${
                   activeSection === "gallery"
                     ? "bg-[#c9a227]/20 text-[#c9a227]"
                     : "bg-[#0d2260] text-[#c9a227]"
                 }`}
               >
-                <Images className="h-5 w-5" />
+                <Images className="h-4 w-4" />
               </div>
 
               <ArrowRight
-                className={`h-5 w-5 transition-transform group-hover:translate-x-1 ${
+                className={`h-4 w-4 transition-transform group-hover:translate-x-1 ${
                   activeSection === "gallery"
                     ? "text-[#c9a227]"
                     : "text-gray-300"
@@ -1203,7 +1227,7 @@ return (
             </div>
 
             <h2
-              className={`mt-5 text-base font-bold ${
+              className={`mt-3 text-sm font-bold ${
                 activeSection === "gallery"
                   ? "text-white"
                   : "text-[#0d2260]"
@@ -1213,17 +1237,17 @@ return (
             </h2>
 
             <p
-              className={`mt-2 text-sm leading-6 ${
+              className={`mt-1 line-clamp-2 text-xs leading-5 ${
                 activeSection === "gallery"
                   ? "text-blue-100"
                   : "text-[#5a6a82]"
               }`}
             >
               Upload and manage school photographs from events,
-              sport, academics, outings and Islamic activities.
+              sport, academics and Islamic activities.
             </p>
 
-            <div className="mt-4">
+            <div className="mt-2">
               <span
                 className={`text-xs font-semibold ${
                   activeSection === "gallery"
@@ -1232,10 +1256,81 @@ return (
                 }`}
               >
                 {galleryImages.length}{" "}
-                {galleryImages.length === 1 ? "photo" : "photos"}
+                {galleryImages.length === 1
+                  ? "photo"
+                  : "photos"}
               </span>
             </div>
           </button>
+        </div>
+
+        {/* ======================================================
+            STATISTICS
+            ====================================================== */}
+
+        <div className="mb-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+          {/* TOTAL */}
+          <div className="rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-[#5a6a82]">
+                  Total
+                </p>
+
+                <p className="mt-1 text-2xl font-bold text-[#0d2260]">
+                  {totalMediaItems}
+                </p>
+              </div>
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#0d2260]/10 text-[#0d2260]">
+                {activeSection === "news" ? (
+                  <Newspaper className="h-4 w-4" />
+                ) : (
+                  <Images className="h-4 w-4" />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* PUBLISHED */}
+          <div className="rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-[#5a6a82]">
+                  Published
+                </p>
+
+                <p className="mt-1 text-2xl font-bold text-green-700">
+                  {publishedMediaItems}
+                </p>
+              </div>
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-50 text-green-700">
+                <CheckCircle className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+
+          {/* DRAFT */}
+          <div className="rounded-xl border border-gray-200 bg-white px-4 py-4 shadow-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium text-[#5a6a82]">
+                  Draft
+                </p>
+
+                <p className="mt-1 text-2xl font-bold text-amber-700">
+                  {draftMediaItems}
+                </p>
+              </div>
+
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-50 text-amber-700">
+                <Pencil className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* ======================================================
@@ -1243,29 +1338,29 @@ return (
             ====================================================== */}
 
         {activeSection === "news" && (
-          <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
             {/* NEWS HEADER */}
-            <div className="flex flex-col gap-4 border-b border-gray-100 px-6 py-5 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+
               <div>
-                <h2 className="text-lg font-bold text-[#0d2260]">
+                <h2 className="text-base font-bold text-[#0d2260]">
                   News & Announcements
                 </h2>
 
-                <p className="mt-1 text-sm text-[#5a6a82]">
-                  Manage content displayed on the public News &
-                  Announcements page.
+                <p className="mt-0.5 text-xs text-[#5a6a82]">
+                  Manage content displayed on the public website.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
 
                 <select
                   value={newsFilter}
                   onChange={(event) =>
                     setNewsFilter(event.target.value)
                   }
-                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#0d2260]"
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700 outline-none focus:border-[#0d2260]"
                 >
                   <option value="all">All Articles</option>
                   <option value="published">Published</option>
@@ -1275,44 +1370,47 @@ return (
                 <button
                   type="button"
                   onClick={openNewNewsForm}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#0d2260]/90"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d2260] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#0d2260]/90"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3.5 w-3.5" />
                   Create Article
                 </button>
+
               </div>
             </div>
 
             {/* NEWS CONTENT */}
             {loadingNews ? (
-              <div className="px-6 py-16 text-center">
+              <div className="px-5 py-12 text-center">
                 <p className="text-sm text-[#5a6a82]">
                   Loading articles...
                 </p>
               </div>
             ) : filteredNewsArticles.length === 0 ? (
-              <div className="px-6 py-16 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0d2260] text-[#c9a227]">
-                  <Newspaper className="h-6 w-6" />
+              <div className="px-5 py-12 text-center">
+
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
+                  <Newspaper className="h-5 w-5" />
                 </div>
 
-                <h3 className="mt-4 text-sm font-semibold text-[#0d2260]">
+                <h3 className="mt-3 text-sm font-semibold text-[#0d2260]">
                   No news or announcements yet
                 </h3>
 
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#5a6a82]">
+                <p className="mx-auto mt-1.5 max-w-md text-xs leading-5 text-[#5a6a82]">
                   Articles created here will appear on the public
-                  News & Announcements page once they are published.
+                  News & Announcements page once published.
                 </p>
 
                 <button
                   type="button"
                   onClick={openNewNewsForm}
-                  className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0d2260]/90"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0d2260]/90"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3.5 w-3.5" />
                   Create Article
                 </button>
+
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
@@ -1320,25 +1418,25 @@ return (
                 {filteredNewsArticles.map((article) => (
                   <div
                     key={article.id}
-                    className="px-6 py-5 transition hover:bg-gray-50/70"
+                    className="px-5 py-4 transition hover:bg-gray-50/70"
                   >
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
                       {/* ARTICLE INFORMATION */}
                       <div className="min-w-0 flex-1">
 
-                        <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5">
 
-                          <h3 className="font-semibold text-[#0d2260]">
+                          <h3 className="text-sm font-semibold text-[#0d2260]">
                             {article.title}
                           </h3>
 
-                          <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
                             {article.category}
                           </span>
 
                           <span
-                            className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                               article.published
                                 ? "bg-green-100 text-green-700"
                                 : "bg-yellow-100 text-yellow-700"
@@ -1352,46 +1450,48 @@ return (
                           {article.featured_image_url &&
                             article.image_contains_learners && (
                               <span
-                                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                                   article.consent_confirmed
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
                                 }`}
                               >
                                 {article.consent_confirmed
-                                  ? "Learner consent confirmed"
+                                  ? "Consent confirmed"
                                   : "Consent required"}
                               </span>
                             )}
+
                         </div>
 
-                        <p className="mt-2 line-clamp-2 max-w-3xl text-sm leading-6 text-[#5a6a82]">
+                        <p className="mt-1.5 line-clamp-2 max-w-3xl text-xs leading-5 text-[#5a6a82]">
                           {article.excerpt || article.content}
                         </p>
 
-                        <p className="mt-2 text-xs text-gray-400">
+                        <p className="mt-1.5 text-[11px] text-gray-400">
                           Created {formatDate(article.created_at)}
                         </p>
+
                       </div>
 
                       {/* ARTICLE ACTIONS */}
-                      <div className="flex shrink-0 flex-wrap gap-2">
+                      <div className="flex shrink-0 flex-wrap gap-1.5">
 
                         <button
                           type="button"
                           onClick={() => openViewNews(article)}
-                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                           View
                         </button>
 
                         <button
                           type="button"
                           onClick={() => openEditNews(article)}
-                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
                           Edit
                         </button>
 
@@ -1399,9 +1499,9 @@ return (
                           type="button"
                           onClick={() => handleDeleteNews(article)}
                           disabled={deletingId === article.id}
-                          className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
 
                           {deletingId === article.id
                             ? "Deleting..."
@@ -1409,12 +1509,14 @@ return (
                         </button>
 
                       </div>
+
                     </div>
                   </div>
                 ))}
 
               </div>
             )}
+
           </section>
         )}
 
@@ -1423,70 +1525,77 @@ return (
             ====================================================== */}
 
         {activeSection === "gallery" && (
-          <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <section className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
 
             {/* GALLERY HEADER */}
-<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-  <div>
-    <h2 className="text-xl font-bold text-[#0d2260]">
-      Gallery
-    </h2>
-    <p className="mt-1 text-sm text-[#5a6a82]">
-      Manage school gallery photos and learner consent.
-    </p>
-  </div>
+            <div className="flex flex-col gap-3 border-b border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
 
-  <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-    <select
-      value={galleryFilter}
-      onChange={(e) => setGalleryFilter(e.target.value)}
-      className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-[#0d2260]"
-    >
-      <option value="all">All Photos</option>
-      <option value="published">Published</option>
-      <option value="draft">Drafts</option>
-    </select>
+              <div>
+                <h2 className="text-base font-bold text-[#0d2260]">
+                  Gallery
+                </h2>
 
-    <button
-      type="button"
-      onClick={openNewGalleryForm}
-      className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#162f7a]"
-    >
-      <Plus className="h-4 w-4" />
-      Add Photo
-    </button>
-  </div>
-</div>
+                <p className="mt-0.5 text-xs text-[#5a6a82]">
+                  Manage school gallery photos and learner consent.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+
+                <select
+                  value={galleryFilter}
+                  onChange={(event) =>
+                    setGalleryFilter(event.target.value)
+                  }
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs text-gray-700 outline-none focus:border-[#0d2260]"
+                >
+                  <option value="all">All Photos</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Drafts</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={openNewGalleryForm}
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0d2260] px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-[#162f7a]"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Photo
+                </button>
+
+              </div>
+
+            </div>
 
             {/* GALLERY CONTENT */}
             {loadingGallery ? (
-              <div className="px-6 py-16 text-center">
+              <div className="px-5 py-12 text-center">
                 <p className="text-sm text-[#5a6a82]">
                   Loading gallery...
                 </p>
               </div>
-            ) : galleryImages.length === 0 ? (
-              <div className="px-6 py-16 text-center">
+            ) : filteredGalleryImages.length === 0 ? (
+              <div className="px-5 py-12 text-center">
 
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0d2260] text-[#c9a227]">
-                  <Images className="h-6 w-6" />
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
+                  <Images className="h-5 w-5" />
                 </div>
 
-                <h3 className="mt-4 text-sm font-semibold text-[#0d2260]">
+                <h3 className="mt-3 text-sm font-semibold text-[#0d2260]">
                   No gallery photos yet
                 </h3>
 
-                <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-[#5a6a82]">
+                <p className="mx-auto mt-1.5 max-w-md text-xs leading-5 text-[#5a6a82]">
                   Photos uploaded here will appear on the public
-                  gallery once they are published.
+                  gallery once published.
                 </p>
 
                 <button
                   type="button"
                   onClick={openNewGalleryForm}
-                  className="mt-5 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0d2260]/90"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0d2260]/90"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-3.5 w-3.5" />
                   Add Photo
                 </button>
 
@@ -1497,14 +1606,14 @@ return (
                 {filteredGalleryImages.map((image) => (
                   <div
                     key={image.id}
-                    className="px-6 py-5 transition hover:bg-gray-50/70"
+                    className="px-5 py-4 transition hover:bg-gray-50/70"
                   >
-                    <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
                       {/* IMAGE INFORMATION */}
-                      <div className="flex min-w-0 flex-1 gap-4">
+                      <div className="flex min-w-0 flex-1 gap-3">
 
-                        <div className="h-20 w-28 shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                        <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
                           {image.image_url ? (
                             <img
                               src={image.image_url}
@@ -1517,27 +1626,27 @@ return (
                             />
                           ) : (
                             <div className="flex h-full items-center justify-center">
-                              <ImageIcon className="h-6 w-6 text-gray-400" />
+                              <ImageIcon className="h-5 w-5 text-gray-400" />
                             </div>
                           )}
                         </div>
 
                         <div className="min-w-0 flex-1">
 
-                          <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5">
 
-                            <h3 className="font-semibold text-[#0d2260]">
+                            <h3 className="text-sm font-semibold text-[#0d2260]">
                               {image.title || "Untitled photo"}
                             </h3>
 
                             {image.category && (
-                              <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
                                 {image.category}
                               </span>
                             )}
 
                             <span
-                              className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                              className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                                 image.published
                                   ? "bg-green-100 text-green-700"
                                   : "bg-yellow-100 text-yellow-700"
@@ -1550,14 +1659,14 @@ return (
 
                             {image.photo_type === "learners" && (
                               <span
-                                className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                                   image.consent_confirmed
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
                                 }`}
                               >
                                 {image.consent_confirmed
-                                  ? "Learner consent confirmed"
+                                  ? "Consent confirmed"
                                   : "Consent required"}
                               </span>
                             )}
@@ -1565,20 +1674,21 @@ return (
                           </div>
 
                           {image.caption && (
-                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#5a6a82]">
+                            <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[#5a6a82]">
                               {image.caption}
                             </p>
                           )}
 
-                          <p className="mt-2 text-xs text-gray-400">
+                          <p className="mt-1.5 text-[11px] text-gray-400">
                             Uploaded {formatDate(image.created_at)}
                           </p>
 
                         </div>
+
                       </div>
 
                       {/* IMAGE ACTIONS */}
-                      <div className="flex shrink-0 flex-wrap gap-2">
+                      <div className="flex shrink-0 flex-wrap gap-1.5">
 
                         <button
                           type="button"
@@ -1587,28 +1697,32 @@ return (
                             setViewType("gallery");
                             setShowViewModal(true);
                           }}
-                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-3.5 w-3.5" />
                           View
                         </button>
 
                         <button
                           type="button"
-                          onClick={() => openEditGalleryForm(image)}
-                          className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                          onClick={() =>
+                            openEditGalleryForm(image)
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
-                          <Pencil className="h-4 w-4" />
+                          <Pencil className="h-3.5 w-3.5" />
                           Edit
                         </button>
 
                         <button
                           type="button"
-                          onClick={() => handleDeleteGalleryPhoto(image)}
+                          onClick={() =>
+                            handleDeleteGalleryPhoto(image)
+                          }
                           disabled={deletingId === image.id}
-                          className="inline-flex items-center gap-2 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
 
                           {deletingId === image.id
                             ? "Deleting..."
