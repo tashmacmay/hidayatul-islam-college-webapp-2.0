@@ -5,7 +5,7 @@ import {
   initializeGraphForAppOnlyAuth,
   getBookingsAsync,
   getStaffMemberLookupAsync,
-  formatParentBooking,
+  formatStaffBooking,
 } from "@/lib/graph/graphHelper";
 
 export async function GET(request) {
@@ -62,7 +62,7 @@ export async function GET(request) {
     );
 
     const bookings = mine.map((booking) =>
-      formatParentBooking(booking, staffLookup)
+      formatStaffBooking(booking, staffLookup)
     );
 
     return NextResponse.json(bookings);
