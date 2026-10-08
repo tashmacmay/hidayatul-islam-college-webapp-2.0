@@ -53,6 +53,11 @@ const sectionHeaderVariants = {
     divider: "mx-auto mt-4 h-1 w-16 rounded-full bg-gold",
     description: "mx-auto mt-6 max-w-3xl text-gray-600",
   },
+  "centered--roomy": {
+    wrapper: "text-center",
+    divider: "gold-divider mx-auto",
+    description: "mx-auto mt-6 max-w-3xl leading-8 text-gray-600",
+  },
   left: {
     wrapper: "text-left",
     divider: "gold-divider",
@@ -62,6 +67,12 @@ const sectionHeaderVariants = {
     wrapper: "text-center",
     divider: "gold-divider mx-auto",
     description: "mx-auto mt-6 max-w-3xl text-blue-100",
+  },
+  "onNavy--large-label": {
+    wrapper: "text-center",
+    divider: "gold-divider mx-auto",
+    description: "mx-auto mt-6 max-w-3xl text-blue-100",
+    label: "text-sm font-semibold uppercase tracking-[3px] text-gold",
   },
 };
 
@@ -77,7 +88,7 @@ export function SectionHeader({
   const titleClass = variant === "onNavy" ? "section-title text-white" : "section-title";
   return (
     <div className={`${styles.wrapper} ${className}`}>
-      {label && <p className="section-label">{label}</p>}
+      {label && <p className={styles.label || "section-label"}>{label}</p>}
       <h2 className={titleClass}>{title}</h2>
       {divider && <div className={styles.divider} />}
       {description && <p className={`section-subtitle ${styles.description}`}>{description}</p>}
@@ -188,7 +199,22 @@ export function SubjectList({ items }) {
   );
 }
 
-export function StatStrip({ items, tone = "gold" }) {
+export function StatStrip({ items, tone = "gold", variant = "home" }) {
+  if (variant === "about") {
+    return (
+      <section className={`section-shell--${tone} py-10`}>
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4 md:px-10">
+          {items.map(({ title, text }) => (
+            <div key={`${title}-${text}`}>
+              <h3 className="text-lg font-bold text-navy">{title}</h3>
+              <p className="mt-1 text-sm text-navy">{text}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={`section-shell--${tone} grid text-navy md:grid-cols-4`}>
       {items.map(({ icon, title, text }) => (
@@ -204,17 +230,20 @@ export function StatStrip({ items, tone = "gold" }) {
   );
 }
 
-export function CtaBanner({ title, description, actions }) {
+export function CtaBanner({ eyebrow, title, description, actions = [] }) {
   return (
     <section className="section-shell section-shell--navy">
       <div className="mx-auto max-w-4xl text-center">
-        <SectionHeader title={title} description={description} variant="onNavy" />
+        <SectionHeader label={eyebrow} title={title} description={description} variant="onNavy" />
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          {actions.map(({ label, href, variant = "primary" }) => (
-            <Link key={label} href={href} className={variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`}>
-              {label}
-            </Link>
-          ))}
+          {actions.map(({ label, href, variant = "primary" }) => {
+            const className = variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`;
+            return href?.includes(":") ? (
+              <a key={label} href={href} className={className}>{label}</a>
+            ) : (
+              <Link key={label} href={href} className={className}>{label}</Link>
+            );
+          })}
         </div>
       </div>
     </section>

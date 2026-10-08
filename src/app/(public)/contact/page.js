@@ -1,4 +1,4 @@
-import { InfoRow, PageHero, SectionHeader } from "@/components/components";
+import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/components";
 
 const contactRows = [
   { icon: "⌖", title: "Address", content: <p className="mt-1 text-sm leading-6 text-gray-600">Hidayatul Islam College<br />Cape Town, South Africa</p> },
@@ -78,6 +78,11 @@ export default function Contact() {
           </div>
         </div>
       </section>
+
+      <CtaBanner
+        title="Ready to be part of the HIC family?"
+        actions={[{ label: "Email Us", href: "mailto:hislaam@telkomsa.net", variant: "primary" }]}
+      />
 
     </>
   );

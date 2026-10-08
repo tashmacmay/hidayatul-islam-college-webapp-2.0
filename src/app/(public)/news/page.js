@@ -1,5 +1,5 @@
-import { CtaBanner, EmptyState, PageHero } from "@/components/components";
-import FilterButtons from "@/components/public/FilterButtons";
+import { EmptyState, PageHero } from "@/components/components";
+import FilterButtons from "@/components/FilterButtons";
 
 const filters = ["All", "News", "Events", "Achievements", "Notices", "Islamic"];
 
@@ -30,12 +30,6 @@ export default function News() {
           </div>
         </div>
       </section>
-
-      <CtaBanner
-        title="Stay connected with HIC"
-        description="Keep up with school news, events, achievements and important notices."
-        actions={[{ label: "Contact Us", href: "/contact", variant: "secondary-dark" }]}
-      />
 
     </>
   );

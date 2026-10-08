@@ -1,6 +1,6 @@
 import { Images } from "lucide-react";
 import { EmptyState, PageHero, PopiaNote, SectionHeader } from "@/components/components";
-import FilterButtons from "@/components/public/FilterButtons";
+import FilterButtons from "@/components/FilterButtons";
 
 const categories = ["All", "Sport", "Islamic Events", "Academic", "School Events", "Outings"];
 

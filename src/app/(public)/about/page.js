@@ -179,7 +179,7 @@ export default function About() {
         </div>
       </section>
 
-      <StatStrip items={schoolStats} />
+      <StatStrip items={schoolStats} variant="about" />
 
       <section className="section-shell section-shell--off-white">
         <div className="mx-auto max-w-5xl">
@@ -187,7 +187,7 @@ export default function About() {
             label="Our Story"
             title="A Legacy of Learning"
             description="From humble beginnings in Kensington to a fully accredited primary school, our journey reflects the dedication of an entire community."
-            variant="centered"
+            variant="centered--roomy"
           />
 
           <div className="relative mt-16">
@@ -212,7 +212,7 @@ export default function About() {
             <SectionHeader
               label="Life At HIC"
               title="Our School In Pictures"
-              variant="onNavy"
+              variant="onNavy--large-label"
             />
           </div>
 

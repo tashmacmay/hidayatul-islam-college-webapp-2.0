@@ -1,4 +1,4 @@
-import { CtaBanner, PageHero, SectionHeader, SubjectList, IconCard } from "@/components/components";
+import { PageHero, SectionHeader, SubjectList, IconCard } from "@/components/components";
 import {
   BookOpen,
   HeartHandshake,
@@ -238,15 +238,6 @@ export default function Academics() {
           </div>
         </div>
       </section>
-
-      <CtaBanner
-        title="Ready to join the HIC family?"
-        description="We welcome applications from families who share our commitment to faith, knowledge and character."
-        actions={[
-          { label: "Apply for 2026", href: "/contact", variant: "primary" },
-          { label: "Contact Us", href: "/contact", variant: "secondary-dark" },
-        ]}
-      />
 
     </>
   );

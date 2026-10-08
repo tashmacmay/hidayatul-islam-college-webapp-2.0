@@ -59,7 +59,7 @@ export default function Home() {
               <SectionHeader
                 label="A Word from Our Principal"
                 title={<>A Word from{" "}<span className="block text-gold">Mrs. Fridie</span></>}
-                className="text-left"
+                variant="left"
                 divider={false}
               />
 

@@ -2,8 +2,16 @@
 
 import { useState } from "react";
 
-export default function FilterButtons({ items, initialValue = items[0], tone = "default", className = "" }) {
-  const [selected, setSelected] = useState(initialValue);
+export default function FilterButtons({
+  items,
+  initialValue = items[0],
+  value,
+  onChange,
+  tone = "default",
+  className = "",
+}) {
+  const [internalValue, setInternalValue] = useState(initialValue);
+  const selected = value ?? internalValue;
   const baseClass = tone === "navy" ? "filter-chip--on-navy" : "filter-chip";
 
   return (
@@ -14,7 +22,14 @@ export default function FilterButtons({ items, initialValue = items[0], tone = "
           ? active ? "filter-chip--on-navy-active" : "filter-chip--on-navy-inactive"
           : active ? "filter-chip--active" : "filter-chip--inactive";
         return (
-          <button key={item} onClick={() => setSelected(item)} className={`${baseClass} ${stateClass}`}>
+          <button
+            key={item}
+            onClick={() => {
+              setInternalValue(item);
+              onChange?.(item);
+            }}
+            className={`${baseClass} ${stateClass}`}
+          >
             {item}
           </button>
         );

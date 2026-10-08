@@ -5,8 +5,8 @@ import {
   BookMarked,
   School,
 } from "lucide-react";
-import { EmptyState, PageHero, PopiaNote, SectionHeader } from "@/components/components";
-import FilterButtons from "@/components/public/FilterButtons";
+import { CtaBanner, EmptyState, PageHero, PopiaNote, SectionHeader } from "@/components/components";
+import FilterButtons from "@/components/FilterButtons";
 
 const resourceCategories = [
   "All resources",
@@ -94,6 +94,12 @@ export default function Resources() {
           </div>
         </div>
       </section>
+
+      <CtaBanner
+        eyebrow="Parent Portal"
+        title="More resources in the Parent Portal"
+        actions={[{ label: "Portal Login", href: "/login", variant: "primary" }]}
+      />
 
     </>
   );
