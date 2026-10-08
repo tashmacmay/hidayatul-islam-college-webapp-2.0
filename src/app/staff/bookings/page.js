@@ -20,6 +20,8 @@ export default function BookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
