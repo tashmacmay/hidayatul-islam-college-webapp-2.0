@@ -4,6 +4,7 @@ import {
   CalendarDays,
   X,
   Menu,
+  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -232,15 +233,46 @@ export default function BookingsPage() {
 
           {/* My Bookings Table */}
           <div className="rounded-xl bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-2">
-              <CalendarDays
-                size={20}
-                className="text-navy"
-              />
+            <div className="mb-5 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-2">
+                <CalendarDays size={20} className="text-navy" />
 
-              <h2 className="text-xl font-bold text-navy">
-                My Bookings
-              </h2>
+                <h2 className="text-xl font-bold text-navy">
+                  My Bookings
+                </h2>
+              </div>
+
+              <div className="relative w-full md:w-auto">
+                <Search
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Search bookings..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold md:w-72"
+                />
+              </div>
+            </div>
+
+            <div className="mb-5 flex flex-wrap gap-2">
+              {["all", "upcoming", "past"].map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setActiveFilter(filter)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    activeFilter === filter
+                      ? "bg-navy text-white"
+                      : "bg-gray-100 text-text-muted hover:bg-gray-200"
+                  }`}
+                >
+                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </button>
+              ))}
             </div>
 
             <div className="overflow-x-auto">
@@ -264,6 +296,10 @@ export default function BookingsPage() {
                     </th>
 
                     <th className="pb-3 font-semibold text-navy">
+                      Parent
+                    </th>
+
+                    <th className="pb-3 font-semibold text-navy">
                       Status
                     </th>
 
@@ -277,7 +313,7 @@ export default function BookingsPage() {
                   {loading && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-10 text-center text-sm text-text-muted"
                       >
                         Loading bookings from Microsoft Bookings...
@@ -286,7 +322,7 @@ export default function BookingsPage() {
                   )}
 
                   {!loading &&
-                    bookings.map((booking) => (
+                    filteredBookings.map((booking) => (
                       <tr
                         key={booking.id}
                         className="border-b border-slate-100 last:border-0"
@@ -305,6 +341,15 @@ export default function BookingsPage() {
 
                         <td className="py-4 text-slate-600">
                           {booking.learner}
+                        </td>
+
+                        <td className="py-4">
+                          <div className="font-medium text-slate-800">
+                            {booking.parentName || "—"}
+                          </div>
+                          <div className="text-xs text-text-muted">
+                            {booking.parentEmail || ""}
+                          </div>
                         </td>
 
                         <td className="py-4">
@@ -340,10 +385,10 @@ export default function BookingsPage() {
                       </tr>
                     ))}
 
-                  {!loading && bookings.length === 0 && (
+                  {!loading && filteredBookings.length === 0 && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-10 text-center"
                       >
                         <CalendarDays
@@ -356,7 +401,9 @@ export default function BookingsPage() {
                         </p>
 
                         <p className="mt-1 text-sm text-text-muted">
-                          No Microsoft Bookings appointments were returned.
+                          {searchTerm || activeFilter !== "all"
+                            ? "Try adjusting your search or filters."
+                            : "No Microsoft Bookings appointments were returned."}
                         </p>
                       </td>
                     </tr>
