@@ -85,7 +85,7 @@ select {
   }
 
   .section-header-divider {
-    @apply gold-divider;
+    @apply gold-divider mx-auto;
   }
 
   .page-hero {
@@ -94,11 +94,7 @@ select {
   }
 
   .page-hero--standard {
-    @apply min-h-[320px] md:min-h-[340px];
-  }
-
-  .page-hero--about {
-    @apply min-h-[340px] md:min-h-[350px];
+    @apply min-h-[380px] md:min-h-[420px];
   }
 
   .page-hero-image {
@@ -128,10 +124,6 @@ select {
 
   .page-hero-content--standard {
     @apply pb-10 md:px-16 md:pb-[52px];
-  }
-
-  .page-hero-content--about {
-    @apply pb-12 md:px-16 md:pb-[60px];
   }
 
   .section-label {

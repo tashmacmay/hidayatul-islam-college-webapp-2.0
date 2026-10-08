@@ -1,4 +1,4 @@
-import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/components";
+import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/ui/primitives";
 
 const contactRows = [
   { icon: "⌖", title: "Address", content: <p className="mt-1 text-sm leading-6 text-gray-600">Hidayatul Islam College<br />Cape Town, South Africa</p> },

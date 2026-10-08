@@ -1,5 +1,5 @@
-import { EmptyState, PageHero } from "@/components/components";
-import FilterButtons from "@/components/FilterButtons";
+import { EmptyState, PageHero } from "@/components/ui/primitives";
+import FilterButtons from "@/components/public/FilterButtons";
 
 const filters = ["All", "News", "Events", "Achievements", "Notices", "Islamic"];
 

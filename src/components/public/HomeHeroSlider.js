@@ -77,7 +77,7 @@ export default function HomeHeroSlider() {
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-10 z-20 flex gap-3">
+      <div className="absolute bottom-8 left-6 z-20 flex gap-3 md:left-16">
         {heroImages.map((_, index) => (
           <button
             key={index}

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { SectionHeader, StatStrip } from "@/components/components";
-import HomeHeroSlider from "@/components/home/HomeHeroSlider";
+import { SectionHeader, StatStrip } from "@/components/ui/primitives";
+import HomeHeroSlider from "@/components/public/HomeHeroSlider";
 
 import {
   BookOpen,

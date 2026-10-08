@@ -1,3 +1,21 @@
+/**
+ * Component folder conventions:
+ *
+ * - public/  → used only by src/app/(public)/ routes
+ * - staff/   → used only by src/app/(staff)/ routes
+ * - parent/  → used only by src/app/(parent)/ routes
+ * - admin/   → used only by src/app/(admin)/ routes (create when needed)
+ * - layout/  → cross-route shells (app frame, nav wrapper, sidebar container)
+ * - ui/      → shared primitives used by two or more route groups
+ *
+ * Placement rule: a component goes in the folder matching its SMALLEST
+ * audience. If two or more route groups import it, it belongs in ui/.
+ *
+ * When the staff, parent, or admin dashboards grow, put their shared
+ * primitives in ui/ and their page-specific components in their own
+ * folder. Do not mix audiences in the same file.
+ */
+
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 
@@ -5,10 +23,6 @@ const pageHeroVariants = {
   standard: {
     hero: "page-hero--standard",
     content: "page-hero-content--standard",
-  },
-  about: {
-    hero: "page-hero--about",
-    content: "page-hero-content--about",
   },
 };
 
@@ -45,7 +59,7 @@ export function PageHero({
 const sectionHeaderVariants = {
   centered: {
     wrapper: "text-center",
-    divider: "gold-divider mx-auto",
+    divider: "section-header-divider",
     description: "mx-auto mt-6 max-w-3xl text-gray-600",
   },
   "centered--tight": {
@@ -55,7 +69,7 @@ const sectionHeaderVariants = {
   },
   "centered--roomy": {
     wrapper: "text-center",
-    divider: "gold-divider mx-auto",
+    divider: "section-header-divider",
     description: "mx-auto mt-6 max-w-3xl leading-8 text-gray-600",
   },
   left: {
@@ -65,12 +79,12 @@ const sectionHeaderVariants = {
   },
   onNavy: {
     wrapper: "text-center",
-    divider: "gold-divider mx-auto",
+    divider: "section-header-divider",
     description: "mx-auto mt-6 max-w-3xl text-blue-100",
   },
   "onNavy--large-label": {
     wrapper: "text-center",
-    divider: "gold-divider mx-auto",
+    divider: "section-header-divider",
     description: "mx-auto mt-6 max-w-3xl text-blue-100",
     label: "text-sm font-semibold uppercase tracking-[3px] text-gold",
   },
@@ -199,30 +213,32 @@ export function SubjectList({ items }) {
   );
 }
 
-export function StatStrip({ items, tone = "gold", variant = "home" }) {
+export function StatStrip({ items, variant = "home" }) {
   if (variant === "about") {
     return (
-      <section className={`section-shell--${tone} py-10`}>
+      <section className="bg-gold py-10">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4 md:px-10">
           {items.map(({ title, text }) => (
-            <div key={`${title}-${text}`}>
-              <h3 className="text-lg font-bold text-navy">{title}</h3>
-              <p className="mt-1 text-sm text-navy">{text}</p>
+            <div key={title} className="text-navy">
+              <h3 className="text-lg font-bold">{title}</h3>
+              <p className="mt-1 text-sm">{text}</p>
             </div>
           ))}
         </div>
       </section>
     );
   }
-
   return (
-    <section className={`section-shell--${tone} grid text-navy md:grid-cols-4`}>
+    <section className="grid bg-gold text-navy md:grid-cols-4">
       {items.map(({ icon, title, text }) => (
-        <div key={`${title}-${text}`} className="flex items-center justify-center gap-4 border-r border-navy/15 px-6 py-6 last:border-r-0">
+        <div
+          key={`${title}-${text}`}
+          className="flex items-center justify-center gap-4 border-r border-navy/15 px-6 py-6 last:border-r-0"
+        >
           {icon && <div className="text-navy [&>svg]:h-8 [&>svg]:w-8">{icon}</div>}
           <div>
-            <h3 className={icon ? "text-base font-semibold" : "text-lg font-bold"}>{title}</h3>
-            <p className={icon ? "text-sm" : "mt-1 text-sm"}>{text}</p>
+            <h3 className="text-base font-semibold">{title}</h3>
+            <p className="text-sm">{text}</p>
           </div>
         </div>
       ))}

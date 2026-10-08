@@ -1,4 +1,4 @@
-import { PageHero, SectionHeader, SubjectList, IconCard } from "@/components/components";
+import { PageHero, SectionHeader, SubjectList, IconCard } from "@/components/ui/primitives";
 import {
   BookOpen,
   HeartHandshake,
@@ -8,7 +8,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
-import GradeExplorer from "@/components/GradeExplorer";
+import GradeExplorer from "@/components/public/GradeExplorer";
 
 const nationalSubjects = [
   "Home Language (English / Afrikaans)",

@@ -1,4 +1,4 @@
-import { IconCard, PageHero, SectionHeader, StatStrip } from "@/components/components";
+import { IconCard, PageHero, SectionHeader, StatStrip } from "@/components/ui/primitives";
 import {
   BookOpen,
   HeartHandshake,
@@ -104,7 +104,6 @@ export default function About() {
   return (
     <>
       <PageHero
-        variant="about"
         pattern="dots"
         image="/images/HIC-image2.jpg"
         imageAlt="Hidayatul Islam College"
@@ -209,11 +208,13 @@ export default function About() {
       <section className="section-shell section-shell--navy">
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
-            <SectionHeader
-              label="Life At HIC"
-              title="Our School In Pictures"
-              variant="onNavy--large-label"
-            />
+            <div className="text-center">
+              <p className="section-label">Life At HIC</p>
+              <h2 className="mt-3 text-xl font-bold leading-tight text-white md:text-2xl">
+                Our School In Pictures
+              </h2>
+              <div className="section-header-divider" />
+            </div>
           </div>
 
           <div className="mt-12 grid gap-3 md:grid-cols-3 md:grid-rows-2">
