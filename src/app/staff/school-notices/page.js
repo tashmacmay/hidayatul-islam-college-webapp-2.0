@@ -270,14 +270,30 @@ return (
             PAGE HEADER
             ==================================================== */}
 
-        <div className="mb-6">
-          <p className="text-sm font-medium text-text-muted">
-            Stay informed with the latest school communications
-          </p>
 
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-navy sm:text-3xl">
-            Notices & Announcements
-          </h1>
+
+
+        <div className="mb-6">
+  <div className="mb-1 flex items-center gap-2">
+              <Bell
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Staff Portal
+              </span>
+            </div>
+
+            <h1 className="text-2xl font-bold text-navy md:text-3xl">
+              Notices and Announcements
+            </h1>
+
+            <p className="mt-1 text-sm text-text-muted">
+Stay informed with the latest school communications
+
+
+            </p>
         </div>
           {/* ====================================================
               STATISTICS

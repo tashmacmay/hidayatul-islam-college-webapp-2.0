@@ -443,13 +443,25 @@ export default function NoticeManagementPage() {
 
         <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-medium text-text-muted">
-              Create, schedule and manage school notices
-            </p>
+
+            <div className="mb-1 flex items-center gap-2">
+              <Bell
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Administration
+              </span>
+            </div>
 
             <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
               Notices Management
             </h1>
+            <p className="text-sm font-medium text-text-muted">
+              Create, schedule and manage school notices
+            </p>
+
           </div>
 
           <button

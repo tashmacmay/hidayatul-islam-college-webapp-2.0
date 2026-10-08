@@ -231,16 +231,24 @@ export default function ParentBookingsPage() {
               ================================================== */}
 
           <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
             <div>
+                          <div className="mb-1 flex items-center gap-2">
+              <CalendarDays
+                size={21}
+                className="text-gold"
+              />
 
-              <p className="text-sm text-text-muted">
-                Manage and track all your appointment bookings
-              </p>
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Parent Portal
+              </span>
+              </div>
 
               <h1 className="mt-1 text-4xl font-bold text-navy">
                 My Bookings
               </h1>
+              <p className="text-sm text-text-muted">
+                Manage and track all your appointment bookings
+              </p>
 
               <div className="mt-3 h-1 w-12 rounded-full bg-gold" />
 

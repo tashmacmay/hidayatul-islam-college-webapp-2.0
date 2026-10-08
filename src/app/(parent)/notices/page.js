@@ -269,15 +269,23 @@ const filteredNotices = notices.filter((notice) => {
           {/* ====================================================
               PAGE HEADER
               ==================================================== */}
+            <div className="mb-1 flex items-center gap-2">
+              <Bell
+                size={21}
+                className="text-gold"
+              />
 
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Parent Portal
+              </span>
+              </div>
           <div className="mb-7">
-            <p className="text-sm font-medium text-text-muted">
-              Stay informed with the latest school communications
-            </p>
-
             <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
               Notices & Announcements
             </h1>
+            <p className="text-sm font-medium text-text-muted">
+              Stay informed with the latest school communications
+            </p>
           </div>
 
           {/* ====================================================

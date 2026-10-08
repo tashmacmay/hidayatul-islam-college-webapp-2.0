@@ -8,9 +8,17 @@ export default function SchoolBookingsPage() {
 
       {/* Page Header */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-          Admin
-        </p>
+            <div className="mb-1 flex items-center gap-2">
+              <FileSpreadsheet
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Admin Portal
+              </span>
+            </div>
+
 
         <h1 className="mt-2 text-4xl font-bold text-navy">
           School Bookings

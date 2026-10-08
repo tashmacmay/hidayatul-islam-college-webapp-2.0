@@ -646,14 +646,26 @@ const payload = {
         {/* Header */}
         <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
+
+            <div className="mb-1 flex items-center gap-2">
+              <BookOpen
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Admin Portal
+              </span>
+            </div>
+                       <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
+              Learning Resources Management
+            </h1>
             <p className="text-sm font-medium text-text-muted">
               Manage learning resources available to
               learners and parents
             </p>
 
-            <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
-              Learning Resources Management
-            </h1>
+
           </div>
 
           <button

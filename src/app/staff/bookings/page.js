@@ -131,13 +131,23 @@ export default function BookingsPage() {
         <div className="space-y-8">
           {/* Header */}
           <div>
-            <p className="text-sm text-text-muted">
-              View and manage your Microsoft Bookings appointments
-            </p>
 
+            <div className="mb-1 flex items-center gap-2">
+              <CalendarDays
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Admin Portal
+              </span>
+            </div>
             <h1 className="mt-1 text-4xl font-bold text-navy">
               My Bookings
             </h1>
+            <p className="text-sm text-text-muted">
+              View and manage your Microsoft Bookings appointments
+            </p>
 
             <div className="mt-3 h-1 w-12 rounded-full bg-gold" />
           </div>

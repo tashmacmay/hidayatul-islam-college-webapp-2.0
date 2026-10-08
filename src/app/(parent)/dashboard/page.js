@@ -336,9 +336,16 @@ sidebar={(sidebarProps) => (
 
       <section className="mb-7">
         <div className="mb-1 flex items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-            Parent Portal
-          </span>
+            <div className="mb-1 flex items-center gap-2">
+              <BookOpen
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Parent Portal
+              </span>
+              </div>
         </div>
 
         <h1 className="text-2xl font-bold text-navy md:text-3xl">

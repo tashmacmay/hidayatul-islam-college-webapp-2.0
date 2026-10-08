@@ -1089,9 +1089,16 @@ return (
             ====================================================== */}
 
         <div className="mb-6">
-          <p className="text-xs font-medium uppercase tracking-wide text-[#5a6a82]">
-            Staff Portal
-          </p>
+                 <div className="mb-1 flex items-center gap-2">
+              <ImageIcon
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Admin Portal
+              </span>
+            </div>
 
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#0d2260] md:text-3xl">
             Media Management

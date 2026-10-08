@@ -446,7 +446,7 @@ return (
               />
 
               <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Administration
+                Admin Portal
               </span>
             </div>
 
