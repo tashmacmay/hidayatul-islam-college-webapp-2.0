@@ -123,6 +123,23 @@ export default function BookingsPage() {
 
   const totalCount = bookings.length;
 
+    const filteredBookings = bookings.filter((booking) => {
+    const search = searchTerm.toLowerCase();
+
+    const matchesSearch =
+      String(booking.ref || "").toLowerCase().includes(search) ||
+      String(booking.learner || "").toLowerCase().includes(search) ||
+      String(booking.staff || "").toLowerCase().includes(search) ||
+      String(booking.parentEmail || "").toLowerCase().includes(search) ||
+      String(booking.parentName || "").toLowerCase().includes(search) ||
+      String(booking.appointmentType || "").toLowerCase().includes(search);
+
+    const matchesFilter =
+      activeFilter === "all" ? true : booking.status === activeFilter;
+
+    return matchesSearch && matchesFilter;
+  });
+
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100">
