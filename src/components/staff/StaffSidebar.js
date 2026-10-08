@@ -73,6 +73,11 @@ export default function StaffSidebar() {
       icon: LayoutDashboard,
     },
     {
+  name: "Term Calendar Management",
+  href: "/staff/admin/term-calendar-management",
+  icon: CalendarDays,
+},
+    {
       name: "Notice Management",
       href: "/staff/admin/notice-management",
       icon: Bell,
