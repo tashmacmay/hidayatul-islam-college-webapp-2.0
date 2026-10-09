@@ -14,6 +14,8 @@ import { onAuthStateChanged } from "firebase/auth";
 import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
+import BookingsStats from "@/components/bookings/BookingsStats";
+import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 
 export default function SchoolBookingsPage() {
   const [user, setUser] = useState(null);
@@ -24,7 +26,7 @@ export default function SchoolBookingsPage() {
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("upcoming");
 
   // Auth
   useEffect(() => {
@@ -102,28 +104,30 @@ export default function SchoolBookingsPage() {
     }
   }
 
-  // Stats
-  const upcomingCount = bookings.filter((b) => b.status === "upcoming").length;
-  const pastCount = bookings.filter((b) => b.status === "past").length;
-  const totalCount = bookings.length;
-
   // Search / filter
-  const filteredBookings = bookings.filter((booking) => {
-    const search = searchTerm.toLowerCase();
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const search = searchTerm.toLowerCase();
 
-    const matchesSearch =
-      String(booking.ref || "").toLowerCase().includes(search) ||
-      String(booking.learner || "").toLowerCase().includes(search) ||
-      String(booking.staff || "").toLowerCase().includes(search) ||
-      String(booking.parentEmail || "").toLowerCase().includes(search) ||
-      String(booking.parentName || "").toLowerCase().includes(search) ||
-      String(booking.appointmentType || "").toLowerCase().includes(search);
+      const matchesSearch =
+        String(booking.ref || "").toLowerCase().includes(search) ||
+        String(booking.learner || "").toLowerCase().includes(search) ||
+        String(booking.staff || "").toLowerCase().includes(search) ||
+        String(booking.parentEmail || "").toLowerCase().includes(search) ||
+        String(booking.parentName || "").toLowerCase().includes(search) ||
+        String(booking.appointmentType || "").toLowerCase().includes(search);
 
-    const matchesFilter =
-      activeFilter === "all" ? true : booking.status === activeFilter;
+      const matchesFilter =
+        activeFilter === "all" ? true : booking.status === activeFilter;
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.startDateTime).getTime();
+      const bTime = new Date(b.startDateTime).getTime();
+      if (activeFilter === "upcoming") return aTime - bTime;
+      return bTime - aTime;
+    });
 
   if (authLoading) {
     return (
@@ -166,28 +170,7 @@ export default function SchoolBookingsPage() {
           )}
 
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Upcoming</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : upcomingCount}
-              </h2>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Past</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : pastCount}
-              </h2>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Total</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : totalCount}
-              </h2>
-            </div>
-          </div>
+          <BookingsStats bookings={bookings} loading={loading} />
 
           {/* Bookings card */}
           <BookingsCard
@@ -226,12 +209,12 @@ export default function SchoolBookingsPage() {
                   <tr className="border-b border-slate-200">
                     <th className="pb-3 font-semibold text-navy">Parent</th>
                     <th className="pb-3 font-semibold text-navy">Learner</th>
-                    <th className="pb-3 font-semibold text-navy">
-                      Staff Member
-                    </th>
+                    <th className="pb-3 font-semibold text-navy">Staff</th>
                     <th className="pb-3 font-semibold text-navy">Date</th>
                     <th className="pb-3 font-semibold text-navy">Time</th>
-                    <th className="pb-3 font-semibold text-navy">Purpose</th>
+                    <th className="pb-3 font-semibold text-navy">
+                      Appointment Type
+                    </th>
                     <th className="pb-3 font-semibold text-navy">Status</th>
                     <th className="pb-3 text-right font-semibold text-navy">
                       Action
@@ -287,17 +270,7 @@ export default function SchoolBookingsPage() {
                         </td>
 
                         <td className="py-4">
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              booking.status === "upcoming"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {booking.status === "upcoming"
-                              ? "Upcoming"
-                              : "Past"}
-                          </span>
+                          <BookingStatusBadge status={booking.status} />
                         </td>
 
                         <td className="py-4 text-right">
@@ -330,7 +303,7 @@ export default function SchoolBookingsPage() {
                         </p>
 
                         <p className="mt-1 text-sm text-text-muted">
-                          {searchTerm || activeFilter !== "all"
+                          {searchTerm || activeFilter !== "upcoming"
                             ? "Try adjusting your search or filters."
                             : "No Microsoft Bookings appointments were returned."}
                         </p>

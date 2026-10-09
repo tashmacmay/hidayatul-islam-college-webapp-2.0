@@ -9,12 +9,14 @@ import { CalendarDays, Plus, X } from "lucide-react";
 import BookingsCard from "@/components/bookings/BookingsCard";
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import BookingsStats from "@/components/bookings/BookingsStats";
+import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 
 export default function ParentBookingsPage() {
   const { user, loading: authLoading } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("upcoming");
 
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,23 +79,26 @@ export default function ParentBookingsPage() {
     }
   }
 
-  const upcomingCount = bookings.filter((b) => b.status === "upcoming").length;
-  const pastCount = bookings.filter((b) => b.status === "past").length;
-  const totalCount = bookings.length;
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const search = searchTerm.toLowerCase();
 
-  const filteredBookings = bookings.filter((booking) => {
-    const search = searchTerm.toLowerCase();
+      const matchesSearch =
+        String(booking.learner || "").toLowerCase().includes(search) ||
+        String(booking.staff || "").toLowerCase().includes(search) ||
+        String(booking.appointmentType || "").toLowerCase().includes(search);
 
-    const matchesSearch =
-      String(booking.learner || "").toLowerCase().includes(search) ||
-      String(booking.staff || "").toLowerCase().includes(search) ||
-      String(booking.appointmentType || "").toLowerCase().includes(search);
+      const matchesFilter =
+        activeFilter === "all" ? true : booking.status === activeFilter;
 
-    const matchesFilter =
-      activeFilter === "all" ? true : booking.status === activeFilter;
-
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.startDateTime).getTime();
+      const bTime = new Date(b.startDateTime).getTime();
+      if (activeFilter === "upcoming") return aTime - bTime;
+      return bTime - aTime;
+    });
 
   return (
     <ResponsiveAppShell
@@ -122,27 +127,8 @@ export default function ParentBookingsPage() {
           )}
 
           {/* Stats */}
-          <div className="mb-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Upcoming</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : upcomingCount}
-              </h2>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Past</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : pastCount}
-              </h2>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Total</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : totalCount}
-              </h2>
-            </div>
+          <div className="mb-8">
+            <BookingsStats bookings={bookings} loading={loading} />
           </div>
 
           {/* Bookings card */}
@@ -166,13 +152,14 @@ export default function ParentBookingsPage() {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[850px] text-left">
                 <thead>
-                  <tr className="border-b">
-                    <th className="pb-3">Date</th>
-                    <th className="pb-3">Time</th>
-                    <th className="pb-3">Appointment Type</th>
-                    <th className="pb-3">Learner Name</th>
-                    <th className="pb-3">Staff</th>
-                    <th className="pb-3 text-right">Actions</th>
+                  <tr className="border-b border-slate-200">
+                    <th className="pb-3 font-semibold text-navy">Learner</th>
+                    <th className="pb-3 font-semibold text-navy">Staff</th>
+                    <th className="pb-3 font-semibold text-navy">Date</th>
+                    <th className="pb-3 font-semibold text-navy">Time</th>
+                    <th className="pb-3 font-semibold text-navy">Appointment Type</th>
+                    <th className="pb-3 font-semibold text-navy">Status</th>
+                    <th className="pb-3 text-right font-semibold text-navy">Action</th>
                   </tr>
                 </thead>
 
@@ -180,7 +167,7 @@ export default function ParentBookingsPage() {
                   {loading && (
                     <tr>
                       <td
-                        colSpan={6}
+                        colSpan={7}
                         className="py-10 text-center text-sm text-text-muted"
                       >
                         Loading bookings...
@@ -190,14 +177,22 @@ export default function ParentBookingsPage() {
 
                   {!loading &&
                     filteredBookings.map((booking) => (
-                      <tr key={booking.id} className="border-b last:border-0">
-                        <td>{booking.date}</td>
-                        <td>{booking.time}</td>
-                        <td>{booking.appointmentType}</td>
-                        <td>{booking.learner}</td>
-                        <td>{booking.staff}</td>
+                      <tr
+                        key={booking.id}
+                        className="border-b border-slate-100 last:border-0"
+                      >
+                        <td className="py-4 text-slate-600">{booking.learner}</td>
+                        <td className="py-4 text-slate-600">{booking.staff}</td>
+                        <td className="py-4 text-slate-600">{booking.date}</td>
+                        <td className="py-4 text-slate-600">{booking.time}</td>
+                        <td className="py-4 text-slate-600">
+                          {booking.appointmentType}
+                        </td>
+                        <td className="py-4">
+                          <BookingStatusBadge status={booking.status} />
+                        </td>
 
-                        <td className="text-right">
+                        <td className="py-4 text-right">
                           {booking.status === "upcoming" ? (
                             <button
                               type="button"
@@ -216,7 +211,7 @@ export default function ParentBookingsPage() {
 
                   {!loading && filteredBookings.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-10 text-center">
+                      <td colSpan={7} className="py-10 text-center">
                         <CalendarDays
                           size={32}
                           className="mx-auto mb-3 text-gray-300"
@@ -227,7 +222,7 @@ export default function ParentBookingsPage() {
                         </p>
 
                         <p className="mt-1 text-sm text-text-muted">
-                          {searchTerm || activeFilter !== "all"
+                          {searchTerm || activeFilter !== "upcoming"
                             ? "Try adjusting your search or filters."
                             : "No Microsoft Bookings appointments were returned."}
                         </p>

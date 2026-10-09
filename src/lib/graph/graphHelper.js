@@ -129,6 +129,7 @@ export function formatParentBooking(booking, staffLookup) {
     id: booking.id,
     ref: booking.selfServiceAppointmentId,
     date: start.toLocaleDateString(),
+    startDateTime: start.toISOString(),
     time: `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
     appointmentType: booking.serviceName,
     learner: learnerAnswer?.answer || booking.customerName,

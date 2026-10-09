@@ -11,7 +11,7 @@ export default function BookingsCard({
   searchPlaceholder = "Search bookings...",
   activeFilter,
   onFilterChange,
-  filters = ["all", "upcoming", "past"],
+  filters = ["upcoming", "past", "all"],
   children,
 }) {
   return (
