@@ -4,14 +4,18 @@ import {
   CalendarDays,
   Clock3,
   FileSpreadsheet,
-  Search,
+  Plus,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 
+import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
+import BookingsStats from "@/components/bookings/BookingsStats";
+import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 
 export default function SchoolBookingsPage() {
   const [user, setUser] = useState(null);
@@ -22,9 +26,9 @@ export default function SchoolBookingsPage() {
   const [error, setError] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState("upcoming");
 
-  //Auth
+  // Auth
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (!currentUser) {
@@ -81,15 +85,12 @@ export default function SchoolBookingsPage() {
     try {
       const token = await user.getIdToken();
 
-      const response = await fetch(
-        `/api/admin/bookings/${bookingId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
@@ -103,30 +104,30 @@ export default function SchoolBookingsPage() {
     }
   }
 
-  //Stats
-  const upcomingCount = bookings.filter(
-    (b) => b.status === "upcoming"
-  ).length;
-  const pastCount = bookings.filter((b) => b.status === "past").length;
-  const totalCount = bookings.length;
+  // Search / filter
+  const filteredBookings = bookings
+    .filter((booking) => {
+      const search = searchTerm.toLowerCase();
 
-  //Search / filter
-  const filteredBookings = bookings.filter((booking) => {
-    const search = searchTerm.toLowerCase();
+      const matchesSearch =
+        String(booking.ref || "").toLowerCase().includes(search) ||
+        String(booking.learner || "").toLowerCase().includes(search) ||
+        String(booking.staff || "").toLowerCase().includes(search) ||
+        String(booking.parentEmail || "").toLowerCase().includes(search) ||
+        String(booking.parentName || "").toLowerCase().includes(search) ||
+        String(booking.appointmentType || "").toLowerCase().includes(search);
 
-    const matchesSearch =
-      String(booking.ref || "").toLowerCase().includes(search) ||
-      String(booking.learner || "").toLowerCase().includes(search) ||
-      String(booking.staff || "").toLowerCase().includes(search) ||
-      String(booking.parentEmail || "").toLowerCase().includes(search) ||
-      String(booking.parentName || "").toLowerCase().includes(search) ||
-      String(booking.appointmentType || "").toLowerCase().includes(search);
+      const matchesFilter =
+        activeFilter === "all" ? true : booking.status === activeFilter;
 
-    const matchesFilter =
-      activeFilter === "all" ? true : booking.status === activeFilter;
-
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a.startDateTime).getTime();
+      const bTime = new Date(b.startDateTime).getTime();
+      if (activeFilter === "upcoming") return aTime - bTime;
+      return bTime - aTime;
+    });
 
   if (authLoading) {
     return (
@@ -169,107 +170,51 @@ export default function SchoolBookingsPage() {
           )}
 
           {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Upcoming</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : upcomingCount}
-              </h2>
-            </div>
+          <BookingsStats bookings={bookings} loading={loading} />
 
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Past</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : pastCount}
-              </h2>
-            </div>
-
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <p className="text-sm text-text-muted">Total</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {loading ? "..." : totalCount}
-              </h2>
-            </div>
-          </div>
-
-          {/* Overview / table card */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Clock3 size={20} className="text-navy" />
-                <h2 className="text-xl font-bold text-navy">
-                  School Booking Overview
-                </h2>
-              </div>
-
-              {/* Generate Report — stub for later */}
-              <button
-                type="button"
-                disabled
-                title="Reporting will be connected in a later card"
-                className="flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-400"
-              >
-                <FileSpreadsheet size={16} />
-                Generate Report
-              </button>
-            </div>
-
-            {/* Search */}
-            <div className="mb-5 relative">
-              <Search
-                size={18}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              />
-
-              <input
-                type="text"
-                placeholder="Search by parent, learner, staff or type..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border border-gray-200 py-2 pl-10 pr-4 text-sm outline-none focus:border-gold focus:ring-2 focus:ring-gold"
-              />
-            </div>
-
-            {/* Filters */}
-            <div className="mb-5 flex flex-wrap gap-2">
-              {["all", "upcoming", "past"].map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    activeFilter === filter
-                      ? "bg-navy text-white"
-                      : "bg-gray-100 text-text-muted hover:bg-gray-200"
-                  }`}
+          {/* Bookings card */}
+          <BookingsCard
+            title="School Booking Overview"
+            titleIcon={Clock3}
+            searchPlaceholder="Search by parent, learner, staff or type..."
+            actions={
+              <>
+                <Link
+                  href="/staff/admin/school-bookings/create-booking"
+                  className="flex w-fit items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy transition hover:opacity-90"
                 >
-                  {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  <Plus size={16} />
+                  Book New Appointment
+                </Link>
+
+                <button
+                  type="button"
+                  disabled
+                  title="Reporting will be connected in a later card"
+                  className="flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-400"
+                >
+                  <FileSpreadsheet size={16} />
+                  Generate Report
                 </button>
-              ))}
-            </div>
-
-            {/* Table */}
+              </>
+            }
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+          >
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] table-fixed text-left">
-                <colgroup>
-                  <col className="w-[20%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[14%]" />
-                  <col className="w-[10%]" />
-                  <col className="w-[8%]" />
-                </colgroup>
-
+              <table className="w-full min-w-[900px] text-left">
                 <thead>
                   <tr className="border-b border-slate-200">
                     <th className="pb-3 font-semibold text-navy">Parent</th>
                     <th className="pb-3 font-semibold text-navy">Learner</th>
-                    <th className="pb-3 font-semibold text-navy">Staff Member</th>
+                    <th className="pb-3 font-semibold text-navy">Staff</th>
                     <th className="pb-3 font-semibold text-navy">Date</th>
                     <th className="pb-3 font-semibold text-navy">Time</th>
-                    <th className="pb-3 font-semibold text-navy">Purpose</th>
+                    <th className="pb-3 font-semibold text-navy">
+                      Appointment Type
+                    </th>
                     <th className="pb-3 font-semibold text-navy">Status</th>
                     <th className="pb-3 text-right font-semibold text-navy">
                       Action
@@ -325,17 +270,7 @@ export default function SchoolBookingsPage() {
                         </td>
 
                         <td className="py-4">
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              booking.status === "upcoming"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {booking.status === "upcoming"
-                              ? "Upcoming"
-                              : "Past"}
-                          </span>
+                          <BookingStatusBadge status={booking.status} />
                         </td>
 
                         <td className="py-4 text-right">
@@ -368,7 +303,7 @@ export default function SchoolBookingsPage() {
                         </p>
 
                         <p className="mt-1 text-sm text-text-muted">
-                          {searchTerm || activeFilter !== "all"
+                          {searchTerm || activeFilter !== "upcoming"
                             ? "Try adjusting your search or filters."
                             : "No Microsoft Bookings appointments were returned."}
                         </p>
@@ -378,7 +313,7 @@ export default function SchoolBookingsPage() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </BookingsCard>
         </div>
       </main>
     </div>
