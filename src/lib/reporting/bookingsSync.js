@@ -4,6 +4,7 @@ import {
   getBookingsAsync,
   getStaffMemberLookupAsync,
 } from "@/lib/graph/graphHelper";
+import { getUserIdsByEmail, upsertBooking } from "@/lib/reporting/bookingsRepository";
 
 const FOUR_MONTHS_MS = 1000 * 60 * 60 * 24 * 120;
 
@@ -105,4 +106,41 @@ export async function fetchRecentBookingsFromGraph() {
   });
 
   return filtered.map((booking) => transformBooking(booking, staffLookup));
+}
+
+export async function syncBookingsToDb() {
+  const startedAt = Date.now();
+
+  const rows = await fetchRecentBookingsFromGraph();
+
+  // Look up all parent IDs in one query
+  const emails = rows.map((r) => r.parentEmail).filter(Boolean);
+  const idByEmail = await getUserIdsByEmail(emails);
+
+  let inserted = 0;
+  let updated = 0;
+  const skippedEmails = [];
+
+  for (const row of rows) {
+    const email = (row.parentEmail || "").toLowerCase().trim();
+    const parentId = idByEmail.get(email);
+
+    if (!parentId) {
+      skippedEmails.push(email || "(no email)");
+      continue;
+    }
+
+    const result = await upsertBooking({ ...row, parentId });
+    if (result === "inserted") inserted += 1;
+    else updated += 1;
+  }
+
+  return {
+    fetched: rows.length,
+    inserted,
+    updated,
+    skipped: skippedEmails.length,
+    skippedEmails,
+    durationMs: Date.now() - startedAt,
+  };
 }
