@@ -75,12 +75,18 @@ export default function NewsList() {
         </div>
       )}
 
-      {loading && <p className="text-sm text-text-muted">Loading news…</p>}
+      {loading && (
+        <div className="flex justify-center py-10">
+          <p className="text-sm text-text-muted">Loading news…</p>
+        </div>
+      )}
 
       {error && !loading && (
-        <p className="text-sm text-text-muted">
-          Unable to load news right now. Please try again later.
-        </p>
+        <div className="flex justify-center py-10">
+          <p className="text-sm text-text-muted">
+            Unable to load news right now. Please try again later.
+          </p>
+        </div>
       )}
 
       {!loading && !error && visible.length === 0 && (
@@ -94,15 +100,21 @@ export default function NewsList() {
       )}
 
       {!loading && !error && visible.length > 0 && (
-        <ul className="grid gap-6 sm:grid-cols-2">
+        <ul className="columns-1 gap-6 sm:columns-2">
           {visible.map((item) => (
-            <li key={item.id} className="rounded-xl bg-white p-6 shadow-sm">
+            <li
+              key={item.id}
+              className="mb-6 break-inside-avoid rounded-xl bg-white p-6 shadow-sm"
+            >
               {item.featured_image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.featured_image_url}
                   alt={item.title}
-                  className="mb-4 h-48 w-full rounded-lg object-cover"
+                  className="mb-4 h-48 w-full rounded-lg bg-off-white object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                 />
               )}
               <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
@@ -114,7 +126,7 @@ export default function NewsList() {
               <p className="mb-3 text-xs text-text-muted">
                 {formatDate(item.published_at)}
               </p>
-              <p className="text-sm text-text-muted">
+              <p className="line-clamp-2 min-h-[2.5rem] text-sm text-text-muted">
                 {item.excerpt || (item.content ?? "").slice(0, 160)}
               </p>
             </li>
