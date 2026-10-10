@@ -28,6 +28,12 @@ export default function SchoolBookingsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("upcoming");
 
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportFrom, setReportFrom] = useState("");
+  const [reportTo, setReportTo] = useState("");
+  const [reportError, setReportError] = useState("");
+  const [downloading, setDownloading] = useState(false);
+
   // Auth
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -101,6 +107,66 @@ export default function SchoolBookingsPage() {
     } catch (err) {
       console.error("Cancel failed:", err);
       alert(err.message || "Something went wrong cancelling this booking.");
+    }
+  }
+
+  async function handleDownloadCsv() {
+    setReportError("");
+
+    if (reportFrom && reportTo && reportFrom > reportTo) {
+      setReportError("'From' must be on or before 'To'.");
+      return;
+    }
+
+    try {
+      setDownloading(true);
+
+      const token = await user.getIdToken();
+
+      const params = new URLSearchParams();
+      if (reportFrom) params.append("from", reportFrom);
+      if (reportTo) params.append("to", reportTo);
+
+      const qs = params.toString();
+      const url = `/api/admin/reporting/bookings.csv${qs ? `?${qs}` : ""}`;
+
+      const response = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        let msg = "Failed to download report";
+        try {
+          const data = await response.json();
+          if (data.error) msg = data.error;
+        } catch (_) {}
+        throw new Error(msg);
+      }
+
+      const blob = await response.blob();
+
+      const disposition = response.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="([^"]+)"/);
+      const filename =
+        match?.[1] || `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
+
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+
+      setShowReportModal(false);
+      setReportFrom("");
+      setReportTo("");
+    } catch (err) {
+      console.error("Download failed:", err);
+      setReportError(err.message);
+    } finally {
+      setDownloading(false);
     }
   }
 
@@ -189,9 +255,11 @@ export default function SchoolBookingsPage() {
 
                 <button
                   type="button"
-                  disabled
-                  title="Reporting will be connected in a later card"
-                  className="flex cursor-not-allowed items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-400"
+                  onClick={() => {
+                    setReportError("");
+                    setShowReportModal(true);
+                  }}
+                  className="flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
                 >
                   <FileSpreadsheet size={16} />
                   Generate Report
@@ -316,6 +384,85 @@ export default function SchoolBookingsPage() {
           </BookingsCard>
         </div>
       </main>
+
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-8">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-navy">
+                Generate Booking Report
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setShowReportModal(false)}
+                aria-label="Close"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  From date (optional)
+                </label>
+
+                <input
+                  type="date"
+                  value={reportFrom}
+                  onChange={(e) => setReportFrom(e.target.value)}
+                  className="w-full rounded-lg border p-3"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  To date (optional)
+                </label>
+
+                <input
+                  type="date"
+                  value={reportTo}
+                  onChange={(e) => setReportTo(e.target.value)}
+                  className="w-full rounded-lg border p-3"
+                />
+              </div>
+
+              <p className="text-xs text-text-muted">
+                Leave both blank to export all bookings. Dates are
+                interpreted as SAST.
+              </p>
+
+              {reportError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                  <p className="text-sm text-red-700">{reportError}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadCsv}
+                  disabled={downloading}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 font-semibold text-navy transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <FileSpreadsheet size={18} />
+                  {downloading ? "Downloading…" : "Download CSV"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowReportModal(false)}
+                  className="rounded-lg border px-5 py-3 text-sm text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
