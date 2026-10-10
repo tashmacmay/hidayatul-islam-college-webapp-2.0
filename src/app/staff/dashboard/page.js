@@ -6,7 +6,6 @@ import {
   CalendarDays,
   Bell,
   BookOpen,
-  Users,
   ArrowRight,
 } from "lucide-react";
 
@@ -15,18 +14,8 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
-
 // ============================================================
 // STAT CARD
-// ============================================================
-// Reusable dashboard statistic card.
-//
-// The entire card is clickable.
-//
-// Bookings Today -> /staff/bookings
-// Notices        -> /staff/notices
-// Resources      -> /staff/resources
-// Parents        -> /staff/users
 // ============================================================
 
 function StatCard({
@@ -42,13 +31,7 @@ function StatCard({
       onClick={onClick}
       className="group w-full rounded-xl border border-gray-100 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#c9a227]"
     >
-
-      {/* ======================================================
-          ICON
-          ====================================================== */}
-
       <div className="mb-4 flex items-center justify-between">
-
         <div className="text-[#0d2260]">
           {icon}
         </div>
@@ -57,50 +40,25 @@ function StatCard({
           size={18}
           className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#c9a227]"
         />
-
       </div>
-
-
-      {/* ======================================================
-          TITLE
-          ====================================================== */}
 
       <p className="text-sm text-[#5a6a82]">
         {title}
       </p>
 
-
-      {/* ======================================================
-          VALUE
-          ====================================================== */}
-
       <h3 className="mt-1 text-3xl font-bold text-[#0d2260]">
         {value}
       </h3>
 
-
-      {/* ======================================================
-          SUBTITLE
-          ====================================================== */}
-
       <p className="mt-1 text-sm text-[#5a6a82]">
         {subtitle}
       </p>
-
     </button>
   );
 }
 
-
 // ============================================================
 // DASHBOARD CARD
-// ============================================================
-// Reusable white card used for:
-//
-// - Today's Bookings
-// - Recent Notices
-//
-// "View all" is optional.
 // ============================================================
 
 function DashboardCard({
@@ -110,17 +68,10 @@ function DashboardCard({
 }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-
-      {/* ======================================================
-          CARD HEADER
-          ====================================================== */}
-
       <div className="mb-5 flex items-center justify-between">
-
         <h2 className="text-lg font-bold text-[#0d2260]">
           {title}
         </h2>
-
 
         {onViewAll && (
           <button
@@ -128,51 +79,26 @@ function DashboardCard({
             onClick={onViewAll}
             className="flex items-center gap-1 text-xs font-semibold text-[#0d2260] transition hover:text-[#c9a227]"
           >
-
             View all
-
             <ArrowRight size={14} />
-
           </button>
         )}
-
       </div>
 
-
-      {/* ======================================================
-          CARD CONTENT
-          ====================================================== */}
-
       {children}
-
     </div>
   );
 }
 
-
 // ============================================================
-// STAFF DASHBOARD PAGE
-// ============================================================
-// The dashboard currently works WITHOUT login/authentication.
-//
-// The dashboard gets its information from:
-//
-//     GET /api/staff/dashboard
-//
-// That API communicates with the SQL Server database.
-//
-// Authentication has intentionally been commented out for now.
+// STAFF DASHBOARD
 // ============================================================
 
 export default function DashboardPage() {
-  // ============================================================
-  // ROUTER
-  // ============================================================
-
   const router = useRouter();
 
   // ============================================================
-  // AUTH STATE
+  // AUTH
   // ============================================================
 
   const [user, setUser] = useState(null);
@@ -182,21 +108,17 @@ export default function DashboardPage() {
   // DASHBOARD DATA
   // ============================================================
 
-  const [dashboard, setDashboard] = useState({
-    bookings: [],
-    notices: [],
-    resourceCount: 0,
-    parentCount: 0,
-  });
+  const [bookings, setBookings] = useState([]);
+  const [notices, setNotices] = useState([]);
 
   // ============================================================
-  // LOADING STATE
+  // LOADING
   // ============================================================
 
   const [loading, setLoading] = useState(true);
 
   // ============================================================
-  // ERROR STATE
+  // ERROR
   // ============================================================
 
   const [error, setError] = useState("");
@@ -223,12 +145,10 @@ export default function DashboardPage() {
   }, [router]);
 
   // ============================================================
-  // LOAD DASHBOARD DATA
+  // LOAD DASHBOARD
   // ============================================================
 
   useEffect(() => {
-    // Do not attempt to load dashboard data until
-    // Firebase authentication has finished.
     if (authLoading || !user) {
       return;
     }
@@ -238,39 +158,51 @@ export default function DashboardPage() {
         setLoading(true);
         setError("");
 
-        // Get the Firebase ID token for the logged-in user.
+        // ------------------------------------------------------
+        // Firebase ID token
+        // ------------------------------------------------------
+
         const token = await user.getIdToken();
 
-        const response = await fetch("/api/staff/dashboard", {
+        // ------------------------------------------------------
+        // Notices
+        //
+        // Uses the existing Notices API as the source of truth.
+        // ------------------------------------------------------
+
+        const noticesResponse = await fetch("/api/notices", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!response.ok) {
+        if (!noticesResponse.ok) {
           throw new Error(
-            `Failed to load dashboard (${response.status})`
+            `Failed to load notices (${noticesResponse.status})`
           );
         }
 
-        const data = await response.json();
+        const noticesData = await noticesResponse.json();
 
-        setDashboard({
-          bookings: Array.isArray(data.bookings)
-            ? data.bookings
-            : [],
+        setNotices(
+          Array.isArray(noticesData)
+            ? noticesData
+            : []
+        );
 
-          notices: Array.isArray(data.notices)
-            ? data.notices
-            : [],
+        // ------------------------------------------------------
+        // BOOKINGS
+        //
+        // The actual staff bookings page uses Microsoft Graph.
+        //
+        // We are intentionally not adding SQL booking logic here.
+        // Once the Graph staff endpoint is finalised, the dashboard
+        // can use that same source.
+        // ------------------------------------------------------
 
-          resourceCount:
-            Number(data.resourceCount) || 0,
+        setBookings([]);
 
-          parentCount:
-            Number(data.parentCount) || 0,
-        });
       } catch (err) {
         console.error(
           "❌ Error loading staff dashboard:",
@@ -289,7 +221,7 @@ export default function DashboardPage() {
   }, [user, authLoading]);
 
   // ============================================================
-  // WAIT FOR AUTHENTICATION
+  // AUTH LOADING
   // ============================================================
 
   if (authLoading) {
@@ -300,42 +232,33 @@ export default function DashboardPage() {
     );
   }
 
+  // ============================================================
+  // NOT LOGGED IN
+  // ============================================================
+
   if (!user) {
     return null;
   }
 
   // ============================================================
-  // DASHBOARD STATISTICS
+  // STAFF NAME
   // ============================================================
 
-  const bookingsToday = dashboard.bookings.length;
-
-  const noticesCount = dashboard.notices.length;
-
-  // ============================================================
-  // FORMAT TIME
-  // ============================================================
-
-  function formatTime(value) {
-    if (!value) {
-      return "";
-    }
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-
-    return date.toLocaleTimeString("en-ZA", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-  }
+  const staffName =
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "Staff Member";
 
   // ============================================================
-  // FORMAT DATE
+  // NOTICE DATA
+  // ============================================================
+
+  const noticesCount = notices.length;
+
+  const recentNotices = notices.slice(0, 5);
+
+  // ============================================================
+  // DATE FORMAT
   // ============================================================
 
   function formatDate(value) {
@@ -361,16 +284,13 @@ export default function DashboardPage() {
   // ============================================================
 
   return (
-
     <div className="min-h-screen bg-[#f0f2f7]">
 
-
       {/* ======================================================
-          STAFF SIDEBAR
+          SIDEBAR
           ====================================================== */}
 
       <StaffSidebar />
-
 
       {/* ======================================================
           MAIN CONTENT
@@ -380,9 +300,8 @@ export default function DashboardPage() {
 
         <div className="mx-auto w-full max-w-[1600px] px-6 py-6 md:px-8 md:py-8">
 
-
           {/* ==================================================
-              WELCOME HEADER
+              WELCOME
               ================================================== */}
 
           <div className="mb-8">
@@ -392,23 +311,21 @@ export default function DashboardPage() {
             </p>
 
             <h1 className="mt-1 text-3xl font-bold text-[#0d2260] md:text-4xl">
-              Welcome back, Staff Member
+              Welcome back, {staffName}
             </h1>
 
             <p className="mt-2 text-sm text-[#5a6a82]">
-              Here's an overview of what's happening at
-              Hidayatul Islam College.
+              Here's an overview of your bookings and the
+              latest school notices.
             </p>
 
           </div>
 
-
           {/* ==================================================
-              ERROR MESSAGE
+              ERROR
               ================================================== */}
 
           {error && (
-
             <div className="mb-6 flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-4">
 
               <p className="text-sm font-medium text-red-700">
@@ -426,126 +343,51 @@ export default function DashboardPage() {
               </button>
 
             </div>
-
           )}
 
-
           {/* ==================================================
-              STAT CARDS
+              SUMMARY CARDS
               ================================================== */}
 
-          <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
+          <div className="mb-8 grid gap-4 sm:grid-cols-2">
 
             {/* =================================================
-                BOOKINGS
+                MY BOOKINGS
                 ================================================= */}
 
             <StatCard
-
-              icon={
-                <CalendarDays size={28} />
-              }
-
-              title="Bookings Today"
-
+              icon={<CalendarDays size={28} />}
+              title="My Bookings"
               value={
                 loading
                   ? "..."
-                  : bookingsToday
+                  : bookings.length
               }
-
-              subtitle="Scheduled appointments"
-
+              subtitle="Upcoming appointments"
               onClick={() =>
                 router.push("/staff/bookings")
               }
-
             />
 
-
             {/* =================================================
-                NOTICES
+                SCHOOL NOTICES
                 ================================================= */}
 
             <StatCard
-
-              icon={
-                <Bell size={28} />
-              }
-
-              title="Notices"
-
+              icon={<Bell size={28} />}
+              title="School Notices"
               value={
                 loading
                   ? "..."
                   : noticesCount
               }
-
-              subtitle="Published announcements"
-
+              subtitle="Published notices"
               onClick={() =>
-                router.push("/staff/notices")
+                router.push("/staff/school-notices")
               }
-
-            />
-
-
-            {/* =================================================
-                RESOURCES
-                ================================================= */}
-
-            <StatCard
-
-              icon={
-                <BookOpen size={28} />
-              }
-
-              title="Resources"
-
-              value={
-                loading
-                  ? "..."
-                  : dashboard.resourceCount
-              }
-
-              subtitle="Available resources"
-
-              onClick={() =>
-                router.push("/staff/resources")
-              }
-
-            />
-
-
-            {/* =================================================
-                PARENTS
-                ================================================= */}
-
-            <StatCard
-
-              icon={
-                <Users size={28} />
-              }
-
-              title="Parents"
-
-              value={
-                loading
-                  ? "..."
-                  : dashboard.parentCount
-              }
-
-              subtitle="Registered parents"
-
-              onClick={() =>
-                router.push("/staff/users")
-              }
-
             />
 
           </div>
-
 
           {/* ==================================================
               LOWER DASHBOARD
@@ -553,205 +395,53 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
 
-
             {/* =================================================
-                TODAY'S BOOKINGS
+                MY BOOKINGS
                 ================================================= */}
 
             <DashboardCard
-
-              title="Today's Bookings"
-
+              title="My Bookings"
               onViewAll={() =>
                 router.push("/staff/bookings")
               }
-
             >
 
-              <div className="space-y-3">
+              {loading ? (
+                <div className="rounded-lg bg-[#f7f8fc] p-4">
+                  <p className="text-sm text-[#5a6a82]">
+                    Loading bookings...
+                  </p>
+                </div>
+              ) : bookings.length === 0 ? (
+                <div className="rounded-lg bg-[#f7f8fc] p-4">
 
+                  <p className="text-sm text-[#5a6a82]">
+                    Your booking information will appear
+                    here.
+                  </p>
 
-                {/* ---------------------------------------------
-                    LOADING
-                    --------------------------------------------- */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      router.push("/staff/bookings")
+                    }
+                    className="mt-3 text-sm font-semibold text-[#0d2260] hover:text-[#c9a227]"
+                  >
+                    View my bookings →
+                  </button>
 
-                {loading && (
+                </div>
+              ) : (
+                <div className="space-y-3">
 
-                  <div className="rounded-lg bg-[#f7f8fc] p-4">
-
-                    <p className="text-sm text-[#5a6a82]">
-                      Loading bookings...
-                    </p>
-
-                  </div>
-
-                )}
-
-
-                {/* ---------------------------------------------
-                    NO BOOKINGS
-                    --------------------------------------------- */}
-
-                {!loading &&
-                  dashboard.bookings.length === 0 && (
-
-                    <div className="rounded-lg bg-[#f7f8fc] p-4">
-
-                      <p className="text-sm text-[#5a6a82]">
-                        No bookings scheduled for today.
-                      </p>
-
-                    </div>
-
-                )}
-
-
-                {/* ---------------------------------------------
-                    BOOKINGS
-                    --------------------------------------------- */}
-
-                {!loading &&
-                  dashboard.bookings.length > 0 &&
-
-                  dashboard.bookings.map(
-                    (booking) => (
-
+                  {bookings
+                    .slice(0, 5)
+                    .map((booking) => (
                       <button
                         key={booking.id}
                         type="button"
                         onClick={() =>
-                          router.push(
-                            "/staff/bookings"
-                          )
-                        }
-                        className="group w-full rounded-lg bg-[#f7f8fc] p-4 text-left transition hover:bg-[#eef1f8]"
-                      >
-
-                        <div className="flex items-center justify-between gap-4">
-
-                          <div>
-
-            <p className="font-semibold text-[#0d2260]">
-{booking.title ||
-  booking.service ||
-  "Booking"}</p>
-
-                            <p className="mt-1 text-sm text-[#5a6a82]">
-
-                              {formatTime(
-                                booking.start_time
-                              )}
-
-                              {booking.end_time
-                                ? ` - ${formatTime(
-                                    booking.end_time
-                                  )}`
-                                : ""}
-
-                            </p>
-
-                          </div>
-
-
-                          <ArrowRight
-                            size={16}
-                            className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#c9a227]"
-                          />
-
-                        </div>
-
-
-                        {/* STATUS */}
-
-                        {booking.status && (
-
-                          <span className="mt-2 inline-block rounded-full bg-[#0d2260]/10 px-2.5 py-1 text-xs font-semibold text-[#0d2260]">
-                            {booking.status}
-                          </span>
-
-                        )}
-
-                      </button>
-
-                    )
-                  )
-
-                }
-
-              </div>
-
-            </DashboardCard>
-
-
-            {/* =================================================
-                RECENT NOTICES
-                ================================================= */}
-
-            <DashboardCard
-
-              title="Recent Notices"
-
-              onViewAll={() =>
-                router.push("/staff/notices")
-              }
-
-            >
-
-              <div className="space-y-3">
-
-
-                {/* ---------------------------------------------
-                    LOADING
-                    --------------------------------------------- */}
-
-                {loading && (
-
-                  <div className="rounded-lg bg-[#f7f8fc] p-4">
-
-                    <p className="text-sm text-[#5a6a82]">
-                      Loading notices...
-                    </p>
-
-                  </div>
-
-                )}
-
-
-                {/* ---------------------------------------------
-                    NO NOTICES
-                    --------------------------------------------- */}
-
-                {!loading &&
-                  dashboard.notices.length === 0 && (
-
-                    <div className="rounded-lg bg-[#f7f8fc] p-4">
-
-                      <p className="text-sm text-[#5a6a82]">
-                        No recent notices.
-                      </p>
-
-                    </div>
-
-                )}
-
-
-                {/* ---------------------------------------------
-                    NOTICE LIST
-                    --------------------------------------------- */}
-
-                {!loading &&
-                  dashboard.notices.length > 0 &&
-
-                  dashboard.notices.map(
-                    (notice) => (
-
-                      <button
-                        key={notice.id}
-                        type="button"
-                        onClick={() =>
-                          router.push(
-                            "/staff/notices"
-                          )
+                          router.push("/staff/bookings")
                         }
                         className="group w-full rounded-lg bg-[#f7f8fc] p-4 text-left transition hover:bg-[#eef1f8]"
                       >
@@ -761,47 +451,124 @@ export default function DashboardPage() {
                           <div>
 
                             <p className="font-semibold text-[#0d2260]">
-                              {notice.title}
+                              {booking.appointmentType ||
+                                booking.serviceName ||
+                                "Appointment"}
                             </p>
 
-                            <div className="mt-1 flex items-center gap-2">
-
-                              {notice.category && (
-
-                                <span className="rounded-full bg-[#c9a227]/15 px-2 py-1 text-[11px] font-semibold text-[#7a5c00]">
-                                  {notice.category}
-                                </span>
-
-                              )}
-
-                              {notice.created_at && (
-
-                                <span className="text-xs text-[#5a6a82]">
-                                  {formatDate(
-                                    notice.created_at
-                                  )}
-                                </span>
-
-                              )}
-
-                            </div>
+                            <p className="mt-1 text-sm text-[#5a6a82]">
+                              {booking.date}
+                              {booking.time
+                                ? ` • ${booking.time}`
+                                : ""}
+                            </p>
 
                           </div>
 
-
                           <ArrowRight
                             size={16}
-                            className="flex-shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#c9a227]"
+                            className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#c9a227]"
                           />
 
                         </div>
 
                       </button>
+                    ))}
 
-                    )
-                  )
+                </div>
+              )}
 
-                }
+            </DashboardCard>
+
+            {/* =================================================
+                SCHOOL NOTICES
+                ================================================= */}
+
+            <DashboardCard
+              title="School Notices"
+              onViewAll={() =>
+                router.push("/staff/school-notices")
+              }
+            >
+
+              <div className="space-y-3">
+
+                {loading && (
+                  <div className="rounded-lg bg-[#f7f8fc] p-4">
+                    <p className="text-sm text-[#5a6a82]">
+                      Loading notices...
+                    </p>
+                  </div>
+                )}
+
+                {!loading &&
+                  recentNotices.length === 0 && (
+                    <div className="rounded-lg bg-[#f7f8fc] p-4">
+
+                      <p className="text-sm text-[#5a6a82]">
+                        No published school notices.
+                      </p>
+
+                    </div>
+                  )}
+
+                {!loading &&
+                  recentNotices.length > 0 &&
+                  recentNotices.map((notice) => (
+                    <button
+                      key={notice.id}
+                      type="button"
+                      onClick={() =>
+                        router.push(
+                          "/staff/school-notices"
+                        )
+                      }
+                      className="group w-full rounded-lg bg-[#f7f8fc] p-4 text-left transition hover:bg-[#eef1f8]"
+                    >
+
+                      <div className="flex items-center justify-between gap-4">
+
+                        <div className="min-w-0">
+
+                          <p className="truncate font-semibold text-[#0d2260]">
+                            {notice.title}
+                          </p>
+
+                          <div className="mt-2 flex flex-wrap items-center gap-2">
+
+                            {notice.type && (
+                              <span className="rounded-full bg-[#c9a227]/15 px-2 py-1 text-[11px] font-semibold text-[#7a5c00]">
+                                {notice.type}
+                              </span>
+                            )}
+
+                            {notice.grade && (
+                              <span className="rounded-full bg-[#0d2260]/10 px-2 py-1 text-[11px] font-semibold text-[#0d2260]">
+                                {notice.grade}
+                              </span>
+                            )}
+
+                            {notice.created_at && (
+                              <span className="text-xs text-[#5a6a82]">
+                                {formatDate(
+                                  notice.created_at
+                                )}
+                              </span>
+                            )}
+
+                          </div>
+
+                        </div>
+
+                        <ArrowRight
+                          size={16}
+                          className="flex-shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#c9a227]"
+                        />
+
+                      </div>
+
+                    </button>
+                  ))}
 
               </div>
 
@@ -809,22 +576,20 @@ export default function DashboardPage() {
 
           </div>
 
-
           {/* ==================================================
-              QUICK ACTIONS
+              QUICK LINKS
               ================================================== */}
 
           <div className="mt-6 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
 
             <h2 className="mb-4 text-lg font-bold text-[#0d2260]">
-              Quick Actions
+              Quick Links
             </h2>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 
               {/* =================================================
-                  MANAGE BOOKINGS
+                  BOOKINGS
                   ================================================= */}
 
               <button
@@ -840,21 +605,28 @@ export default function DashboardPage() {
                   className="text-[#0d2260]"
                 />
 
-                <span className="text-sm font-semibold text-[#0d2260]">
-                  Manage Bookings
-                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[#0d2260]">
+                    My Bookings
+                  </p>
+
+                  <p className="text-xs text-[#5a6a82]">
+                    View your appointments
+                  </p>
+                </div>
 
               </button>
 
-
               {/* =================================================
-                  MANAGE NOTICES
+                  NOTICES
                   ================================================= */}
 
               <button
                 type="button"
                 onClick={() =>
-                  router.push("/staff/notices")
+                  router.push(
+                    "/staff/school-notices"
+                  )
                 }
                 className="flex items-center gap-3 rounded-lg border border-[#0d2260]/10 p-4 text-left transition hover:border-[#c9a227] hover:bg-[#f7f8fc]"
               >
@@ -864,15 +636,20 @@ export default function DashboardPage() {
                   className="text-[#0d2260]"
                 />
 
-                <span className="text-sm font-semibold text-[#0d2260]">
-                  Manage Notices
-                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[#0d2260]">
+                    School Notices
+                  </p>
+
+                  <p className="text-xs text-[#5a6a82]">
+                    View published notices
+                  </p>
+                </div>
 
               </button>
 
-
               {/* =================================================
-                  MANAGE RESOURCES
+                  RESOURCES
                   ================================================= */}
 
               <button
@@ -888,33 +665,15 @@ export default function DashboardPage() {
                   className="text-[#0d2260]"
                 />
 
-                <span className="text-sm font-semibold text-[#0d2260]">
-                  Manage Resources
-                </span>
+                <div>
+                  <p className="text-sm font-semibold text-[#0d2260]">
+                    Resources
+                  </p>
 
-              </button>
-
-
-              {/* =================================================
-                  VIEW PARENTS
-                  ================================================= */}
-
-              <button
-                type="button"
-                onClick={() =>
-                  router.push("/staff/users")
-                }
-                className="flex items-center gap-3 rounded-lg border border-[#0d2260]/10 p-4 text-left transition hover:border-[#c9a227] hover:bg-[#f7f8fc]"
-              >
-
-                <Users
-                  size={20}
-                  className="text-[#0d2260]"
-                />
-
-                <span className="text-sm font-semibold text-[#0d2260]">
-                  View Parents
-                </span>
+                  <p className="text-xs text-[#5a6a82]">
+                    Access school resources
+                  </p>
+                </div>
 
               </button>
 
@@ -927,6 +686,5 @@ export default function DashboardPage() {
       </main>
 
     </div>
-
   );
 }
