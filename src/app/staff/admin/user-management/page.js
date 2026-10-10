@@ -520,18 +520,27 @@ export default function UsersPage() {
           {/* ==================================================
               HEADER
           ================================================== */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2">
+              <Users
+                size={21}
+                className="text-gold"
+              />
 
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
-            <div>
-              <p className="text-sm text-text-muted">
-                Manage system users and access
-              </p>
-
-              <h1 className="mt-1 text-4xl font-bold text-navy">
-                User Management
-              </h1>
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Admin Portal
+              </span>
             </div>
+
+            <h1 className="text-2xl font-bold text-navy md:text-3xl">
+              User Management
+            </h1>
+
+            <p className="mt-1 text-sm text-text-muted">
+              Manage system users and access.
+            </p>
+          </div>
 
             <div className="flex flex-col gap-2 sm:flex-row">
 

@@ -24,9 +24,16 @@ export async function verifyUser(req) {
 
     // Fetch role from MS SQL
     const pool = await getConnection();
-    const result = await pool.request()
-      .input('uid', sql.NVarChar, uid)
-      .query('SELECT role, is_admin FROM Users WHERE firebase_uid = @uid');
+  const result = await pool.request()
+  .input('uid', sql.NVarChar, uid)
+  .query(`
+    SELECT
+      id,
+      role,
+      is_admin
+    FROM Users
+    WHERE firebase_uid = @uid
+  `);
 
     if (result.recordset.length === 0) {
       console.error('❌ User not found for UID:', uid);
@@ -38,10 +45,12 @@ export async function verifyUser(req) {
       throw error;
     }
 
-    const { role, is_admin } = result.recordset[0];
+  const { id, role, is_admin } = result.recordset[0];
+
     return {
       ...decoded,
       uid,
+      id,
       role,
       isAdmin: Boolean(is_admin),
     };

@@ -73,8 +73,18 @@ export default function StaffSidebar() {
       icon: LayoutDashboard,
     },
     {
-      name: "My Notices",
-      href: "/staff/notices",
+  name: "Term Calendar Management",
+  href: "/staff/admin/term-calendar-management",
+  icon: CalendarDays,
+},
+    {
+      name: "Notice Management",
+      href: "/staff/admin/notice-management",
+      icon: Bell,
+    },
+        {
+      name: "School Notices",
+      href: "/staff/school-notices",
       icon: Bell,
     },
     {
@@ -87,11 +97,6 @@ export default function StaffSidebar() {
       href: "/staff/admin/school-bookings",
       icon: CalendarDays,
     },
-  ];
-
-  // Admin-only links
-  const adminLinks = [
-    
     {
       name: "User Management",
       href: "/staff/admin/user-management",
@@ -112,7 +117,15 @@ export default function StaffSidebar() {
       href: "/staff/admin/settings",
       icon: Settings,
     },
+    {
+      name: "Parent Notices",
+      href: "/notices",
+      icon: Settings,
+    },
   ];
+
+  // Admin-only links
+  const adminLinks = [];
 
   const displayName =
     user?.displayName || user?.email?.split("@")[0] || "Staff";
@@ -125,9 +138,7 @@ export default function StaffSidebar() {
     .slice(0, 2);
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 z-50 flex w-[240px] flex-col bg-navy-dark">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-4">
+<aside className="fixed left-0 top-0 bottom-0 z-50 flex h-screen w-[240px] flex-col bg-navy-dark">      <div className="flex items-center gap-3 px-5 py-4">
         <img
           src="/images/HIC_Logo2.png"
           alt="Logo"
