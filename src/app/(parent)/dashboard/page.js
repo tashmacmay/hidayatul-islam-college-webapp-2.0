@@ -4,564 +4,571 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase";
 
 import {
-  CalendarDays,
-  Bell,
-  BookOpen,
-  GraduationCap,
-  ArrowRight,
+CalendarDays,
+Bell,
+BookOpen,
+ArrowRight,
+RefreshCw,
 } from "lucide-react";
 
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import { auth } from "@/lib/firebase";
 
 // ============================================================
 // STAT CARD
 // ============================================================
 
 function StatCard({
-  icon,
-  title,
-  value,
-  subtitle,
-  href,
+icon,
+title,
+value,
+subtitle,
+href,
 }) {
-  return (
-    <Link
-      href={href}
-      className="group block"
-    >
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
+return ( <Link href={href} className="group block"> <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md"> <div className="flex items-start justify-between"> <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy"> <span className="text-gold">
+{icon} </span> </div>
 
-        {/* Icon */}
-        <div className="mb-4 text-navy transition group-hover:text-gold">
-          {icon}
-        </div>
+       <ArrowRight
+        size={17}
+        className="text-slate-300 transition group-hover:text-gold"
+      />
+    </div>
 
-        {/* Title */}
-        <p className="text-sm text-text-muted">
-          {title}
-        </p>
+    <p className="mt-5 text-sm font-medium text-text-muted">
+      {title}
+    </p>
 
-        {/* Value */}
-        <h3 className="mt-2 text-3xl font-bold text-navy">
-          {value}
-        </h3>
+    <h3 className="mt-1 text-3xl font-bold text-navy">
+      {value}
+    </h3>
 
-        {/* Subtitle */}
-        <p className="mt-1 text-sm text-text-muted">
+    <p className="mt-1 text-xs text-text-muted">
+      {subtitle}
+    </p>
+  </div>
+</Link>
+ 
+);
+}
+
+// ============================================================
+// SECTION CARD
+// ============================================================
+
+function SectionCard({
+title,
+subtitle,
+href,
+children,
+}) {
+return ( <section className="rounded-2xl border border-slate-100 bg-white shadow-sm"> <div className="flex items-start justify-between border-b border-slate-100 px-5 py-4"> <div> <h2 className="text-lg font-bold text-navy">
+{title} </h2>
+
+       {subtitle && (
+        <p className="mt-1 text-xs text-text-muted">
           {subtitle}
         </p>
-
-        {/* Click indicator */}
-        <div className="mt-4 flex items-center gap-1 text-sm font-semibold text-navy opacity-0 transition group-hover:opacity-100">
-          View
-          <ArrowRight size={15} />
-        </div>
-
-      </div>
-    </Link>
-  );
-}
-
-// ============================================================
-// DASHBOARD CARD
-// ============================================================
-
-function DashboardCard({
-  title,
-  children,
-  href,
-}) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm transition hover:border-gold hover:shadow-md">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-
-        <div>
-          <h2 className="text-xl font-bold text-navy">
-            {title}
-          </h2>
-
-          <div className="mt-4 h-1 w-12 rounded-full bg-gold" />
-        </div>
-
-        {/* Optional View All button */}
-        {href && (
-          <Link
-            href={href}
-            className="flex items-center gap-1 text-sm font-semibold text-navy hover:text-gold"
-          >
-            View All
-            <ArrowRight size={16} />
-          </Link>
-        )}
-
-      </div>
-
-      {/* Card contents */}
-      <div className="mt-6">
-        {children}
-      </div>
-
+      )}
     </div>
-  );
+
+    {href && (
+      <Link
+        href={href}
+        className="flex shrink-0 items-center gap-1 text-xs font-semibold text-navy transition hover:text-gold"
+      >
+        View All
+        <ArrowRight size={14} />
+      </Link>
+    )}
+  </div>
+
+  <div className="p-5">
+    {children}
+  </div>
+</section>
+ 
+);
 }
 
 // ============================================================
-// PARENT DASHBOARD PAGE
+// QUICK LINK
+// ============================================================
+
+function QuickLink({
+href,
+icon,
+title,
+description,
+}) {
+return ( <Link
+   href={href}
+   className="group flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md"
+ > <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy transition group-hover:bg-gold"> <span className="text-gold group-hover:text-navy">
+{icon} </span> </div>
+
+   <div className="min-w-0 flex-1">
+    <h3 className="font-bold text-navy">
+      {title}
+    </h3>
+
+    <p className="mt-1 text-sm text-text-muted">
+      {description}
+    </p>
+  </div>
+
+  <ArrowRight
+    size={18}
+    className="shrink-0 text-slate-300 transition group-hover:text-gold"
+  />
+</Link>
+ 
+);
+}
+
+// ============================================================
+// PARENT DASHBOARD
 // ============================================================
 
 export default function DashboardPage() {
-  const router = useRouter();
+const router = useRouter();
 
-  // ==========================================================
-  // AUTH STATE
-  // ==========================================================
+// ==========================================================
+// AUTH
+// ==========================================================
 
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(true);
+const [user, setUser] = useState(null);
+const [authLoading, setAuthLoading] = useState(true);
 
-  // ==========================================================
-  // DASHBOARD DATA
-  // ==========================================================
+// ==========================================================
+// DASHBOARD DATA
+// ==========================================================
 
-  const [dashboard, setDashboard] = useState({
-    bookings: [],
-    notices: [],
-    resourceCount: 0,
-  });
+const [notices, setNotices] = useState([]);
+const [resourceCount, setResourceCount] =
+useState(0);
 
-  // ==========================================================
-  // LOADING STATE
-  // ==========================================================
+// ==========================================================
+// LOADING / ERROR
+// ==========================================================
 
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
 
-  // ==========================================================
-  // ERROR STATE
-  // ==========================================================
+// ==========================================================
+// AUTHENTICATION
+// ==========================================================
 
-  const [error, setError] = useState("");
+useEffect(() => {
+const unsubscribe = onAuthStateChanged(
+auth,
+(currentUser) => {
+if (!currentUser) {
+router.push("/login");
+return;
+}
 
-  // ==========================================================
-  // AUTHENTICATION
-  // ==========================================================
+     setUser(currentUser);
+    setAuthLoading(false);
+  }
+);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        if (!currentUser) {
-          router.push("/login");
-          return;
-        }
+return () => unsubscribe();
+ 
+}, [router]);
 
-        setUser(currentUser);
-        setAuthLoading(false);
-      }
-    );
+// ==========================================================
+// LOAD DASHBOARD DATA
+// ==========================================================
 
-    return () => unsubscribe();
-  }, [router]);
+useEffect(() => {
+if (!user) {
+return;
+}
 
-  // ==========================================================
-  // LOAD DASHBOARD DATA
-  // ==========================================================
+ 
+async function loadDashboard() {
+  try {
+    setLoading(true);
+    setError("");
 
-  useEffect(() => {
-    if (!user) {
-      return;
+    const token = await user.getIdToken();
+
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    // ------------------------------------------------------
+    // Load notices and resources.
+    //
+    // Bookings are intentionally not loaded here.
+    // ------------------------------------------------------
+
+    const [
+      noticesResponse,
+      resourcesResponse,
+    ] = await Promise.all([
+      fetch("/api/notices", {
+        method: "GET",
+        headers,
+      }),
+
+      fetch("/api/resources", {
+        method: "GET",
+        headers,
+      }),
+    ]);
+
+    const [
+      noticesData,
+      resourcesData,
+    ] = await Promise.all([
+      noticesResponse.json(),
+      resourcesResponse.json(),
+    ]);
+
+    // ------------------------------------------------------
+    // Notices
+    // /api/notices returns the array directly.
+    // ------------------------------------------------------
+
+    if (!noticesResponse.ok) {
+      throw new Error(
+        noticesData.error ||
+          "Failed to load notices."
+      );
     }
 
-    async function loadDashboard() {
-      try {
-        setLoading(true);
-        setError("");
+    setNotices(
+      Array.isArray(noticesData)
+        ? noticesData
+        : []
+    );
 
-        const response = await fetch("/api/bookings");
+    // ------------------------------------------------------
+    // Resources
+    // ------------------------------------------------------
 
-        if (!response.ok) {
-          throw new Error("Failed to load dashboard data");
-        }
-
-        const bookingsData = await response.json();
-
-        setDashboard({
-          bookings: Array.isArray(bookingsData)
-            ? bookingsData
-            : [],
-          notices: [],
-          resourceCount: 0,
-        });
-      } catch (err) {
-        console.error(
-          "❌ Parent dashboard error:",
-          err
-        );
-
-        setError(
-          "Unable to load dashboard data. Please try again."
-        );
-      } finally {
-        setLoading(false);
-      }
+    if (!resourcesResponse.ok) {
+      throw new Error(
+        resourcesData.error ||
+          "Failed to load resources."
+      );
     }
 
-    loadDashboard();
-  }, [user]);
+    const resources = Array.isArray(
+      resourcesData
+    )
+      ? resourcesData
+      : Array.isArray(
+          resourcesData.resources
+        )
+      ? resourcesData.resources
+      : [];
 
-  // ==========================================================
-  // AUTH LOADING SCREEN
-  // ==========================================================
-
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-off-white">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-gold border-t-transparent" />
-      </div>
+    setResourceCount(resources.length);
+  } catch (err) {
+    console.error(
+      "Parent dashboard error:",
+      err
     );
+
+    setError(
+      err.message ||
+        "Unable to load dashboard data. Please try again."
+    );
+  } finally {
+    setLoading(false);
   }
+}
 
-  if (!user) {
-    return null;
-  }
+loadDashboard();
+ 
+}, [user]);
 
-  // ==========================================================
-  // USER INFORMATION
-  // ==========================================================
+// ==========================================================
+// AUTH LOADING
+// ==========================================================
 
-  const displayName =
-    user.displayName ||
-    user.email?.split("@")[0] ||
-    "Parent";
+if (authLoading) {
+return ( <div className="flex min-h-screen items-center justify-center bg-slate-100"> <RefreshCw
+       size={28}
+       className="animate-spin text-gold"
+     /> </div>
+);
+}
 
-  // ==========================================================
-  // DASHBOARD COUNTS
-  // ==========================================================
+if (!user) {
+return null;
+}
 
-  const bookingsCount =
-    dashboard.bookings.length;
+// ==========================================================
+// USER DISPLAY NAME
+// ==========================================================
 
-  const noticesCount =
-    dashboard.notices.length;
+const displayName =
+user.displayName ||
+user.email?.split("@")[0] ||
+"Parent";
 
-  // ==========================================================
-  // DISPLAY ONLY THE FIRST FEW ITEMS
-  // ==========================================================
+// ==========================================================
+// RECENT NOTICES
+// ==========================================================
 
-  const upcomingBookings =
-    dashboard.bookings
-      .filter(
-        (booking) =>
-          booking.status === "upcoming"
-      )
-      .slice(0, 3);
+const recentNotices = notices.slice(0, 3);
 
-  const recentNotices =
-    dashboard.notices.slice(0, 3);
+// ==========================================================
+// PAGE
+// ==========================================================
 
-  // ==========================================================
-  // PAGE
-  // ==========================================================
+return (
+<ResponsiveAppShell
+sidebar={(sidebarProps) => (
+<ParentSidebar {...sidebarProps} />
+)}
+> <main className="min-h-screen bg-slate-100"> <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
-  return (
-    <ResponsiveAppShell
-      sidebar={(sidebarProps) => (
-        <ParentSidebar {...sidebarProps} />
+       {/* ==================================================
+          PAGE HEADER
+      ================================================== */}
+
+      <section className="mb-7">
+        <div className="mb-1 flex items-center gap-2">
+            <div className="mb-1 flex items-center gap-2">
+              <BookOpen
+                size={21}
+                className="text-gold"
+              />
+
+              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+                Parent Portal
+              </span>
+              </div>
+        </div>
+
+        <h1 className="text-2xl font-bold text-navy md:text-3xl">
+          Assalamu Alaikum, {displayName}
+        </h1>
+
+        <p className="mt-1 max-w-2xl text-sm text-text-muted">
+          Welcome back. Here is a quick overview of
+          your school information.
+        </p>
+      </section>
+
+      {/* ==================================================
+          ERROR
+      ================================================== */}
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
       )}
-    >
-      <main className="min-h-screen bg-off-white">
 
-        <div className="w-full px-4 py-6 sm:px-6 md:px-8 md:py-8 xl:px-10">
+      {/* ==================================================
+          SUMMARY CARDS
+      ================================================== */}
 
-          {/* ====================================================
-              PAGE HEADER
-              ==================================================== */}
+      <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-          <section className="mb-10">
+        {/* ------------------------------------------------
+            BOOKINGS
+            ------------------------------------------------
+            Intentionally left empty because bookings are
+            being handled by another team member.
+        ------------------------------------------------ */}
 
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Parent Dashboard
+        <Link
+          href="/my-bookings"
+          className="group block"
+        >
+          <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-gold hover:shadow-md">
+            <div className="flex items-start justify-between">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-navy">
+                <CalendarDays
+                  size={21}
+                  className="text-gold"
+                />
+              </div>
+
+              <ArrowRight
+                size={17}
+                className="text-slate-300 transition group-hover:text-gold"
+              />
+            </div>
+
+            <p className="mt-5 text-sm font-medium text-text-muted">
+              My Bookings
             </p>
 
-            <h1 className="mt-2 text-4xl font-bold text-navy">
-              Assalamu Alaikum, {displayName}
-            </h1>
+            <h3 className="mt-1 text-3xl font-bold text-navy">
+              —
+            </h3>
 
-            <div className="mt-4 h-1 w-16 rounded-full bg-gold" />
-
-            <p className="mt-4 max-w-2xl text-text-muted">
-              Welcome back. Here you can manage bookings,
-              view notices, access resources and keep track
-              of important school information.
+            <p className="mt-1 text-xs text-text-muted">
+              Booking information
             </p>
+          </div>
+        </Link>
 
-          </section>
+        {/* ------------------------------------------------
+            NOTICES
+        ------------------------------------------------ */}
 
-          {/* ====================================================
-              ERROR MESSAGE
-              ==================================================== */}
+        <StatCard
+          icon={<Bell size={21} />}
+          title="Notices"
+          value={
+            loading
+              ? "..."
+              : notices.length
+          }
+          subtitle="Published school notices"
+          href="/notices"
+        />
 
-          {error && (
-            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
-              <p className="text-sm font-medium text-red-700">
-                {error}
+        {/* ------------------------------------------------
+            RESOURCES
+        ------------------------------------------------ */}
+
+        <StatCard
+          icon={<BookOpen size={21} />}
+          title="Resources"
+          value={
+            loading
+              ? "..."
+              : resourceCount
+          }
+          subtitle="Available resources"
+          href="/resources"
+        />
+
+      </section>
+
+      {/* ==================================================
+          RECENT NOTICES
+      ================================================== */}
+
+      <section className="mb-7">
+        <SectionCard
+          title="Recent Notices"
+          subtitle="Latest published school announcements"
+          href="/notices"
+        >
+          {loading ? (
+            <div className="flex items-center gap-2 py-5 text-sm text-text-muted">
+              <RefreshCw
+                size={17}
+                className="animate-spin text-gold"
+              />
+
+              Loading notices...
+            </div>
+          ) : recentNotices.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center">
+              <Bell
+                size={25}
+                className="mx-auto mb-2 text-slate-300"
+              />
+
+              <p className="text-sm font-semibold text-text-muted">
+                No recent notices
+              </p>
+
+              <p className="mt-1 text-xs text-text-muted">
+                Published school notices will appear
+                here.
               </p>
             </div>
+          ) : (
+            <div className="space-y-2">
+              {recentNotices.map(
+                (notice) => (
+                  <Link
+                    key={notice.id}
+                    href="/notices"
+                    className="group block rounded-xl p-4 transition hover:bg-gold-pale"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-navy">
+                        <Bell
+                          size={14}
+                          className="text-gold"
+                        />
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-navy">
+                          {notice.title ||
+                            "School Notice"}
+                        </p>
+
+                        {notice.type && (
+                          <p className="mt-1 text-xs font-medium text-gold">
+                            {notice.type}
+                          </p>
+                        )}
+
+                        {notice.content && (
+                          <p className="mt-1 line-clamp-2 text-xs leading-5 text-text-muted">
+                            {notice.content}
+                          </p>
+                        )}
+                      </div>
+
+                      <ArrowRight
+                        size={15}
+                        className="mt-1 shrink-0 text-slate-300 transition group-hover:text-gold"
+                      />
+                    </div>
+                  </Link>
+                )
+              )}
+            </div>
           )}
+        </SectionCard>
+      </section>
 
-          {/* ====================================================
-              STATISTICS
-              ==================================================== */}
+      {/* ==================================================
+          QUICK LINKS
+      ================================================== */}
 
-          <section className="mb-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      <section>
+        <div className="mb-4">
+          <h2 className="text-lg font-bold text-navy">
+            Quick Links
+          </h2>
 
-            {/* My Bookings */}
-            <StatCard
-              icon={<CalendarDays size={30} />}
-              title="My Bookings"
-              value={
-                loading
-                  ? "..."
-                  : bookingsCount
-              }
-              subtitle="Upcoming appointments"
-              href="/my-bookings"
-            />
+          <p className="mt-1 text-sm text-text-muted">
+            Quickly access important school information.
+          </p>
+        </div>
 
-            {/* Notices */}
-            <StatCard
-              icon={<Bell size={30} />}
-              title="Notices"
-              value={
-                loading
-                  ? "..."
-                  : noticesCount
-              }
-              subtitle="Recent announcements"
-              href="/notices"
-            />
+        <div className="grid gap-4 md:grid-cols-2">
 
-            {/* Resources */}
-            <StatCard
-              icon={<BookOpen size={30} />}
-              title="Resources"
-              value={
-                loading
-                  ? "..."
-                  : dashboard.resourceCount
-              }
-              subtitle="Available resources"
-              href="/learning-resources"
-            />
+          <QuickLink
+            href="/resources"
+            icon={<BookOpen size={22} />}
+            title="Learning Resources"
+            description="Access educational materials, videos, guides and school documents."
+          />
 
-            {/* Events */}
-            <StatCard
-              icon={<GraduationCap size={30} />}
-              title="Events"
-              value="View"
-              subtitle="School calendar"
-              href="/calendar"
-            />
-
-          </section>
-
-          {/* ====================================================
-              ROW 1
-              ==================================================== */}
-
-          <section className="grid gap-6 lg:grid-cols-2">
-
-            {/* Upcoming Bookings */}
-            <DashboardCard
-              title="Upcoming Bookings"
-              href="/my-bookings"
-            >
-              <div className="space-y-4">
-
-                {loading && (
-                  <p className="text-sm text-text-muted">
-                    Loading bookings...
-                  </p>
-                )}
-
-                {!loading &&
-                  upcomingBookings.length === 0 && (
-                    <div className="rounded-lg bg-gold-pale p-4">
-                      <p className="text-sm text-text-muted">
-                        No upcoming bookings.
-                      </p>
-
-                      <Link
-                        href="/my-bookings/create"
-                        className="mt-2 inline-block text-sm font-semibold text-navy hover:text-gold"
-                      >
-                        Create a booking
-                      </Link>
-                    </div>
-                  )}
-
-                {!loading &&
-                  upcomingBookings.map(
-                    (booking) => (
-                      <Link
-                        key={booking.id}
-                        href="/my-bookings"
-                        className="block rounded-lg bg-gold-pale p-4 transition hover:bg-gold hover:shadow-sm"
-                      >
-                        <p className="font-semibold text-navy">
-                          {booking.appointmentType ||
-                            "Booking"}
-                        </p>
-
-                        <p className="mt-1 text-sm text-text-muted">
-                          {booking.date} ·{" "}
-                          {booking.time}
-                        </p>
-
-                        {booking.status && (
-                          <p className="mt-2 text-xs text-text-muted">
-                            Status:{" "}
-                            {booking.status}
-                          </p>
-                        )}
-                      </Link>
-                    )
-                  )}
-
-              </div>
-            </DashboardCard>
-
-            {/* Recent Notices */}
-            <DashboardCard
-              title="Recent Notices"
-              href="/notices"
-            >
-              <div className="space-y-5">
-
-                {loading && (
-                  <p className="text-sm text-text-muted">
-                    Loading notices...
-                  </p>
-                )}
-
-                {!loading &&
-                  recentNotices.length === 0 && (
-                    <div className="rounded-lg bg-gold-pale p-4">
-                      <p className="text-sm text-text-muted">
-                        No recent notices.
-                      </p>
-                    </div>
-                  )}
-
-                {!loading &&
-                  recentNotices.map(
-                    (notice) => (
-                      <Link
-                        key={notice.id}
-                        href="/notices"
-                        className="block rounded-lg p-3 transition hover:bg-gold-pale"
-                      >
-                        <p className="font-semibold text-navy">
-                          {notice.title}
-                        </p>
-
-                        {notice.category && (
-                          <p className="mt-1 text-sm text-text-muted">
-                            {notice.category}
-                          </p>
-                        )}
-                      </Link>
-                    )
-                  )}
-
-              </div>
-            </DashboardCard>
-
-          </section>
-
-          {/* ====================================================
-              ROW 2
-              ==================================================== */}
-
-          <section className="mt-6 grid gap-6 lg:grid-cols-2">
-
-            {/* My Learner */}
-            <DashboardCard title="My Learner">
-
-              <div className="space-y-3">
-
-                <p>
-                  <span className="font-semibold text-navy">
-                    Name:
-                  </span>{" "}
-                  <span className="text-text-muted">
-                    Not connected yet
-                  </span>
-                </p>
-
-                <p>
-                  <span className="font-semibold text-navy">
-                    Grade:
-                  </span>{" "}
-                  <span className="text-text-muted">
-                    —
-                  </span>
-                </p>
-
-                <p>
-                  <span className="font-semibold text-navy">
-                    Class:
-                  </span>{" "}
-                  <span className="text-text-muted">
-                    —
-                  </span>
-                </p>
-
-                <p>
-                  <span className="font-semibold text-navy">
-                    Attendance:
-                  </span>{" "}
-                  <span className="text-text-muted">
-                    —
-                  </span>
-                </p>
-
-              </div>
-
-            </DashboardCard>
-
-            {/* School Calendar */}
-            <DashboardCard
-              title="School Calendar"
-              href="/calendar"
-            >
-              <div className="space-y-4">
-
-                <Link
-                  href="/calendar"
-                  className="block rounded-lg p-3 transition hover:bg-gold-pale"
-                >
-                  <p className="font-semibold text-navy">
-                    View School Calendar
-                  </p>
-
-                  <p className="mt-1 text-sm text-text-muted">
-                    View upcoming school events and important dates.
-                  </p>
-                </Link>
-
-              </div>
-            </DashboardCard>
-
-          </section>
+          <QuickLink
+            href="/calendar"
+            icon={<CalendarDays size={22} />}
+            title="School Calendar"
+            description="View term calendars, important dates and school information."
+          />
 
         </div>
-      </main>
-    </ResponsiveAppShell>
-  );
+      </section>
+
+    </div>
+  </main>
+</ResponsiveAppShell>
+ 
+);
 }
