@@ -6,8 +6,6 @@ import {
 } from "@/lib/graph/graphHelper";
 import { getUserIdsByEmail, upsertBooking } from "@/lib/reporting/bookingsRepository";
 
-const FOUR_MONTHS_MS = 1000 * 60 * 60 * 24 * 120;
-
 /**
  * Parses a Graph dateTime. Returns a valid Date or null.
  * Never returns an Invalid Date object — callers can treat null safely.
@@ -95,17 +93,9 @@ export async function fetchRecentBookingsFromGraph() {
     getStaffMemberLookupAsync(),
   ]);
 
-  const cutoff = Date.now() - FOUR_MONTHS_MS;
-
-  const filtered = response.value.filter((booking) => {
-    const start = parseGraphDateTime(
-      booking.startDateTime?.dateTime,
-      booking.startDateTime?.timeZone
-    );
-    return start && start.getTime() >= cutoff;
-  });
-
-  return filtered.map((booking) => transformBooking(booking, staffLookup));
+  return response.value.map((booking) =>
+    transformBooking(booking, staffLookup)
+  );
 }
 
 export async function syncBookingsToDb() {
@@ -135,12 +125,18 @@ export async function syncBookingsToDb() {
     else updated += 1;
   }
 
-  return {
+  const startTimes = rows.map((r) => r.startAt).filter(Boolean).sort();
+  const oldestAppointment = startTimes[0] || null;
+  const newestAppointment = startTimes[startTimes.length - 1] || null;
+  
+    return {
     fetched: rows.length,
     inserted,
     updated,
     skipped: skippedEmails.length,
     skippedEmails,
+    oldestAppointment,
+    newestAppointment,
     durationMs: Date.now() - startedAt,
   };
 }
