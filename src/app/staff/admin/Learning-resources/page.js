@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 import { auth } from "@/lib/firebase";
 
 const emptyForm = {
@@ -877,15 +878,7 @@ const payload = {
           </div>
 
           {loading ? (
-            <div className="flex min-h-[250px] items-center justify-center">
-              <div className="text-center">
-                <RefreshCw className="mx-auto h-7 w-7 animate-spin text-gold" />
-
-                <p className="mt-3 text-sm text-text-muted">
-                  Loading learning resources...
-                </p>
-              </div>
-            </div>
+            <LoadingState label="Loading learning resources..." />
           ) : filteredResources.length === 0 ? (
             <div className="flex min-h-[250px] flex-col items-center justify-center px-6 text-center">
               <BookOpen className="h-10 w-10 text-slate-300" />

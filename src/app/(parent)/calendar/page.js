@@ -5,11 +5,11 @@ import {
   CalendarDays,
   FileText,
   Image as ImageIcon,
-  RefreshCw,
   X,
   Filter,
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
@@ -284,14 +284,7 @@ export default function ParentCalendarPage() {
 
           {loading ? (
             <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-              <RefreshCw
-                size={24}
-                className="mx-auto mb-3 animate-spin text-gold"
-              />
-
-              <p className="text-sm text-text-muted">
-                Loading calendars...
-              </p>
+              <LoadingState label="Loading calendars..." />
             </div>
           ) : (
             <>

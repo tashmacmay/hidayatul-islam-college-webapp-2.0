@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRole } from "@/providers/RoleProvider";
 
 import {
   LayoutDashboard,
@@ -16,37 +17,19 @@ import SidebarShell from "@/components/layout/SidebarShell";
 
 export default function StaffSidebar() {
   const router = useRouter();
+  const {
+    isAdmin,
+    loading: roleLoading,
+  } = useRole();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userLoading, setUserLoading] =
+    useState(true);
 
   // Listen for auth changes and fetch role
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-
-      if (currentUser) {
-        try {
-          const token = await currentUser.getIdToken();
-
-          const res = await fetch("/api/user-role", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            setIsAdmin(data.is_admin || false);
-          }
-        } catch (err) {
-          console.error("Error fetching role:", err);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-
-      setLoading(false);
+      setUserLoading(false);
     });
 
     return () => unsubscribe();
@@ -128,7 +111,7 @@ export default function StaffSidebar() {
     <SidebarShell
       sections={[
         { heading: "Staff", items: staffLinks },
-        ...(!loading && isAdmin && adminLinks.length > 0
+        ...(!roleLoading && isAdmin && adminLinks.length > 0
           ? [{
               heading: "Admin",
               items: adminLinks,
@@ -138,7 +121,7 @@ export default function StaffSidebar() {
       profileHref="/staff/profile"
       roleLabel={isAdmin ? "Admin / Staff" : "Staff"}
       user={user}
-      loading={loading}
+      loading={roleLoading || userLoading}
       onLogout={handleLogout}
     />
   );

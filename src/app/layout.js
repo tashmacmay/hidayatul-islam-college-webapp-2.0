@@ -1,6 +1,7 @@
 //layout.js
 import localFont from "next/font/local";
 import "./globals.css";
+import { RoleProvider } from "@/providers/RoleProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,7 +27,9 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <RoleProvider>
+          {children}
+        </RoleProvider>
       </body>
     </html>
   );

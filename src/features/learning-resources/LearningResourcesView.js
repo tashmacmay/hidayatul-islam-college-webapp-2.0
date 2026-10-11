@@ -8,12 +8,12 @@ import {
   BookMarked,
   School,
   ExternalLink,
-  RefreshCw,
   Filter,
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import LoadingState from "@/components/ui/LoadingState";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
@@ -520,14 +520,7 @@ export default function LearningResourcesView({ role }) {
 
           {loading ? (
             <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-              <RefreshCw
-                size={24}
-                className="mx-auto mb-3 animate-spin text-gold"
-              />
-
-              <p className="text-sm text-text-muted">
-                Loading learning resources...
-              </p>
+              <LoadingState label="Loading learning resources..." />
             </div>
           ) : (
             <>

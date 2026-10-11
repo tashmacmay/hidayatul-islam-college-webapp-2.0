@@ -15,6 +15,7 @@ import {
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import StatCard from "@/components/ui/StatCard";
+import LoadingState from "@/components/ui/LoadingState";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
@@ -270,7 +271,7 @@ return (
     }
   >
     <main className="relative min-w-0 flex-1 bg-slate-100">
-      <div className="w-full min-w-0 px-4 py-6 sm:px-6 md:px-8 lg:px-10">
+      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
         {/* ====================================================
             PAGE HEADER
@@ -350,11 +351,11 @@ Stay informed with the latest school communications
 
           <div className="mb-7 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm md:p-5">
 
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+            <div className="grid gap-4">
 
               {/* SEARCH */}
 
-              <div className="relative min-w-0 flex-1">
+              <div className="relative w-full">
                 <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
 
                 <input
@@ -368,7 +369,8 @@ Stay informed with the latest school communications
 
               {/* TYPE */}
 
-              <div className="relative w-full lg:w-48">
+              <div className="grid gap-4 sm:grid-cols-3">
+              <div className="relative w-full">
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
@@ -384,7 +386,7 @@ Stay informed with the latest school communications
               </div>
 {/* GRADE */}
 
-<div className="relative w-full lg:w-48">
+<div className="relative w-full">
   <select
     value={gradeFilter}
     onChange={(e) => setGradeFilter(e.target.value)}
@@ -406,7 +408,7 @@ Stay informed with the latest school communications
 </div>
               {/* READ STATUS */}
 
-              <div className="relative w-full lg:w-48">
+              <div className="relative w-full">
                 <select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
@@ -418,6 +420,7 @@ Stay informed with the latest school communications
                 </select>
 
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+              </div>
               </div>
 
             </div>
@@ -464,11 +467,7 @@ Stay informed with the latest school communications
 
             {loading ? (
               <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white shadow-sm">
-                <Bell className="h-8 w-8 text-gold" />
-
-                <p className="mt-3 text-sm text-text-muted">
-                  Loading notices...
-                </p>
+                <LoadingState label="Loading notices..." />
               </div>
             ) : filteredNotices.length === 0 ? (
               <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-slate-100 bg-white px-6 text-center shadow-sm">
