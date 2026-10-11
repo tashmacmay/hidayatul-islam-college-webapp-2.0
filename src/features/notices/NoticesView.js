@@ -16,7 +16,7 @@ import ParentSidebar from "@/components/parent/ParentSidebar";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import StatCard from "@/components/ui/StatCard";
 import LoadingState from "@/components/ui/LoadingState";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
@@ -263,16 +263,81 @@ const filteredNotices = notices.filter((notice) => {
   // ============================================================
 
 return (
-  <ResponsiveAppShell
+  <ShellPage
     sidebar={(sidebarProps) =>
       role === "parent"
         ? <ParentSidebar {...sidebarProps} />
         : <StaffSidebar {...sidebarProps} />
     }
-  >
-    <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+    modals={
+      <>
+        {selectedNotice && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/40 p-4">
+            <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+              <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
+                <div className="min-w-0">
+                  {selectedNotice.type && (
+                    <span
+                      className={`mb-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                        getTypeConfig(selectedNotice.type).pillClass
+                      }`}
+                    >
+                      {selectedNotice.type}
+                    </span>
+                  )}
 
+                  <h2 className="break-words text-2xl font-bold text-navy">
+                    {selectedNotice.title}
+                  </h2>
+
+                  {selectedNotice.grade && (
+                    <p className="mt-2 text-sm text-text-muted">
+                      {selectedNotice.grade}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedNotice(null)}
+                  className="shrink-0 rounded-lg p-2 text-text-muted transition hover:bg-slate-100 hover:text-navy"
+                  aria-label="Close notice"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="p-6">
+                <div className="mb-5 text-xs text-text-muted">
+                  Posted by School Administration
+                  {" · "}
+                  {formatDate(selectedNotice.created_at)}
+                </div>
+
+                <div className="rounded-xl bg-slate-50 p-5">
+                  <p className="whitespace-pre-wrap text-sm leading-7 text-text">
+                    {selectedNotice.content ||
+                      "No additional information available."}
+                  </p>
+                </div>
+
+                <div className="mt-6 flex justify-end border-t border-slate-100 pt-5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedNotice(null)}
+                    className="rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    }
+    spaceY=""
+  >
         {/* ====================================================
             PAGE HEADER
             ==================================================== */}
@@ -568,85 +633,6 @@ Stay informed with the latest school communications
               </div>
             )}
           </div>
-        </div>
-      </main>
-
-      {/* ========================================================
-          NOTICE MODAL
-          ======================================================== */}
-
-      {selectedNotice && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-navy/40 p-4">
-
-          <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-
-            {/* HEADER */}
-
-            <div className="flex items-start justify-between gap-4 border-b border-slate-100 px-6 py-5">
-
-              <div className="min-w-0">
-
-                {selectedNotice.type && (
-                  <span
-                    className={`mb-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      getTypeConfig(selectedNotice.type).pillClass
-                    }`}
-                  >
-                    {selectedNotice.type}
-                  </span>
-                )}
-
-                <h2 className="break-words text-2xl font-bold text-navy">
-                  {selectedNotice.title}
-                </h2>
-
-                {selectedNotice.grade && (
-                  <p className="mt-2 text-sm text-text-muted">
-                    {selectedNotice.grade}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedNotice(null)}
-                className="shrink-0 rounded-lg p-2 text-text-muted transition hover:bg-slate-100 hover:text-navy"
-                aria-label="Close notice"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* CONTENT */}
-
-            <div className="p-6">
-
-              <div className="mb-5 text-xs text-text-muted">
-                Posted by School Administration
-                {" · "}
-                {formatDate(selectedNotice.created_at)}
-              </div>
-
-              <div className="rounded-xl bg-slate-50 p-5">
-                <p className="whitespace-pre-wrap text-sm leading-7 text-text">
-                  {selectedNotice.content ||
-                    "No additional information available."}
-                </p>
-              </div>
-
-              <div className="mt-6 flex justify-end border-t border-slate-100 pt-5">
-                <button
-                  type="button"
-                  onClick={() => setSelectedNotice(null)}
-                  className="rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

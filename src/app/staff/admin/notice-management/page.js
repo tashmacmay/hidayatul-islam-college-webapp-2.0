@@ -20,7 +20,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 import { auth } from "@/lib/firebase";
@@ -400,20 +400,306 @@ export default function NoticeManagementPage() {
   // =========================================================
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
-    >
-      {/* =====================================================
-          Sidebar
+      modals={<>{/* =====================================================
+          Create / Edit Modal
       ====================================================== */}
 
-      {/* =====================================================
-          Main Content
-      ====================================================== */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 p-4">
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
+              <div>
+                <h2 className="text-xl font-bold text-navy">
+                  {modalTitle}
+                </h2>
 
-<main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
+                <p className="mt-1 text-sm text-text-muted">
+                  {editingNotice
+                    ? "Update the notice details."
+                    : "Create a notice for parents and staff."}
+                </p>
+              </div>
 
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+              <button
+                onClick={() => setShowModal(false)}
+                className="rounded-lg p-2 text-text-muted transition hover:bg-slate-100"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="p-6"
+            >
+              <div className="space-y-6">
+                {/* Title */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-navy">
+                    Title *
+                  </label>
+
+                  <input
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="e.g. Sports Day - 30 May 2026"
+                    required
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                  />
+                </div>
+
+                {/* Type + Grade */}
+                <div className="grid gap-5 md:grid-cols-2">
+                  {/* Type */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Type *
+                    </label>
+
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    >
+                      <option value="General">
+                        General
+                      </option>
+
+                      <option value="Reminder">
+                        Reminder
+                      </option>
+
+                      <option value="Emergency">
+                        Emergency
+                      </option>
+                    </select>
+                  </div>
+
+                  {/* Grade */}
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-navy">
+                      Grade *
+                    </label>
+
+                    <select
+                      name="grade"
+                      value={formData.grade}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                    >
+                      <option value="All Grades">
+                        All Grades
+                      </option>
+
+                      <option value="Grade R">
+                        Grade R
+                      </option>
+
+                      <option value="Grade 1">
+                        Grade 1
+                      </option>
+
+                      <option value="Grade 2">
+                        Grade 2
+                      </option>
+
+                      <option value="Grade 3">
+                        Grade 3
+                      </option>
+
+                      <option value="Grade 4">
+                        Grade 4
+                      </option>
+
+                      <option value="Grade 5">
+                        Grade 5
+                      </option>
+
+                      <option value="Grade 6">
+                        Grade 6
+                      </option>
+
+                      <option value="Grade 7">
+                        Grade 7
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Audience */}
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                  <div className="flex gap-3">
+                    <Bell className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
+
+                    <div>
+                      <p className="text-sm font-semibold text-navy">
+                        Notice Audience
+                      </p>
+
+                      <p className="mt-1 text-sm leading-6 text-gray-600">
+                        All published notices are available
+                        to both parents and staff. The
+                        selected grade determines which
+                        learners the notice applies to.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-navy">
+                    Message *
+                  </label>
+
+                  <textarea
+                    name="content"
+                    value={formData.content}
+                    onChange={handleChange}
+                    rows={6}
+                    required
+                    placeholder="Enter the notice message..."
+                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                  />
+                </div>
+
+                {/* Schedule */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-navy">
+                    Schedule For
+                    {selectedAction === "schedule" && (
+                      <span className="ml-1 text-red-500">
+                        *
+                      </span>
+                    )}
+                  </label>
+
+                  <input
+                    type="datetime-local"
+                    name="scheduled_for"
+                    value={formData.scheduled_for}
+                    onChange={handleChange}
+                    className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 ${
+                      selectedAction === "schedule"
+                        ? "border-gold"
+                        : "border-slate-200"
+                    }`}
+                  />
+
+                  {selectedAction === "schedule" && (
+                    <p className="mt-2 text-xs text-text-muted">
+                      A date and time are required when
+                      scheduling a notice.
+                    </p>
+                  )}
+                </div>
+
+                {/* POPIA */}
+                <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+                  <div className="flex gap-3">
+                    <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+
+                    <div>
+                      <p className="text-sm font-semibold text-navy">
+                        POPIA Reminder
+                      </p>
+
+                      <p className="mt-1 text-sm leading-6 text-gray-600">
+                        Do not include learner names or
+                        sensitive personal information in
+                        notices.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* =================================================
+                  Action Buttons
+              ================================================== */}
+
+              <div className="mt-8 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
+                {/* Cancel */}
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+
+                {/* Save Draft */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedAction("draft");
+                    handleSubmit(e, "draft");
+                  }}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
+                    selectedAction === "draft"
+                      ? "border-gold bg-gold/10 text-navy"
+                      : "border-slate-200 text-text hover:bg-slate-50"
+                  }`}
+                >
+                  <Save className="h-4 w-4" />
+                  Save Draft
+                </button>
+
+                {/* Schedule */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedAction("schedule");
+
+                    if (!formData.scheduled_for) {
+                      setTimeout(() => {
+                        const dateInput =
+                          document.querySelector(
+                            'input[name="scheduled_for"]'
+                          );
+
+                        if (dateInput) {
+                          dateInput.focus();
+                        }
+                      }, 100);
+                    }
+
+                    handleSubmit(e, "schedule");
+                  }}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
+                    selectedAction === "schedule"
+                      ? "border-gold bg-gold/10 text-navy"
+                      : "border-slate-200 text-text hover:bg-slate-50"
+                  }`}
+                >
+                  <Calendar className="h-4 w-4" />
+                  Schedule
+                </button>
+
+                {/* Publish */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    setSelectedAction("publish");
+                    handleSubmit(e, "publish");
+                  }}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
+                >
+                  <Send className="h-4 w-4" />
+                  Publish Now
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}</>}
+      spaceY="">
 
         {/* ===================================================
             Header
@@ -850,306 +1136,7 @@ export default function NoticeManagementPage() {
             </div>
           )}
         </div>
-        </div>
-      </main>
-
-      {/* =====================================================
-          Create / Edit Modal
-      ====================================================== */}
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy/40 p-4">
-          <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-5">
-              <div>
-                <h2 className="text-xl font-bold text-navy">
-                  {modalTitle}
-                </h2>
-
-                <p className="mt-1 text-sm text-text-muted">
-                  {editingNotice
-                    ? "Update the notice details."
-                    : "Create a notice for parents and staff."}
-                </p>
-              </div>
-
-              <button
-                onClick={() => setShowModal(false)}
-                className="rounded-lg p-2 text-text-muted transition hover:bg-slate-100"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="p-6"
-            >
-              <div className="space-y-6">
-                {/* Title */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-navy">
-                    Title *
-                  </label>
-
-                  <input
-                    name="title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="e.g. Sports Day - 30 May 2026"
-                    required
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                  />
-                </div>
-
-                {/* Type + Grade */}
-                <div className="grid gap-5 md:grid-cols-2">
-                  {/* Type */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      Type *
-                    </label>
-
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    >
-                      <option value="General">
-                        General
-                      </option>
-
-                      <option value="Reminder">
-                        Reminder
-                      </option>
-
-                      <option value="Emergency">
-                        Emergency
-                      </option>
-                    </select>
-                  </div>
-
-                  {/* Grade */}
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-navy">
-                      Grade *
-                    </label>
-
-                    <select
-                      name="grade"
-                      value={formData.grade}
-                      onChange={handleChange}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                    >
-                      <option value="All Grades">
-                        All Grades
-                      </option>
-
-                      <option value="Grade R">
-                        Grade R
-                      </option>
-
-                      <option value="Grade 1">
-                        Grade 1
-                      </option>
-
-                      <option value="Grade 2">
-                        Grade 2
-                      </option>
-
-                      <option value="Grade 3">
-                        Grade 3
-                      </option>
-
-                      <option value="Grade 4">
-                        Grade 4
-                      </option>
-
-                      <option value="Grade 5">
-                        Grade 5
-                      </option>
-
-                      <option value="Grade 6">
-                        Grade 6
-                      </option>
-
-                      <option value="Grade 7">
-                        Grade 7
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Audience */}
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                  <div className="flex gap-3">
-                    <Bell className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
-
-                    <div>
-                      <p className="text-sm font-semibold text-navy">
-                        Notice Audience
-                      </p>
-
-                      <p className="mt-1 text-sm leading-6 text-gray-600">
-                        All published notices are available
-                        to both parents and staff. The
-                        selected grade determines which
-                        learners the notice applies to.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-navy">
-                    Message *
-                  </label>
-
-                  <textarea
-                    name="content"
-                    value={formData.content}
-                    onChange={handleChange}
-                    rows={6}
-                    required
-                    placeholder="Enter the notice message..."
-                    className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                  />
-                </div>
-
-                {/* Schedule */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-navy">
-                    Schedule For
-                    {selectedAction === "schedule" && (
-                      <span className="ml-1 text-red-500">
-                        *
-                      </span>
-                    )}
-                  </label>
-
-                  <input
-                    type="datetime-local"
-                    name="scheduled_for"
-                    value={formData.scheduled_for}
-                    onChange={handleChange}
-                    className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20 ${
-                      selectedAction === "schedule"
-                        ? "border-gold"
-                        : "border-slate-200"
-                    }`}
-                  />
-
-                  {selectedAction === "schedule" && (
-                    <p className="mt-2 text-xs text-text-muted">
-                      A date and time are required when
-                      scheduling a notice.
-                    </p>
-                  )}
-                </div>
-
-                {/* POPIA */}
-                <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-                  <div className="flex gap-3">
-                    <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
-
-                    <div>
-                      <p className="text-sm font-semibold text-navy">
-                        POPIA Reminder
-                      </p>
-
-                      <p className="mt-1 text-sm leading-6 text-gray-600">
-                        Do not include learner names or
-                        sensitive personal information in
-                        notices.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* =================================================
-                  Action Buttons
-              ================================================== */}
-
-              <div className="mt-8 flex flex-wrap justify-end gap-3 border-t border-slate-100 pt-5">
-                {/* Cancel */}
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-
-                {/* Save Draft */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    setSelectedAction("draft");
-                    handleSubmit(e, "draft");
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
-                    selectedAction === "draft"
-                      ? "border-gold bg-gold/10 text-navy"
-                      : "border-slate-200 text-text hover:bg-slate-50"
-                  }`}
-                >
-                  <Save className="h-4 w-4" />
-                  Save Draft
-                </button>
-
-                {/* Schedule */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    setSelectedAction("schedule");
-
-                    if (!formData.scheduled_for) {
-                      setTimeout(() => {
-                        const dateInput =
-                          document.querySelector(
-                            'input[name="scheduled_for"]'
-                          );
-
-                        if (dateInput) {
-                          dateInput.focus();
-                        }
-                      }, 100);
-                    }
-
-                    handleSubmit(e, "schedule");
-                  }}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
-                    selectedAction === "schedule"
-                      ? "border-gold bg-gold/10 text-navy"
-                      : "border-slate-200 text-text hover:bg-slate-50"
-                  }`}
-                >
-                  <Calendar className="h-4 w-4" />
-                  Schedule
-                </button>
-
-                {/* Publish */}
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    setSelectedAction("publish");
-                    handleSubmit(e, "publish");
-                  }}
-                  className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
-                >
-                  <Send className="h-4 w-4" />
-                  Publish Now
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </ResponsiveAppShell>
+        
+    </ShellPage>
   );
 }

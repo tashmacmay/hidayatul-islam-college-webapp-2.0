@@ -24,7 +24,7 @@ import {
 import * as XLSX from "xlsx";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -405,11 +405,271 @@ export default function UsersPage() {
   // ============================================================
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(sidebarProps) => <StaffSidebar {...sidebarProps} />}
+      modals={
+        <>
+          {/* ADD / EDIT USER MODAL */}
+          {showUserModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-navy">
+                      {editingUser ? "Edit User" : "Add User"}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {editingUser ? "Update user information." : "Add a new system user."}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowUserModal(false)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form onSubmit={saveUser} className="space-y-5 p-6">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Full Name</label>
+                    <input
+                      name="display_name"
+                      value={form.display_name}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                      placeholder="e.g. John Smith"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                      placeholder="user@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Role</label>
+                    <select
+                      name="role"
+                      value={form.role}
+                      onChange={handleFormChange}
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                    >
+                      <option value="parent">Parent</option>
+                      <option value="staff">Staff</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+
+                  <label className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      name="is_admin"
+                      checked={form.is_admin}
+                      onChange={handleFormChange}
+                      className="h-4 w-4"
+                    />
+                    <span className="text-sm font-medium">Administrator access</span>
+                  </label>
+
+                  {!editingUser && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                      <p className="text-sm font-semibold text-blue-800">
+                        Parent account activation
+                      </p>
+                      <p className="mt-1 text-sm text-blue-700">
+                        The Firebase account will be created when the invited user
+                        activates their account. You do not need to enter a Firebase
+                        UID or password.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserModal(false)}
+                      className="rounded-lg border px-4 py-2 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : editingUser ? "Save Changes" : "Add User"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* IMPORT MODAL */}
+          {showImportModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-navy">Import Users</h2>
+                    <p className="text-sm text-gray-500">Upload a CSV or Excel file.</p>
+                  </div>
+                  <button
+                    onClick={() => setShowImportModal(false)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-6 p-6">
+                  <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
+                    <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
+                    <h3 className="font-semibold text-navy">Upload User File</h3>
+                    <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv,.xls,.xlsx"
+                      onChange={handleFile}
+                      className="mx-auto mt-4 block text-sm"
+                    />
+                  </div>
+
+                  {importPreview.length > 0 && (
+                    <div>
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="font-semibold text-navy">Import Preview</h3>
+                        <span className="text-sm text-gray-500">
+                          {importPreview.length} users
+                        </span>
+                      </div>
+
+                      <div className="max-h-64 overflow-auto rounded-lg border">
+                        <table className="w-full text-left text-sm">
+                          <thead className="sticky top-0 bg-slate-50">
+                            <tr>
+                              <th className="p-3">Name</th>
+                              <th className="p-3">Email</th>
+                              <th className="p-3">Role</th>
+                              <th className="p-3">Admin</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {importPreview.map((user, index) => (
+                              <tr key={index} className="border-t">
+                                <td className="p-3">{user.display_name}</td>
+                                <td className="p-3">{user.email}</td>
+                                <td className="p-3 capitalize">{user.role}</td>
+                                <td className="p-3">{user.is_admin ? "Yes" : "No"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowImportModal(false)}
+                      className="rounded-lg border px-4 py-2 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={importUsers}
+                      disabled={importing || importPreview.length === 0}
+                      className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
+                    >
+                      {importing ? "Importing..." : "Import Users"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW USER MODAL */}
+          {viewingUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <h2 className="text-xl font-bold text-navy">User Details</h2>
+                  <button
+                    onClick={() => setViewingUser(null)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-4 p-6">
+                  <Detail label="Name" value={viewingUser.display_name} />
+                  <Detail label="Email" value={viewingUser.email} />
+                  <Detail
+                    label="Firebase UID"
+                    value={viewingUser.firebase_uid || "Not activated yet"}
+                  />
+                  <Detail label="Role" value={viewingUser.role} />
+                  <Detail
+                    label="Administrator"
+                    value={viewingUser.is_admin ? "Yes" : "No"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DELETE CONFIRMATION */}
+          {deletingUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                  <Trash2 size={22} className="text-red-600" />
+                </div>
+
+                <h2 className="text-xl font-bold text-navy">Delete User?</h2>
+
+                <p className="mt-2 text-sm text-gray-600">
+                  Are you sure you want to delete{" "}
+                  <strong>
+                    {deletingUser.display_name || deletingUser.email}
+                  </strong>
+                  ? This action cannot be undone.
+                </p>
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => setDeletingUser(null)}
+                    className="rounded-lg border px-4 py-2 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={deleteUser}
+                    disabled={saving}
+                    className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving ? "Deleting..." : "Delete User"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      }
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           <PageHeader
             icon={Users}
             portalLabel="Admin Portal"
@@ -594,268 +854,7 @@ export default function UsersPage() {
               </div>
             )}
           </div>
-        </div>
-      </main>
-
-      {/* ADD / EDIT USER MODAL */}
-      {showUserModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b p-6">
-              <div>
-                <h2 className="text-xl font-bold text-navy">
-                  {editingUser ? "Edit User" : "Add User"}
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {editingUser ? "Update user information." : "Add a new system user."}
-                </p>
-              </div>
-              <button
-                onClick={() => setShowUserModal(false)}
-                className="rounded-lg p-2 hover:bg-slate-100"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={saveUser} className="space-y-5 p-6">
-              <div>
-                <label className="mb-1 block text-sm font-medium">Full Name</label>
-                <input
-                  name="display_name"
-                  value={form.display_name}
-                  onChange={handleFormChange}
-                  required
-                  className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
-                  placeholder="e.g. John Smith"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={form.email}
-                  onChange={handleFormChange}
-                  required
-                  className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
-                  placeholder="user@example.com"
-                />
-              </div>
-
-              <div>
-                <label className="mb-1 block text-sm font-medium">Role</label>
-                <select
-                  name="role"
-                  value={form.role}
-                  onChange={handleFormChange}
-                  className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
-                >
-                  <option value="parent">Parent</option>
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-
-              <label className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  name="is_admin"
-                  checked={form.is_admin}
-                  onChange={handleFormChange}
-                  className="h-4 w-4"
-                />
-                <span className="text-sm font-medium">Administrator access</span>
-              </label>
-
-              {!editingUser && (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
-                  <p className="text-sm font-semibold text-blue-800">
-                    Parent account activation
-                  </p>
-                  <p className="mt-1 text-sm text-blue-700">
-                    The Firebase account will be created when the invited user
-                    activates their account. You do not need to enter a Firebase
-                    UID or password.
-                  </p>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowUserModal(false)}
-                  className="rounded-lg border px-4 py-2 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : editingUser ? "Save Changes" : "Add User"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* IMPORT MODAL */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b p-6">
-              <div>
-                <h2 className="text-xl font-bold text-navy">Import Users</h2>
-                <p className="text-sm text-gray-500">Upload a CSV or Excel file.</p>
-              </div>
-              <button
-                onClick={() => setShowImportModal(false)}
-                className="rounded-lg p-2 hover:bg-slate-100"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-6 p-6">
-              <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
-                <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
-                <h3 className="font-semibold text-navy">Upload User File</h3>
-                <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".csv,.xls,.xlsx"
-                  onChange={handleFile}
-                  className="mx-auto mt-4 block text-sm"
-                />
-              </div>
-
-              {importPreview.length > 0 && (
-                <div>
-                  <div className="mb-3 flex items-center justify-between">
-                    <h3 className="font-semibold text-navy">Import Preview</h3>
-                    <span className="text-sm text-gray-500">
-                      {importPreview.length} users
-                    </span>
-                  </div>
-
-                  <div className="max-h-64 overflow-auto rounded-lg border">
-                    <table className="w-full text-left text-sm">
-                      <thead className="sticky top-0 bg-slate-50">
-                        <tr>
-                          <th className="p-3">Name</th>
-                          <th className="p-3">Email</th>
-                          <th className="p-3">Role</th>
-                          <th className="p-3">Admin</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {importPreview.map((user, index) => (
-                          <tr key={index} className="border-t">
-                            <td className="p-3">{user.display_name}</td>
-                            <td className="p-3">{user.email}</td>
-                            <td className="p-3 capitalize">{user.role}</td>
-                            <td className="p-3">{user.is_admin ? "Yes" : "No"}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3">
-                <button
-                  onClick={() => setShowImportModal(false)}
-                  className="rounded-lg border px-4 py-2 font-medium"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={importUsers}
-                  disabled={importing || importPreview.length === 0}
-                  className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
-                >
-                  {importing ? "Importing..." : "Import Users"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VIEW USER MODAL */}
-      {viewingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
-            <div className="flex items-center justify-between border-b p-6">
-              <h2 className="text-xl font-bold text-navy">User Details</h2>
-              <button
-                onClick={() => setViewingUser(null)}
-                className="rounded-lg p-2 hover:bg-slate-100"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-4 p-6">
-              <Detail label="Name" value={viewingUser.display_name} />
-              <Detail label="Email" value={viewingUser.email} />
-              <Detail
-                label="Firebase UID"
-                value={viewingUser.firebase_uid || "Not activated yet"}
-              />
-              <Detail label="Role" value={viewingUser.role} />
-              <Detail
-                label="Administrator"
-                value={viewingUser.is_admin ? "Yes" : "No"}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* DELETE CONFIRMATION */}
-      {deletingUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-              <Trash2 size={22} className="text-red-600" />
-            </div>
-
-            <h2 className="text-xl font-bold text-navy">Delete User?</h2>
-
-            <p className="mt-2 text-sm text-gray-600">
-              Are you sure you want to delete{" "}
-              <strong>
-                {deletingUser.display_name || deletingUser.email}
-              </strong>
-              ? This action cannot be undone.
-            </p>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setDeletingUser(null)}
-                className="rounded-lg border px-4 py-2 font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={deleteUser}
-                disabled={saving}
-                className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
-              >
-                {saving ? "Deleting..." : "Delete User"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }
 

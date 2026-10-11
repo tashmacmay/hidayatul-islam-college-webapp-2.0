@@ -8,7 +8,7 @@ import { CalendarDays, Plus, X } from "lucide-react";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
 import ParentSidebar from "@/components/parent/ParentSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import LoadingState from "@/components/ui/LoadingState";
@@ -103,11 +103,9 @@ export default function ParentBookingsPage() {
     });
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(sidebarProps) => <ParentSidebar {...sidebarProps} />}
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           <PageHeader
             icon={CalendarDays}
             portalLabel="Parent Portal"
@@ -229,8 +227,6 @@ export default function ParentBookingsPage() {
               </table>
             </div>
           </BookingsCard>
-        </div>
-      </main>
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

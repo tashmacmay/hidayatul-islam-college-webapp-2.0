@@ -18,7 +18,7 @@ import {
   Save,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import PageHeader from "@/components/ui/PageHeader";
@@ -215,164 +215,10 @@ const fetchNotices = useCallback(async () => {
   const modalTitle = editingNotice ? "Edit Notice" : "Compose Notice";
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
-    >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="space-y-8">
-          <PageHeader
-            icon={Bell}
-            portalLabel="Staff Portal"
-            title="Notices Management"
-            subtitle="Create, schedule and manage school notices"
-            action={
-              <button
-                onClick={openNewModal}
-                className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy transition hover:opacity-90"
-              >
-                <Plus size={18} />
-                Compose Notice
-              </button>
-            }
-          />
-
-          {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-4">
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <Send className="mb-4 text-navy" size={28} />
-              <p className="text-sm text-text-muted">Published</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {notices.filter((n) => n.status === "Published").length}
-              </h2>
-              <p className="mt-1 text-xs text-text-muted">Sent notices</p>
-            </div>
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <Clock3 className="mb-4 text-amber-600" size={28} />
-              <p className="text-sm text-text-muted">Scheduled</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {notices.filter((n) => n.status === "Scheduled").length}
-              </h2>
-              <p className="mt-1 text-xs text-text-muted">Pending delivery</p>
-            </div>
-            <div className="rounded-xl bg-white p-6 shadow-sm">
-              <FileText className="mb-4 text-gold" size={28} />
-              <p className="text-sm text-text-muted">Drafts</p>
-              <h2 className="mt-2 text-3xl font-bold text-navy">
-                {notices.filter((n) => n.status === "Draft").length}
-              </h2>
-              <p className="mt-1 text-xs text-text-muted">Not published</p>
-            </div>
-              <div className="rounded-xl bg-white p-6 shadow-sm">
-                <Users className="mb-4 text-green-600" size={28} />
-                <p className="text-sm text-text-muted">Total</p>
-                  <h2 className="mt-2 text-3xl font-bold text-navy">
-                    {totalNotices}
-                  </h2>
-               <p className="mt-1 text-xs text-text-muted">All notices</p>
-              </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center">
-            <div className="flex flex-wrap gap-2">
-              {["All", "Published", "Draft", "Scheduled"].map((status) => (
-                <button
-                  key={status}
-                  onClick={() => setFilterStatus(status)}
-                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-                    filterStatus === status
-                      ? "bg-navy text-white"
-                      : "bg-white shadow-sm hover:bg-gray-50"
-                  }`}
-                >
-                  {status}
-                </button>
-              ))}
-            </div>
-            <div className="relative md:ml-auto">
-              <Search size={18} className="absolute left-3 top-3 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search notices..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-gold md:w-64"
-              />
-            </div>
-          </div>
-
-          {/* Table */}
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-2">
-              <Bell size={20} />
-              <h2 className="text-xl font-bold text-navy">Notices</h2>
-            </div>
-            {loading ? (
-              <p className="text-text-muted">Loading...</p>
-            ) : notices.length === 0 ? (
-              <p className="text-text-muted">No notices found.</p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="pb-3">Title</th>
-                      <th className="pb-3">Category</th>
-                      <th className="pb-3">Recipients</th>
-                      <th className="pb-3">Date</th>
-                      <th className="pb-3">Status</th>
-                      <th className="pb-3 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {notices.map((notice) => (
-                      <tr key={notice.id} className="border-b last:border-0">
-                        <td className="py-4">
-                          <p className="font-medium text-navy">{notice.title}</p>
-                        </td>
-                        <td>{notice.category}</td>
-                        <td>{notice.recipients}</td>
-                        <td>
-                          {notice.created_at
-                            ? new Date(notice.created_at).toLocaleDateString()
-                            : "-"}
-                        </td>
-                        <td>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              statusStyles[notice.status]
-                            }`}
-                          >
-                            {notice.status}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="flex justify-end gap-2">
-                            <button
-                              onClick={() => openEditModal(notice)}
-                              className="rounded-lg bg-slate-100 p-2 hover:bg-slate-200"
-                            >
-                              <Pencil size={16} />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(notice.id)}
-                              className="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-
-      {/* Floating Toast Notification */}
+      modals={<>
+{/* Floating Toast Notification */}
       {successMessage && (
         <div
           className={`fixed bottom-4 left-4 z-50 max-w-sm rounded-lg border px-4 py-3 shadow-lg flex items-center gap-2 ${
@@ -560,6 +406,158 @@ const fetchNotices = useCallback(async () => {
           </div>
         </div>
       )}
-    </ResponsiveAppShell>
+      </>}
+    >
+          <PageHeader
+            icon={Bell}
+            portalLabel="Staff Portal"
+            title="Notices Management"
+            subtitle="Create, schedule and manage school notices"
+            action={
+              <button
+                onClick={openNewModal}
+                className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy transition hover:opacity-90"
+              >
+                <Plus size={18} />
+                Compose Notice
+              </button>
+            }
+          />
+
+          {/* Stats */}
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <Send className="mb-4 text-navy" size={28} />
+              <p className="text-sm text-text-muted">Published</p>
+              <h2 className="mt-2 text-3xl font-bold text-navy">
+                {notices.filter((n) => n.status === "Published").length}
+              </h2>
+              <p className="mt-1 text-xs text-text-muted">Sent notices</p>
+            </div>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <Clock3 className="mb-4 text-amber-600" size={28} />
+              <p className="text-sm text-text-muted">Scheduled</p>
+              <h2 className="mt-2 text-3xl font-bold text-navy">
+                {notices.filter((n) => n.status === "Scheduled").length}
+              </h2>
+              <p className="mt-1 text-xs text-text-muted">Pending delivery</p>
+            </div>
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <FileText className="mb-4 text-gold" size={28} />
+              <p className="text-sm text-text-muted">Drafts</p>
+              <h2 className="mt-2 text-3xl font-bold text-navy">
+                {notices.filter((n) => n.status === "Draft").length}
+              </h2>
+              <p className="mt-1 text-xs text-text-muted">Not published</p>
+            </div>
+              <div className="rounded-xl bg-white p-6 shadow-sm">
+                <Users className="mb-4 text-green-600" size={28} />
+                <p className="text-sm text-text-muted">Total</p>
+                  <h2 className="mt-2 text-3xl font-bold text-navy">
+                    {totalNotices}
+                  </h2>
+               <p className="mt-1 text-xs text-text-muted">All notices</p>
+              </div>
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center">
+            <div className="flex flex-wrap gap-2">
+              {["All", "Published", "Draft", "Scheduled"].map((status) => (
+                <button
+                  key={status}
+                  onClick={() => setFilterStatus(status)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                    filterStatus === status
+                      ? "bg-navy text-white"
+                      : "bg-white shadow-sm hover:bg-gray-50"
+                  }`}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+            <div className="relative md:ml-auto">
+              <Search size={18} className="absolute left-3 top-3 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search notices..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full rounded-lg border bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-gold md:w-64"
+              />
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="rounded-xl bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-2">
+              <Bell size={20} />
+              <h2 className="text-xl font-bold text-navy">Notices</h2>
+            </div>
+            {loading ? (
+              <p className="text-text-muted">Loading...</p>
+            ) : notices.length === 0 ? (
+              <p className="text-text-muted">No notices found.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="pb-3">Title</th>
+                      <th className="pb-3">Category</th>
+                      <th className="pb-3">Recipients</th>
+                      <th className="pb-3">Date</th>
+                      <th className="pb-3">Status</th>
+                      <th className="pb-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {notices.map((notice) => (
+                      <tr key={notice.id} className="border-b last:border-0">
+                        <td className="py-4">
+                          <p className="font-medium text-navy">{notice.title}</p>
+                        </td>
+                        <td>{notice.category}</td>
+                        <td>{notice.recipients}</td>
+                        <td>
+                          {notice.created_at
+                            ? new Date(notice.created_at).toLocaleDateString()
+                            : "-"}
+                        </td>
+                        <td>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              statusStyles[notice.status]
+                            }`}
+                          >
+                            {notice.status}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => openEditModal(notice)}
+                              className="rounded-lg bg-slate-100 p-2 hover:bg-slate-200"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(notice.id)}
+                              className="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        
+    </ShellPage>
   );
 }

@@ -16,7 +16,7 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 
 export default function MyProfilePage() {
   const [user, setUser] = useState(null);
@@ -195,33 +195,30 @@ export default function MyProfilePage() {
 
   if (loading) {
     return (
-      <ResponsiveAppShell
+      <ShellPage
         sidebar={(props) => <StaffSidebar {...props} />}
+        maxWidth="max-w-[1600px]"
+        spaceY=""
       >
-        <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-          <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
-            <div className="flex min-h-[70vh] items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--navy)]" />
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--navy)]" />
 
-                <p className="text-sm text-[var(--text-muted)]">
-                  Loading your profile...
-                </p>
+            <p className="text-sm text-[var(--text-muted)]">
+              Loading your profile...
+            </p>
               </div>
-            </div>
-          </div>
-        </main>
-      </ResponsiveAppShell>
+        </div>
+      </ShellPage>
     );
   }
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
+      maxWidth="max-w-[1200px]"
+      spaceY=""
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1200px] px-5 py-6 md:px-8 md:py-8">
-
           {/* PAGE HEADER */}
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -575,8 +572,6 @@ export default function MyProfilePage() {
               </div>
             </div>
           )}
-        </div>
-      </main>
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

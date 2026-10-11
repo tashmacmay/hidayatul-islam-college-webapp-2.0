@@ -7,7 +7,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -131,11 +131,9 @@ export default function BookingsPage() {
   }
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           <PageHeader
             icon={CalendarDays}
             portalLabel="Staff Portal"
@@ -264,8 +262,6 @@ export default function BookingsPage() {
               </table>
             </div>
           </BookingsCard>
-        </div>
-      </main>
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

@@ -9,7 +9,7 @@ import {
   Filter,
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 import { getAuth } from "firebase/auth";
@@ -154,11 +154,94 @@ export default function ParentCalendarPage() {
   // ==========================================================
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <ParentSidebar {...props} />}
-    >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+      modals={<>{/* ===================================================== */}
+      {/* View Calendar Modal */}
+      {/* ===================================================== */}
+
+      {viewingCalendar && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/40 p-4">
+          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+            {/* Header */}
+
+            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-navy">
+                    Term {viewingCalendar.term}
+                  </h2>
+
+                  <span className="text-slate-300">
+                    /
+                  </span>
+
+                  <span className="text-sm font-semibold text-text-muted">
+                    {viewingCalendar.grade}
+                  </span>
+                </div>
+
+                <p className="mt-0.5 text-xs text-text-muted">
+                  {viewingCalendar.file_name}
+                </p>
+              </div>
+
+              <button
+                onClick={closeViewModal}
+                className="rounded-lg p-2 text-text-muted transition hover:bg-slate-100"
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            {/* Preview */}
+
+            <div className="min-h-0 flex-1 overflow-auto bg-slate-100 p-5">
+              {viewingCalendar.file_type ===
+              "PDF" ? (
+                <iframe
+                  src={
+                    viewingCalendar.file_url
+                  }
+                  title={
+                    viewingCalendar.file_name
+                  }
+                  className="h-[70vh] w-full rounded-xl border border-slate-100 bg-white"
+                />
+              ) : (
+                <div className="flex min-h-[60vh] items-center justify-center">
+                  <img
+                    src={
+                      viewingCalendar.file_url
+                    }
+                    alt={
+                      viewingCalendar.file_name
+                    }
+                    className="max-h-[70vh] max-w-full rounded-xl border border-slate-100 bg-white object-contain shadow-sm"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+
+            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-4">
+              <p className="text-xs text-text-muted">
+                {viewingCalendar.file_type} calendar
+              </p>
+
+              <button
+                onClick={closeViewModal}
+                className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}</>}
+      spaceY="">
 
           <PageHeader
             icon={CalendarDays}
@@ -410,94 +493,7 @@ export default function ParentCalendarPage() {
               )}
             </>
           )}
-        </div>
-      </main>
-
-      {/* ===================================================== */}
-      {/* View Calendar Modal */}
-      {/* ===================================================== */}
-
-      {viewingCalendar && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/40 p-4">
-          <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-
-            {/* Header */}
-
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="text-lg font-bold text-navy">
-                    Term {viewingCalendar.term}
-                  </h2>
-
-                  <span className="text-slate-300">
-                    /
-                  </span>
-
-                  <span className="text-sm font-semibold text-text-muted">
-                    {viewingCalendar.grade}
-                  </span>
-                </div>
-
-                <p className="mt-0.5 text-xs text-text-muted">
-                  {viewingCalendar.file_name}
-                </p>
-              </div>
-
-              <button
-                onClick={closeViewModal}
-                className="rounded-lg p-2 text-text-muted transition hover:bg-slate-100"
-              >
-                <X size={19} />
-              </button>
-            </div>
-
-            {/* Preview */}
-
-            <div className="min-h-0 flex-1 overflow-auto bg-slate-100 p-5">
-              {viewingCalendar.file_type ===
-              "PDF" ? (
-                <iframe
-                  src={
-                    viewingCalendar.file_url
-                  }
-                  title={
-                    viewingCalendar.file_name
-                  }
-                  className="h-[70vh] w-full rounded-xl border border-slate-100 bg-white"
-                />
-              ) : (
-                <div className="flex min-h-[60vh] items-center justify-center">
-                  <img
-                    src={
-                      viewingCalendar.file_url
-                    }
-                    alt={
-                      viewingCalendar.file_name
-                    }
-                    className="max-h-[70vh] max-w-full rounded-xl border border-slate-100 bg-white object-contain shadow-sm"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-
-            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-4">
-              <p className="text-xs text-text-muted">
-                {viewingCalendar.file_type} calendar
-              </p>
-
-              <button
-                onClick={closeViewModal}
-                className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </ResponsiveAppShell>
+        
+    </ShellPage>
   );
 }
