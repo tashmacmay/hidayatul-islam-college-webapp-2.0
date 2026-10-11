@@ -351,30 +351,29 @@ Stay informed with the latest school communications
 
           <div className="mb-7 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm md:p-5">
 
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 
               {/* SEARCH */}
 
-              <div className="relative w-full">
-                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-muted" />
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
 
                 <input
                   type="text"
                   placeholder="Search notices..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm text-navy outline-none transition placeholder:text-text-muted focus:border-gold focus:bg-white focus:ring-2 focus:ring-gold/20"
+                  className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-3 text-sm outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
                 />
               </div>
 
               {/* TYPE */}
 
-              <div className="grid gap-4 sm:grid-cols-3">
-              <div className="relative w-full">
+              <div className="relative">
                 <select
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-10 text-sm font-medium text-navy outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-9 text-sm text-text outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                 >
                   <option value="All">All types</option>
                   <option value="General">General</option>
@@ -386,11 +385,11 @@ Stay informed with the latest school communications
               </div>
 {/* GRADE */}
 
-<div className="relative w-full">
+<div className="relative">
   <select
     value={gradeFilter}
     onChange={(e) => setGradeFilter(e.target.value)}
-    className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-10 text-sm font-medium text-navy outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+    className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-9 text-sm text-text outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
   >
     <option value="All">All grades</option>
     <option value="All Grades">All Grades</option>
@@ -408,11 +407,11 @@ Stay informed with the latest school communications
 </div>
               {/* READ STATUS */}
 
-              <div className="relative w-full">
+              <div className="relative">
                 <select
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-10 text-sm font-medium text-navy outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2.5 pr-9 text-sm text-text outline-none focus:border-gold focus:ring-2 focus:ring-gold/20"
                 >
                   <option value="All notices">All notices</option>
                   <option value="Unread">Unread</option>
@@ -420,7 +419,6 @@ Stay informed with the latest school communications
                 </select>
 
                 <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
-              </div>
               </div>
 
             </div>
