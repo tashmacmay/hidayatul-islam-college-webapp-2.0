@@ -15,6 +15,7 @@ import {
 
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -429,10 +430,10 @@ if (!uploadResponse.ok) {
 // ==========================================================
 
 return (
-  <div className="min-h-screen bg-slate-100">
-    <StaffSidebar />
-
-    <main className="min-h-screen md:ml-[240px]">
+  <ResponsiveAppShell
+    sidebar={(props) => <StaffSidebar {...props} />}
+  >
+    <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
       <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
         {/* ================================================= */}
@@ -848,6 +849,6 @@ return (
         </div>
       </div>
     )}
-  </div>
+  </ResponsiveAppShell>
 );
 }

@@ -9,6 +9,7 @@ import {
   Filter,
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import LoadingState from "@/components/ui/LoadingState";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
@@ -152,10 +153,10 @@ export default function ParentCalendarPage() {
   // ==========================================================
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <ParentSidebar />
-
-      <main className="min-h-screen md:ml-[240px]">
+    <ResponsiveAppShell
+      sidebar={(props) => <ParentSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
         <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
           {/* ================================================= */}
@@ -514,6 +515,6 @@ export default function ParentCalendarPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }
