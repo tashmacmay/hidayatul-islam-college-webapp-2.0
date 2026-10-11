@@ -1,0 +1,568 @@
+{
+  "notices": [
+    {
+      "title": "Welcome to the 2026 School Year",
+      "type": "General",
+      "content": "We look forward to a productive year of learning. Families are encouraged to check the school portal for updates. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-02T09:00:00"
+    },
+    {
+      "title": "Grade R Orientation Information",
+      "type": "General",
+      "content": "Families of new Grade R learners are invited to review orientation guidance and daily classroom routines. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-05T09:00:00"
+    },
+    {
+      "title": "School Uniform and Labelling Reminder",
+      "type": "Reminder",
+      "content": "Please label learners’ uniform items and stationery to help reduce misplaced belongings. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-08T09:00:00"
+    },
+    {
+      "title": "Reading at Home: Parent Guide",
+      "type": "General",
+      "content": "Short daily reading sessions and conversations about stories can strengthen literacy skills. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-11T09:00:00"
+    },
+    {
+      "title": "Ramadan Kindness and Reflection",
+      "type": "Reminder",
+      "content": "Learners are encouraged to practise kindness, generosity and consideration during Ramadan. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-14T09:00:00"
+    },
+    {
+      "title": "Term 1 Learning Progress Update",
+      "type": "General",
+      "content": "Teachers will share general learning progress guidance through approved school communication channels. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-02-17T09:00:00"
+    },
+    {
+      "title": "Welcome Back for Term 2",
+      "type": "General",
+      "content": "We welcome learners back and encourage consistent attendance and punctuality. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-02T09:00:00"
+    },
+    {
+      "title": "Homework and Study Routine Reminder",
+      "type": "General",
+      "content": "A calm homework routine with breaks and a regular bedtime can support learning. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-05T09:00:00"
+    },
+    {
+      "title": "Parent-Teacher Consultation Invitation",
+      "type": "Reminder",
+      "content": "Families will receive details of consultation arrangements through official school channels. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-08T09:00:00"
+    },
+    {
+      "title": "Mid-Year Assessment Preparation",
+      "type": "General",
+      "content": "Learners should revise class activities regularly and ask teachers for support where needed. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-11T09:00:00"
+    },
+    {
+      "title": "Library Book Return Reminder",
+      "type": "Reminder",
+      "content": "Please return borrowed reading materials so that other learners can enjoy them. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-14T09:00:00"
+    },
+    {
+      "title": "Term 2 Report Collection Information",
+      "type": "General",
+      "content": "Report access and collection procedures will be confirmed through the school office. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-05-17T09:00:00"
+    },
+    {
+      "title": "Term 3 Learning Programme Begins",
+      "type": "General",
+      "content": "Learners will build on the skills developed in the first half of the year. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-02T09:00:00"
+    },
+    {
+      "title": "Winter Reading Challenge",
+      "type": "General",
+      "content": "Choose age-appropriate books and keep a simple reading record at home. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-05T09:00:00"
+    },
+    {
+      "title": "Grade 4–7 Project Preparation",
+      "type": "Reminder",
+      "content": "Learners should plan projects early and use credible, age-appropriate sources. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-08T09:00:00"
+    },
+    {
+      "title": "Parent Progress Check-In",
+      "type": "General",
+      "content": "Caregivers are encouraged to discuss learner progress with class teachers. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-11T09:00:00"
+    },
+    {
+      "title": "Heritage and Community Learning Week",
+      "type": "Reminder",
+      "content": "Classes will explore South African languages, stories and community traditions respectfully. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-14T09:00:00"
+    },
+    {
+      "title": "Term 3 Assessment Reminder",
+      "type": "General",
+      "content": "Please check teacher communications for confirmed assessment details and study guidance. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-08-17T09:00:00"
+    },
+    {
+      "title": "Welcome to the Final Term",
+      "type": "General",
+      "content": "We encourage learners to finish the year with curiosity, consistency and care. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-02T09:00:00"
+    },
+    {
+      "title": "Grade R–3 Reading Celebration",
+      "type": "General",
+      "content": "Younger learners will share favourite books and reading achievements. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-05T09:00:00"
+    },
+    {
+      "title": "Grade 4–7 Revision Guidance",
+      "type": "Reminder",
+      "content": "Older learners should use revision checklists and practise with teacher-approved exercises. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-08T09:00:00"
+    },
+    {
+      "title": "Year-End Assessment Arrangements",
+      "type": "General",
+      "content": "Assessment arrangements and any timetable changes will be communicated officially. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-11T09:00:00"
+    },
+    {
+      "title": "Learner Achievement Showcase",
+      "type": "Reminder",
+      "content": "Classes will have opportunities to celebrate learning and creative work. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-14T09:00:00"
+    },
+    {
+      "title": "Final Reports and Year-End Information",
+      "type": "General",
+      "content": "Final report procedures and next-grade guidance will be shared by the school office. [MOCK NOTICE — FOR DEMONSTRATION ONLY]",
+      "grade": "All Grades",
+      "status": "Published",
+      "created_at": "2026-11-17T09:00:00"
+    }
+  ],
+  "resources": [
+    {
+      "title": "Grade R — Literacy & Language: Practice Pack",
+      "caption": "Illustrative literacy & language material for Grade R.",
+      "description": "Mock learning resource for Grade R; replace the linked document with an approved school file before publication.",
+      "category": "Literacy & Language",
+      "grade": "Grade R",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-01.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_01.pdf"
+    },
+    {
+      "title": "Grade 1 — Mathematics: Home Learning Guide",
+      "caption": "Illustrative mathematics material for Grade 1.",
+      "description": "Mock learning resource for Grade 1; replace the linked document with an approved school file before publication.",
+      "category": "Mathematics",
+      "grade": "Grade 1",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-02.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_02.pdf"
+    },
+    {
+      "title": "Grade 2 — Islamic Studies: Reading and Reflection",
+      "caption": "Illustrative islamic studies material for Grade 2.",
+      "description": "Mock learning resource for Grade 2; replace the linked document with an approved school file before publication.",
+      "category": "Islamic Studies",
+      "grade": "Grade 2",
+      "resource_type": "Reading List",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-03.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_03.pdf"
+    },
+    {
+      "title": "Grade 3 — Life Skills: Skills Worksheet",
+      "caption": "Illustrative life skills material for Grade 3.",
+      "description": "Mock learning resource for Grade 3; replace the linked document with an approved school file before publication.",
+      "category": "Life Skills",
+      "grade": "Grade 3",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-04.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_04.pdf"
+    },
+    {
+      "title": "Grade 4 — Parent Guides: Revision Guide",
+      "caption": "Illustrative parent guides material for Grade 4.",
+      "description": "Mock learning resource for Grade 4; replace the linked document with an approved school file before publication.",
+      "category": "Parent Guides",
+      "grade": "Grade 4",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-05.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_05.pdf"
+    },
+    {
+      "title": "Grade 5 — School Documents: Family Information Sheet",
+      "caption": "Illustrative school documents material for Grade 5.",
+      "description": "Mock learning resource for Grade 5; replace the linked document with an approved school file before publication.",
+      "category": "School Documents",
+      "grade": "Grade 5",
+      "resource_type": "School Document",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-06.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_06.pdf"
+    },
+    {
+      "title": "Grade 6 — Literacy & Language: Practice Pack",
+      "caption": "Illustrative literacy & language material for Grade 6.",
+      "description": "Mock learning resource for Grade 6; replace the linked document with an approved school file before publication.",
+      "category": "Literacy & Language",
+      "grade": "Grade 6",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-07.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_07.pdf"
+    },
+    {
+      "title": "Grade 7 — Mathematics: Home Learning Guide",
+      "caption": "Illustrative mathematics material for Grade 7.",
+      "description": "Mock learning resource for Grade 7; replace the linked document with an approved school file before publication.",
+      "category": "Mathematics",
+      "grade": "Grade 7",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-08.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_08.pdf"
+    },
+    {
+      "title": "Grade R — Islamic Studies: Reading and Reflection",
+      "caption": "Illustrative islamic studies material for Grade R.",
+      "description": "Mock learning resource for Grade R; replace the linked document with an approved school file before publication.",
+      "category": "Islamic Studies",
+      "grade": "Grade R",
+      "resource_type": "Reading List",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-09.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_09.pdf"
+    },
+    {
+      "title": "Grade 1 — Life Skills: Skills Worksheet",
+      "caption": "Illustrative life skills material for Grade 1.",
+      "description": "Mock learning resource for Grade 1; replace the linked document with an approved school file before publication.",
+      "category": "Life Skills",
+      "grade": "Grade 1",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-10.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_10.pdf"
+    },
+    {
+      "title": "Grade 2 — Parent Guides: Revision Guide",
+      "caption": "Illustrative parent guides material for Grade 2.",
+      "description": "Mock learning resource for Grade 2; replace the linked document with an approved school file before publication.",
+      "category": "Parent Guides",
+      "grade": "Grade 2",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-11.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_11.pdf"
+    },
+    {
+      "title": "Grade 3 — School Documents: Family Information Sheet",
+      "caption": "Illustrative school documents material for Grade 3.",
+      "description": "Mock learning resource for Grade 3; replace the linked document with an approved school file before publication.",
+      "category": "School Documents",
+      "grade": "Grade 3",
+      "resource_type": "School Document",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-12.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_12.pdf"
+    },
+    {
+      "title": "Grade 4 — Literacy & Language: Practice Pack",
+      "caption": "Illustrative literacy & language material for Grade 4.",
+      "description": "Mock learning resource for Grade 4; replace the linked document with an approved school file before publication.",
+      "category": "Literacy & Language",
+      "grade": "Grade 4",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-13.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_13.pdf"
+    },
+    {
+      "title": "Grade 5 — Mathematics: Home Learning Guide",
+      "caption": "Illustrative mathematics material for Grade 5.",
+      "description": "Mock learning resource for Grade 5; replace the linked document with an approved school file before publication.",
+      "category": "Mathematics",
+      "grade": "Grade 5",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-14.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_14.pdf"
+    },
+    {
+      "title": "Grade 6 — Islamic Studies: Reading and Reflection",
+      "caption": "Illustrative islamic studies material for Grade 6.",
+      "description": "Mock learning resource for Grade 6; replace the linked document with an approved school file before publication.",
+      "category": "Islamic Studies",
+      "grade": "Grade 6",
+      "resource_type": "Reading List",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-15.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_15.pdf"
+    },
+    {
+      "title": "Grade 7 — Life Skills: Skills Worksheet",
+      "caption": "Illustrative life skills material for Grade 7.",
+      "description": "Mock learning resource for Grade 7; replace the linked document with an approved school file before publication.",
+      "category": "Life Skills",
+      "grade": "Grade 7",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-16.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_16.pdf"
+    },
+    {
+      "title": "Grade R — Parent Guides: Revision Guide",
+      "caption": "Illustrative parent guides material for Grade R.",
+      "description": "Mock learning resource for Grade R; replace the linked document with an approved school file before publication.",
+      "category": "Parent Guides",
+      "grade": "Grade R",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-17.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_17.pdf"
+    },
+    {
+      "title": "Grade 1 — School Documents: Family Information Sheet",
+      "caption": "Illustrative school documents material for Grade 1.",
+      "description": "Mock learning resource for Grade 1; replace the linked document with an approved school file before publication.",
+      "category": "School Documents",
+      "grade": "Grade 1",
+      "resource_type": "School Document",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-18.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_18.pdf"
+    },
+    {
+      "title": "Grade 2 — Literacy & Language: Practice Pack",
+      "caption": "Illustrative literacy & language material for Grade 2.",
+      "description": "Mock learning resource for Grade 2; replace the linked document with an approved school file before publication.",
+      "category": "Literacy & Language",
+      "grade": "Grade 2",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-19.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_19.pdf"
+    },
+    {
+      "title": "Grade 3 — Mathematics: Home Learning Guide",
+      "caption": "Illustrative mathematics material for Grade 3.",
+      "description": "Mock learning resource for Grade 3; replace the linked document with an approved school file before publication.",
+      "category": "Mathematics",
+      "grade": "Grade 3",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-20.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_20.pdf"
+    },
+    {
+      "title": "Grade 4 — Islamic Studies: Reading and Reflection",
+      "caption": "Illustrative islamic studies material for Grade 4.",
+      "description": "Mock learning resource for Grade 4; replace the linked document with an approved school file before publication.",
+      "category": "Islamic Studies",
+      "grade": "Grade 4",
+      "resource_type": "Reading List",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-21.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_21.pdf"
+    },
+    {
+      "title": "Grade 5 — Life Skills: Skills Worksheet",
+      "caption": "Illustrative life skills material for Grade 5.",
+      "description": "Mock learning resource for Grade 5; replace the linked document with an approved school file before publication.",
+      "category": "Life Skills",
+      "grade": "Grade 5",
+      "resource_type": "Worksheet",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-22.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_22.pdf"
+    },
+    {
+      "title": "Grade 6 — Parent Guides: Revision Guide",
+      "caption": "Illustrative parent guides material for Grade 6.",
+      "description": "Mock learning resource for Grade 6; replace the linked document with an approved school file before publication.",
+      "category": "Parent Guides",
+      "grade": "Grade 6",
+      "resource_type": "Guide",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-23.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_23.pdf"
+    },
+    {
+      "title": "Grade 7 — School Documents: Family Information Sheet",
+      "caption": "Illustrative school documents material for Grade 7.",
+      "description": "Mock learning resource for Grade 7; replace the linked document with an approved school file before publication.",
+      "category": "School Documents",
+      "grade": "Grade 7",
+      "resource_type": "School Document",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-resource-24.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_24.pdf"
+    },
+    {
+      "title": "Attendance and Punctuality — Mock Policy",
+      "caption": "Guidance on attendance reporting, punctuality and notifying the school of absences.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-01.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_25.pdf"
+    },
+    {
+      "title": "School Uniform — Mock Policy",
+      "caption": "Illustrative expectations for neat dress and care of uniform items.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-02.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_26.pdf"
+    },
+    {
+      "title": "Learner Code of Conduct — Mock Policy",
+      "caption": "Respect, responsibility, positive behaviour and restorative conversations.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-03.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_27.pdf"
+    },
+    {
+      "title": "Safeguarding and Child Protection — Mock Policy",
+      "caption": "Illustrative safeguarding principles and reporting pathways; requires formal school approval.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-04.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_28.pdf"
+    },
+    {
+      "title": "Homework and Assessment — Mock Policy",
+      "caption": "General guidance for age-appropriate homework and assessment support.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-05.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_29.pdf"
+    },
+    {
+      "title": "Digital Safety and Acceptable Use — Mock Policy",
+      "caption": "Age-appropriate use of school technology and responsible online conduct.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-06.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_30.pdf"
+    },
+    {
+      "title": "Parent Communication — Mock Policy",
+      "caption": "Illustrative communication channels, response expectations and meeting requests.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-07.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_31.pdf"
+    },
+    {
+      "title": "Health and Medication — Mock Policy",
+      "caption": "Illustrative process for illness reporting and school medication procedures.",
+      "description": "DEMONSTRATION DOCUMENT ONLY. Not an adopted HIC policy. School management must approve and supply the actual policy before publication.",
+      "category": "School Documents",
+      "grade": "General",
+      "resource_type": "Policy",
+      "is_published": 0,
+      "file_url": "https://REPLACE-WITH-APPROVED-HOST.example/hic/mock-policy-08.pdf",
+      "local_pdf": "Resource_and_Policy_PDFs/HIC_2026_Resource_32.pdf"
+    }
+  ],
+  "calendars": [
+    {
+      "term": 1,
+      "file": "HIC_2026_Term_1_All_Grades_MOCK.pdf"
+    },
+    {
+      "term": 2,
+      "file": "HIC_2026_Term_2_All_Grades_MOCK.pdf"
+    },
+    {
+      "term": 3,
+      "file": "HIC_2026_Term_3_All_Grades_MOCK.pdf"
+    },
+    {
+      "term": 4,
+      "file": "HIC_2026_Term_4_All_Grades_MOCK.pdf"
+    }
+  ]
+}
