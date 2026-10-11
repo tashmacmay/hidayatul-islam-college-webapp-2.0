@@ -5,10 +5,11 @@ import {
   Clock3,
   FileSpreadsheet,
   Plus,
+  RefreshCw,
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
@@ -35,6 +36,11 @@ export default function SchoolBookingsPage() {
   const [reportTo, setReportTo] = useState("");
   const [reportError, setReportError] = useState("");
   const [downloading, setDownloading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
+  const [syncError, setSyncError] = useState("");
+  const [lastSync, setLastSync] = useState(null);
+  const [lastSyncLoading, setLastSyncLoading] = useState(true);
 
   // Auth
   useEffect(() => {
@@ -51,7 +57,7 @@ export default function SchoolBookingsPage() {
     return () => unsubscribe();
   }, []);
 
-  async function loadBookings() {
+  const loadBookings = useCallback(async function loadBookings() {
     if (!user) return;
 
     try {
@@ -79,12 +85,83 @@ export default function SchoolBookingsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [user]);
+
+  const loadLastSync = useCallback(async function loadLastSync() {
+    if (!user) return;
+
+    try {
+      setLastSyncLoading(true);
+      const token = await user.getIdToken();
+      const response = await fetch("/api/admin/reporting/last-sync", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to retrieve sync status");
+      }
+
+      setLastSync(data);
+    } catch (err) {
+      console.error("Failed to load sync status:", err);
+    } finally {
+      setLastSyncLoading(false);
+    }
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
     loadBookings();
-  }, [user]);
+    loadLastSync();
+  }, [user, loadBookings, loadLastSync]);
+
+  async function handleSync() {
+    try {
+      setSyncing(true);
+      setSyncMessage("");
+      setSyncError("");
+
+      const token = await user.getIdToken();
+      const response = await fetch("/api/admin/reporting/sync", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Sync failed");
+      }
+
+      await Promise.all([loadBookings(), loadLastSync()]);
+      setSyncMessage(
+        `Sync complete — ${data.inserted} inserted, ${data.updated} updated`
+      );
+      window.setTimeout(() => setSyncMessage(""), 5000);
+    } catch (err) {
+      console.error("Sync failed:", err);
+      setSyncError(err.message || "Sync failed");
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  function formatLastSync() {
+    if (!lastSync?.syncedAt) return "Never synced";
+
+    const ageMinutes = Math.max(
+      0,
+      Math.floor((Date.now() - new Date(lastSync.syncedAt).getTime()) / 60000)
+    );
+
+    if (ageMinutes < 1) return "Last synced just now";
+    if (ageMinutes < 60) return `Last synced ${ageMinutes} minutes ago`;
+
+    const ageHours = Math.floor(ageMinutes / 60);
+    if (ageHours < 24) return `Last synced ${ageHours} hours ago`;
+
+    return `Last synced ${Math.floor(ageHours / 24)} days ago`;
+  }
 
   async function handleCancel(bookingId) {
     const confirmed = window.confirm("Cancel this booking?");
@@ -294,6 +371,25 @@ export default function SchoolBookingsPage() {
             subtitle="Manage and monitor all bookings made across the school. Administrators can view appointments, search records, and create bookings on behalf of parents."
           />
 
+          {!lastSyncLoading && (
+            <div className="flex items-center gap-1 text-xs text-text-muted">
+              <Clock3 size={14} />
+              {formatLastSync()}
+            </div>
+          )}
+
+          {(syncMessage || syncError) && (
+            <div
+              className={`rounded-lg border px-4 py-3 ${
+                syncError
+                  ? "border-red-200 bg-red-50 text-red-700"
+                  : "border-green-200 bg-green-50 text-green-700"
+              }`}
+            >
+              <p className="text-sm">{syncError || syncMessage}</p>
+            </div>
+          )}
+
           {/* Error */}
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
@@ -311,13 +407,15 @@ export default function SchoolBookingsPage() {
             searchPlaceholder="Search by parent, learner, staff or type..."
             actions={
               <>
-                <Link
-                  href="/staff/admin/school-bookings/create-booking"
-                  className="flex w-fit items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy transition hover:opacity-90"
+                <button
+                  type="button"
+                  onClick={handleSync}
+                  disabled={syncing}
+                  className="flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <Plus size={16} />
-                  Book New Appointment
-                </Link>
+                  <RefreshCw size={16} className={syncing ? "animate-spin" : ""} />
+                  {syncing ? "Syncing…" : "Sync Now"}
+                </button>
 
                 <button
                   type="button"
@@ -330,6 +428,14 @@ export default function SchoolBookingsPage() {
                   <FileSpreadsheet size={16} />
                   Generate Report
                 </button>
+
+                <Link
+                  href="/staff/admin/school-bookings/create-booking"
+                  className="flex w-fit items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-navy transition hover:opacity-90"
+                >
+                  <Plus size={16} />
+                  Book New Appointment
+                </Link>
               </>
             }
             searchValue={searchTerm}
@@ -363,7 +469,7 @@ export default function SchoolBookingsPage() {
                         colSpan={8}
                         className="py-10 text-center text-sm text-text-muted"
                       >
-                        Loading bookings from Microsoft Bookings...
+                        Loading bookings from bookings database...
                       </td>
                     </tr>
                   )}
