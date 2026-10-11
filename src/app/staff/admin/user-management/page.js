@@ -21,6 +21,7 @@ import {
 import * as XLSX from "xlsx";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 
 export default function UsersPage() {
   // ============================================================
@@ -705,9 +706,7 @@ export default function UsersPage() {
             {loading ? (
 
               <div className="p-16 text-center">
-                <p className="text-sm text-gray-500">
-                  Loading users...
-                </p>
+                <LoadingState label="Loading users..." />
               </div>
 
             ) : filteredUsers.length === 0 ? (

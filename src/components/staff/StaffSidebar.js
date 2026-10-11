@@ -1,56 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRole } from "@/providers/RoleProvider";
 
 import {
   LayoutDashboard,
   CalendarDays,
   Bell,
   BookOpen,
-  UserCircle,
-  LogOut,
   Users,
-  Settings,
 } from "lucide-react";
+import SidebarShell from "@/components/layout/SidebarShell";
 
 export default function StaffSidebar() {
-  const pathname = usePathname();
   const router = useRouter();
+  const {
+    isAdmin,
+    loading: roleLoading,
+  } = useRole();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [userLoading, setUserLoading] =
+    useState(true);
 
   // Listen for auth changes and fetch role
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-
-      if (currentUser) {
-            try {
-          const token = await currentUser.getIdToken();
-
-          const res = await fetch("/api/user-role", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            setIsAdmin(data.is_admin || false);
-          }
-        } catch (err) {
-          console.error("Error fetching role:", err);
-        }
-      } else {
-        setIsAdmin(false);
-      }
-
-      setLoading(false);
+      setUserLoading(false);
     });
 
     return () => unsubscribe();
@@ -65,7 +44,7 @@ export default function StaffSidebar() {
     }
   };
 
-  // Staff links
+  // Staff-facing links
   const staffLinks = [
     {
       name: "My Dashboard",
@@ -73,16 +52,6 @@ export default function StaffSidebar() {
       icon: LayoutDashboard,
     },
     {
-  name: "Term Calendar Management",
-  href: "/staff/admin/term-calendar-management",
-  icon: CalendarDays,
-},
-    {
-      name: "Notice Management",
-      href: "/staff/admin/notice-management",
-      icon: Bell,
-    },
-        {
       name: "School Notices",
       href: "/staff/school-notices",
       icon: Bell,
@@ -91,6 +60,35 @@ export default function StaffSidebar() {
       name: "My Bookings",
       href: "/staff/bookings",
       icon: CalendarDays,
+    },
+    {
+      name: "Learning Resources",
+      href: "/staff/learning-resources",
+      icon: BookOpen,
+    },
+    {
+      name: "School Calendar",
+      href: "/staff/calendar",
+      icon: CalendarDays,
+    },
+  ];
+
+  // Management links
+  const adminLinks = [
+    {
+      name: "Term Calendar Management",
+      href: "/staff/admin/term-calendar-management",
+      icon: CalendarDays,
+    },
+    {
+      name: "Notice Management",
+      href: "/staff/admin/notice-management",
+      icon: Bell,
+    },
+    {
+      name: "Learning Resources Manager",
+      href: "/staff/admin/Learning-resources",
+      icon: BookOpen,
     },
     {
       name: "School Bookings",
@@ -107,180 +105,24 @@ export default function StaffSidebar() {
       href: "/staff/admin/media-management",
       icon: CalendarDays,
     },
-    {
-      name: "Learning Resources",
-      href: "/staff/admin/Learning-resources",
-      icon: BookOpen,
-    },
-    {
-      name: "System Settings",
-      href: "/staff/admin/settings",
-      icon: Settings,
-    },
-    {
-      name: "Parent Notices",
-      href: "/notices",
-      icon: Settings,
-    },
   ];
 
-  // Admin-only links
-  const adminLinks = [];
-
-  const displayName =
-    user?.displayName || user?.email?.split("@")[0] || "Staff";
-
-  const initials = displayName
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-
   return (
-<aside className="fixed left-0 top-0 bottom-0 z-50 flex h-screen w-[240px] flex-col bg-navy-dark">      <div className="flex items-center gap-3 px-5 py-4">
-        <img
-          src="/images/HIC_Logo2.png"
-          alt="Logo"
-          className="h-[42px] w-[42px] rounded-full border-2 border-gold bg-white p-[2px]"
-        />
-
-        <div>
-          <strong className="block font-serif text-[13px] font-bold text-white">
-            HIC Portal
-          </strong>
-
-          <span className="text-[10px] text-gold-light">
-            Hidayatul Islam College
-          </span>
-        </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex-1 overflow-y-auto py-2">
-        {/* STAFF SECTION */}
-        <div className="px-5 py-2">
-          <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/10" />
-
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
-              Staff
-            </span>
-
-            <div className="h-px flex-1 bg-white/10" />
-          </div>
-        </div>
-
-        {staffLinks.map((link) => {
-          const Icon = link.icon;
-          const active = pathname === link.href;
-
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-                active
-                  ? "border-gold bg-[#c9a2271a] text-white"
-                  : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              <Icon size={17} />
-              <span>{link.name}</span>
-            </Link>
-          );
-        })}
-
-        {/* ADMIN SECTION */}
-        {adminLinks.length > 0 && (
-          <>
-            <div className="mt-4 px-5 py-2">
-              <div className="flex items-center gap-3">
-                <div className="h-px flex-1 bg-white/10" />
-
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
-                  Admin
-                </span>
-
-                <div className="h-px flex-1 bg-white/10" />
-              </div>
-            </div>
-
-            {adminLinks.map((link) => {
-              const Icon = link.icon;
-              const active = pathname === link.href;
-
-              return (
-                <Link
-                  key={link.href}
-                  href={isAdmin ? link.href : "#"}
-                  onClick={(e) => {
-                    if (!isAdmin) {
-                      e.preventDefault();
-                      alert(
-                        "This is restricted for Admins only. Please contact the administrator for details."
-                      );
-                    }
-                  }}
-                  className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-                    active && isAdmin
-                      ? "border-gold bg-[#c9a2271a] text-white"
-                      : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <Icon size={17} />
-                  <span>{link.name}</span>
-                </Link>
-              );
-            })}
-          </>
-        )}
-
-        <div className="mx-4 my-2 h-px bg-white/10" />
-
-        {/* MY PROFILE */}
-        <Link
-          href="/staff/profile"
-          className={`flex items-center gap-[11px] border-l-[3px] px-5 py-[9px] text-[13px] font-medium transition-all ${
-            pathname === "/staff/profile"
-              ? "border-gold bg-[#c9a2271a] text-white"
-              : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          <UserCircle size={17} />
-          My Profile
-        </Link>
-
-        <div className="mx-4 my-2 h-px bg-white/10" />
-
-        {/* LOGOUT */}
-        <button
-          onClick={handleLogout}
-          className="flex w-full items-center gap-[11px] border-l-[3px] border-transparent px-5 py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white"
-        >
-          <LogOut size={17} />
-          Logout
-        </button>
-      </div>
-
-      {/* Bottom User */}
-      <div className="border-t border-white/10 px-5 py-[14px]">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
-            {loading ? "..." : initials}
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold text-white">
-              {loading ? "Loading..." : displayName}
-            </div>
-
-            <div className="text-xs text-[#7090b0]">
-              {loading ? "" : isAdmin ? "Admin / Staff" : "Staff"}
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
+    <SidebarShell
+      sections={[
+        { heading: "Staff", items: staffLinks },
+        ...(!roleLoading && isAdmin && adminLinks.length > 0
+          ? [{
+              heading: "Admin",
+              items: adminLinks,
+            }]
+          : []),
+      ]}
+      profileHref="/staff/profile"
+      roleLabel={isAdmin ? "Admin / Staff" : "Staff"}
+      user={user}
+      loading={roleLoading || userLoading}
+      onLogout={handleLogout}
+    />
   );
 }

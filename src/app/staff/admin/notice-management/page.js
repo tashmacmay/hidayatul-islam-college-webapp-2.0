@@ -21,6 +21,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -749,13 +750,7 @@ export default function NoticeManagementPage() {
 
           {/* Loading */}
           {loading ? (
-            <div className="flex min-h-[250px] flex-col items-center justify-center">
-              <RefreshCw className="h-7 w-7 animate-spin text-gold" />
-
-              <p className="mt-3 text-sm text-text-muted">
-                Loading notices...
-              </p>
-            </div>
+            <LoadingState label="Loading notices..." />
           ) : notices.length === 0 ? (
             /* Empty State */
             <div className="flex min-h-[250px] flex-col items-center justify-center px-6 text-center">

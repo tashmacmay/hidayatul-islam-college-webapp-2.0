@@ -20,6 +20,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 
 export default function MediaManagementPage() {
   const [activeSection, setActiveSection] = useState("news");
@@ -1389,9 +1390,7 @@ return (
             {/* NEWS CONTENT */}
             {loadingNews ? (
               <div className="px-5 py-12 text-center">
-                <p className="text-sm text-[#5a6a82]">
-                  Loading articles...
-                </p>
+                <LoadingState label="Loading articles..." />
               </div>
             ) : filteredNewsArticles.length === 0 ? (
               <div className="px-5 py-12 text-center">
@@ -1577,9 +1576,7 @@ return (
             {/* GALLERY CONTENT */}
             {loadingGallery ? (
               <div className="px-5 py-12 text-center">
-                <p className="text-sm text-[#5a6a82]">
-                  Loading gallery...
-                </p>
+                <LoadingState label="Loading gallery..." />
               </div>
             ) : filteredGalleryImages.length === 0 ? (
               <div className="px-5 py-12 text-center">

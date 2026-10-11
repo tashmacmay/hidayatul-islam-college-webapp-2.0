@@ -15,6 +15,7 @@ import {
 
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import LoadingState from "@/components/ui/LoadingState";
 
 const GRADES = [
   "All Grades",
@@ -491,14 +492,7 @@ return (
 
         {loading ? (
           <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-            <RefreshCw
-              className="mx-auto mb-3 animate-spin text-gold"
-              size={24}
-            />
-
-            <p className="text-sm text-text-muted">
-              Loading calendars...
-            </p>
+            <LoadingState label="Loading calendars..." />
           </div>
         ) : (
           <div className="space-y-4">

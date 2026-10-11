@@ -10,6 +10,7 @@ import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
+import LoadingState from "@/components/ui/LoadingState";
 
 export default function BookingsPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -212,9 +213,9 @@ export default function BookingsPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="py-10 text-center text-sm text-text-muted"
+                        className="text-center"
                       >
-                        Loading bookings from Microsoft Bookings...
+                        <LoadingState label="Loading bookings..." />
                       </td>
                     </tr>
                   )}

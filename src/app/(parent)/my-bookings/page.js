@@ -11,6 +11,7 @@ import ParentSidebar from "@/components/parent/ParentSidebar";
 import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
+import LoadingState from "@/components/ui/LoadingState";
 
 export default function ParentBookingsPage() {
   const { user, loading: authLoading } = useAuth();
@@ -168,9 +169,9 @@ export default function ParentBookingsPage() {
                     <tr>
                       <td
                         colSpan={7}
-                        className="py-10 text-center text-sm text-text-muted"
+                        className="text-center"
                       >
-                        Loading bookings...
+                        <LoadingState label="Loading bookings..." />
                       </td>
                     </tr>
                   )}
