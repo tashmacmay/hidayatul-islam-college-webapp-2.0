@@ -1,8 +1,5 @@
-import { Images } from "lucide-react";
-import { EmptyState, PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
-import FilterButtons from "@/components/public/FilterButtons";
-
-const categories = ["All", "Sport", "Islamic Events", "Academic", "School Events", "Outings"];
+import { PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
+import GalleryGrid from "@/components/public/GalleryGrid";
 
 export default function Gallery() {
   return (
@@ -28,18 +25,8 @@ export default function Gallery() {
             Photos will only be published once the appropriate consent has been obtained. Images containing learners must be handled in accordance with the Protection of Personal Information Act (POPIA).
           </PopiaNote>
 
-          <div className="mt-10 flex flex-wrap justify-center gap-3">
-            <FilterButtons items={categories} className="flex flex-wrap justify-center gap-3" />
-          </div>
-
           <div className="mt-10">
-            <EmptyState
-              icon={<Images className="h-6 w-6" />}
-              title="No gallery photos yet"
-              description="Photos from school events, learning activities, sport, outings and community moments will appear here once they are uploaded by the school."
-              variant="gallery"
-              titleElement="h3"
-            />
+            <GalleryGrid />
           </div>
         </div>
       </section>
