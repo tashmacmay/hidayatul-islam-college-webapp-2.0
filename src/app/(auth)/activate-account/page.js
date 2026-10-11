@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
@@ -135,14 +136,31 @@ export default function ActivateAccountPage() {
        *
        * Firebase automatically generates the UID.
        */
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email.trim(),
-        password
-      );
+      let firebaseUser;
 
-      const firebaseUser = userCredential.user;
+try {
+  // First, try creating a new Firebase account.
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    email.trim(),
+    password
+  );
 
+  firebaseUser = userCredential.user;
+} catch (createError) {
+  // If the Firebase account already exists, sign in instead.
+  if (createError.code !== "auth/email-already-in-use") {
+    throw createError;
+  }
+
+  const signInCredential = await signInWithEmailAndPassword(
+    auth,
+    email.trim(),
+    password
+  );
+
+  firebaseUser = signInCredential.user;
+}
       /*
        * ----------------------------------------------------------------------
        * Step 2:
@@ -235,6 +253,14 @@ export default function ActivateAccountPage() {
             "Email and password accounts are currently unavailable. Please contact an administrator."
           );
           break;
+
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+            setError(
+                "An account may already exist with this email. Please check your password or reset it before trying again."
+            );
+            break;
 
         default:
           setError(
