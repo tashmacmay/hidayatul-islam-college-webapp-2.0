@@ -5,9 +5,15 @@ import { EmptyState } from "@/components/ui/primitives";
 import LoadingState from "@/components/ui/LoadingState";
 import usePublicList from "@/hooks/usePublicList";
 
-export default function ResourceList() {
+export default function ResourceList({ selectedGrade = "All Grades" }) {
   const { visible, filters, active, setActive, loading, error, isEmpty, hasFilters } =
     usePublicList("/api/resources", "resources");
+  const gradeVisible = visible.filter(
+    (resource) =>
+      selectedGrade === "All Grades" ||
+      resource.grade === selectedGrade ||
+      resource.grade === "All Grades"
+  );
 
   return (
     <>
@@ -40,9 +46,9 @@ export default function ResourceList() {
         />
       )}
 
-      {!loading && !error && visible.length > 0 && (
+      {!loading && !error && gradeVisible.length > 0 && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {visible.map((resource) => {
+          {gradeVisible.map((resource) => {
             const href = resource.file_url || resource.youtube_url;
             const content = (
               <>

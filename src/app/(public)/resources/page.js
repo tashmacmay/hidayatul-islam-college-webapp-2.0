@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BookOpen,
   FileText,
@@ -5,11 +7,12 @@ import {
   BookMarked,
   School,
 } from "lucide-react";
+import { useState } from "react";
 import { CtaBanner, PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
 import FilterButtons from "@/components/public/FilterButtons";
 import ResourceList from "@/components/public/ResourceList";
 
-const grades = ["Grade R", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
+const grades = ["All Grades", "Grade R", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
 const includedResources = [
   { icon: FileText, label: "Term overview & schedule" },
@@ -21,6 +24,8 @@ const includedResources = [
 ];
 
 export default function Resources() {
+  const [selectedGrade, setSelectedGrade] = useState("All Grades");
+
   return (
     <>
       <PageHero
@@ -46,7 +51,13 @@ export default function Resources() {
                   Grade-specific materials will appear here once they are uploaded by the school.
                 </p>
 
-                <FilterButtons items={grades} tone="navy" className="mt-6 flex flex-wrap gap-2" />
+                <FilterButtons
+                  items={grades}
+                  value={selectedGrade}
+                  onChange={setSelectedGrade}
+                  tone="navy"
+                  className="mt-6 flex flex-wrap gap-2"
+                />
               </div>
 
               <div className="rounded-xl border border-white/10 bg-white/5 p-6">
@@ -61,7 +72,7 @@ export default function Resources() {
           </div>
 
           <div className="mt-8">
-            <ResourceList />
+            <ResourceList selectedGrade={selectedGrade} />
           </div>
 
           <div className="mt-16">
