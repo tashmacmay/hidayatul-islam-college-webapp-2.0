@@ -79,6 +79,11 @@ export default function StaffSidebar() {
       icon: CalendarDays,
     },
     {
+      name: "Learning Resources",
+      href: "/staff/learning-resources",
+      icon: BookOpen,
+    },
+    {
       name: "School Calendar",
       href: "/staff/calendar",
       icon: CalendarDays,
