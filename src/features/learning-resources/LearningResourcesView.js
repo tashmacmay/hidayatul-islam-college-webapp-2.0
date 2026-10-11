@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
@@ -392,16 +392,14 @@ export default function LearningResourcesView({ role }) {
   // ==========================================================
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(sidebarProps) =>
         role === "parent"
           ? <ParentSidebar {...sidebarProps} />
           : <StaffSidebar {...sidebarProps} />
       }
+      spaceY=""
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
-
           {/* ================================================= */}
           {/* Header */}
           {/* ================================================= */}
@@ -635,8 +633,6 @@ export default function LearningResourcesView({ role }) {
               </section>
             </>
           )}
-        </div>
-      </main>
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

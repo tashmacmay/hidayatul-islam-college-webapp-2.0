@@ -15,7 +15,7 @@ import {
 
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -430,154 +430,9 @@ if (!uploadResponse.ok) {
 // ==========================================================
 
 return (
-  <ResponsiveAppShell
+  <ShellPage
     sidebar={(props) => <StaffSidebar {...props} />}
-  >
-    <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
-
-        {/* ================================================= */}
-        {/* Header */}
-        {/* ================================================= */}
-
-        <PageHeader
-          icon={CalendarDays}
-          portalLabel="Admin Portal"
-          title="Term Calendar Management"
-          subtitle="Manage school calendars by term and grade."
-          action={
-            <button
-              onClick={() => openUploadModal()}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
-            >
-              <Upload size={17} />
-              Upload Calendar
-            </button>
-          }
-        />
-
-        {/* ================================================= */}
-        {/* Messages */}
-        {/* ================================================= */}
-
-        {error && (
-          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-            {success}
-          </div>
-        )}
-
-        {/* ================================================= */}
-        {/* Calendar */}
-        {/* ================================================= */}
-
-        {loading ? (
-          <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-            <LoadingState label="Loading calendars..." />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {TERMS.map((term) => (
-              <section
-                key={term}
-                className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
-              >
-                {/* Term heading */}
-
-                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
-                      <CalendarDays
-                        size={17}
-                        className="text-gold"
-                      />
-                    </div>
-
-                    <div>
-                      <h2 className="text-lg font-bold text-navy">
-                        Term {term}
-                      </h2>
-
-                      <p className="text-xs text-text-muted">
-                        Click a grade to view its calendar.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grade buttons */}
-
-                <div className="p-5">
-                  <div className="flex flex-wrap gap-2">
-                    {GRADES.map((grade) => {
-                      const calendar = getCalendar(
-                        term,
-                        grade
-                      );
-
-                      return (
-                        <button
-                          key={`${term}-${grade}`}
-                          onClick={() => {
-                            if (calendar) {
-                              openViewModal(calendar);
-                            }
-                          }}
-                          disabled={!calendar}
-                          className={`
-                            inline-flex items-center gap-2
-                            rounded-xl border
-                            px-3 py-2
-                            text-xs font-semibold
-                            transition
-                            ${
-                              calendar
-                                ? "border-slate-200 bg-white text-navy hover:border-gold hover:bg-slate-50"
-                                : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
-                            }
-                          `}
-                        >
-                          {calendar ? (
-                            calendar.file_type === "PDF" ? (
-                              <FileText
-                                size={14}
-                                className="text-red-500"
-                              />
-                            ) : (
-                              <ImageIcon
-                                size={14}
-                                className="text-blue-500"
-                              />
-                            )
-                          ) : (
-                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
-                          )}
-
-                          {grade}
-
-                          {calendar && (
-                            <span className="ml-0.5 text-gold">
-                              ✓
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
-      </div>
-    </main>
-
-    {/* ===================================================== */}
+      modals={<>{/* ===================================================== */}
     {/* View Calendar Modal */}
     {/* ===================================================== */}
 
@@ -848,7 +703,148 @@ return (
           </form>
         </div>
       </div>
-    )}
-  </ResponsiveAppShell>
+    )}</>}
+      spaceY="">
+
+        {/* ================================================= */}
+        {/* Header */}
+        {/* ================================================= */}
+
+        <PageHeader
+          icon={CalendarDays}
+          portalLabel="Admin Portal"
+          title="Term Calendar Management"
+          subtitle="Manage school calendars by term and grade."
+          action={
+            <button
+              onClick={() => openUploadModal()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
+            >
+              <Upload size={17} />
+              Upload Calendar
+            </button>
+          }
+        />
+
+        {/* ================================================= */}
+        {/* Messages */}
+        {/* ================================================= */}
+
+        {error && (
+          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-5 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+            {success}
+          </div>
+        )}
+
+        {/* ================================================= */}
+        {/* Calendar */}
+        {/* ================================================= */}
+
+        {loading ? (
+          <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
+            <LoadingState label="Loading calendars..." />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {TERMS.map((term) => (
+              <section
+                key={term}
+                className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+              >
+                {/* Term heading */}
+
+                <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
+                      <CalendarDays
+                        size={17}
+                        className="text-gold"
+                      />
+                    </div>
+
+                    <div>
+                      <h2 className="text-lg font-bold text-navy">
+                        Term {term}
+                      </h2>
+
+                      <p className="text-xs text-text-muted">
+                        Click a grade to view its calendar.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Grade buttons */}
+
+                <div className="p-5">
+                  <div className="flex flex-wrap gap-2">
+                    {GRADES.map((grade) => {
+                      const calendar = getCalendar(
+                        term,
+                        grade
+                      );
+
+                      return (
+                        <button
+                          key={`${term}-${grade}`}
+                          onClick={() => {
+                            if (calendar) {
+                              openViewModal(calendar);
+                            }
+                          }}
+                          disabled={!calendar}
+                          className={`
+                            inline-flex items-center gap-2
+                            rounded-xl border
+                            px-3 py-2
+                            text-xs font-semibold
+                            transition
+                            ${
+                              calendar
+                                ? "border-slate-200 bg-white text-navy hover:border-gold hover:bg-slate-50"
+                                : "cursor-not-allowed border-slate-100 bg-slate-50 text-slate-300"
+                            }
+                          `}
+                        >
+                          {calendar ? (
+                            calendar.file_type === "PDF" ? (
+                              <FileText
+                                size={14}
+                                className="text-red-500"
+                              />
+                            ) : (
+                              <ImageIcon
+                                size={14}
+                                className="text-blue-500"
+                              />
+                            )
+                          ) : (
+                            <span className="h-1.5 w-1.5 rounded-full bg-slate-300" />
+                          )}
+
+                          {grade}
+
+                          {calendar && (
+                            <span className="ml-0.5 text-gold">
+                              ✓
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      
+    </ShellPage>
 );
 }

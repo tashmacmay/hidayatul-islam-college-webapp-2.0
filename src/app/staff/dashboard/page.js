@@ -1,7 +1,7 @@
 "use client";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import DashboardStatCard from "@/components/ui/DashboardStatCard";
 import SectionCard from "@/components/ui/SectionCard";
 import PageHeader from "@/components/ui/PageHeader";
@@ -192,31 +192,27 @@ export default function DashboardPage() {
   // ============================================================
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(sidebarProps) => (
         <StaffSidebar {...sidebarProps} />
       )}
+      spaceY=""
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
+      {/* ==================================================
+          WELCOME HEADER
+          ================================================== */}
 
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
-
-
-          {/* ==================================================
-              WELCOME HEADER
-              ================================================== */}
-
-          <PageHeader
-            icon={LayoutDashboard}
-            portalLabel="Staff Portal"
-            title={`Assalamu Alaikum, ${displayName}`}
-            subtitle="Welcome back. Here's an overview of what's happening at Hidayatul Islam College."
-          />
+      <PageHeader
+        icon={LayoutDashboard}
+        portalLabel="Staff Portal"
+        title={`Assalamu Alaikum, ${displayName}`}
+        subtitle="Welcome back. Here's an overview of what's happening at Hidayatul Islam College."
+      />
 
 
-          {/* ==================================================
-              ERROR MESSAGE
-              ================================================== */}
+      {/* ==================================================
+          ERROR MESSAGE
+          ================================================== */}
 
           {error && (
 
@@ -327,11 +323,7 @@ export default function DashboardPage() {
             </SectionCard>
           </div>
 
-        </div>
-
-      </main>
-
-    </ResponsiveAppShell>
+    </ShellPage>
 
   );
 }

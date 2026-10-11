@@ -13,7 +13,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -206,11 +206,86 @@ export default function SchoolBookingsPage() {
   }
 
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
-    >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
+      modals={<>{showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-8">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-navy">
+                Generate Booking Report
+              </h2>
+
+              <button
+                type="button"
+                onClick={() => setShowReportModal(false)}
+                aria-label="Close"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <form className="space-y-4">
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  From date (optional)
+                </label>
+
+                <input
+                  type="date"
+                  value={reportFrom}
+                  onChange={(e) => setReportFrom(e.target.value)}
+                  className="w-full rounded-lg border p-3"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium">
+                  To date (optional)
+                </label>
+
+                <input
+                  type="date"
+                  value={reportTo}
+                  onChange={(e) => setReportTo(e.target.value)}
+                  className="w-full rounded-lg border p-3"
+                />
+              </div>
+
+              <p className="text-xs text-text-muted">
+                Leave both blank to export all bookings. Dates are
+                interpreted as SAST.
+              </p>
+
+              {reportError && (
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+                  <p className="text-sm text-red-700">{reportError}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadCsv}
+                  disabled={downloading}
+                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 font-semibold text-navy transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <FileSpreadsheet size={18} />
+                  {downloading ? "Downloading…" : "Download CSV"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowReportModal(false)}
+                  className="rounded-lg border px-5 py-3 text-sm text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}</>}>
           {/* Header */}
           <PageHeader
             icon={CalendarDays}
@@ -373,87 +448,7 @@ export default function SchoolBookingsPage() {
               </table>
             </div>
           </BookingsCard>
-        </div>
-      </main>
-
-      {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-8">
-            <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-navy">
-                Generate Booking Report
-              </h2>
-
-              <button
-                type="button"
-                onClick={() => setShowReportModal(false)}
-                aria-label="Close"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-            <form className="space-y-4">
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  From date (optional)
-                </label>
-
-                <input
-                  type="date"
-                  value={reportFrom}
-                  onChange={(e) => setReportFrom(e.target.value)}
-                  className="w-full rounded-lg border p-3"
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-medium">
-                  To date (optional)
-                </label>
-
-                <input
-                  type="date"
-                  value={reportTo}
-                  onChange={(e) => setReportTo(e.target.value)}
-                  className="w-full rounded-lg border p-3"
-                />
-              </div>
-
-              <p className="text-xs text-text-muted">
-                Leave both blank to export all bookings. Dates are
-                interpreted as SAST.
-              </p>
-
-              {reportError && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                  <p className="text-sm text-red-700">{reportError}</p>
-                </div>
-              )}
-
-              <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleDownloadCsv}
-                  disabled={downloading}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 font-semibold text-navy transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <FileSpreadsheet size={18} />
-                  {downloading ? "Downloading…" : "Download CSV"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowReportModal(false)}
-                  className="rounded-lg border px-5 py-3 text-sm text-gray-600 hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </ResponsiveAppShell>
+        
+    </ShellPage>
   );
 }

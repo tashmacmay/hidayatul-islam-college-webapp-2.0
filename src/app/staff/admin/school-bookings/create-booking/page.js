@@ -4,16 +4,14 @@ import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default function CreateBookingPage() {
   return (
-    <ResponsiveAppShell
+    <ShellPage
       sidebar={(props) => <StaffSidebar {...props} />}
     >
-      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
-        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           <PageHeader
             icon={CalendarDays}
             portalLabel="Admin Portal"
@@ -40,8 +38,6 @@ export default function CreateBookingPage() {
               Back to School Bookings
             </Link>
           </div>
-        </div>
-      </main>
-    </ResponsiveAppShell>
+    </ShellPage>
   );
 }

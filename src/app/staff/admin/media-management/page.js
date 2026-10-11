@@ -20,6 +20,7 @@ import {
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ShellPage from "@/components/layout/ShellPage";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -1080,11 +1081,988 @@ const draftMediaItems = activeMediaItems.filter(
 // ============================================================
 
 return (
-  <div className="min-h-screen bg-[#f0f2f7]">
-    <StaffSidebar />
+  <ShellPage
+    sidebar={(props) => <StaffSidebar {...props} />}
+    modals={<>
+        {/* ======================================================
+            NEWS FORM MODAL
+            ====================================================== */}
 
-    <main className="min-h-screen min-w-0 md:ml-[240px]">
-      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+        {showNewsForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
+
+            <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+              {/* HEADER */}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+
+                <div>
+                  <h2 className="text-xl font-bold text-[#0d2260]">
+                    {editingNews
+                      ? "Edit Article"
+                      : "Create Article"}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-[#5a6a82]">
+                    {editingNews
+                      ? "Update the article details."
+                      : "Create a news article or school announcement."}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeNewsForm}
+                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+              </div>
+
+              {/* FORM */}
+              <form
+                onSubmit={handleCreateArticle}
+                noValidate
+                className="max-h-[calc(92vh-90px)] space-y-5 overflow-y-auto px-6 py-6"
+              >
+
+                {/* TITLE */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Title <span className="text-red-500">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    name="title"
+                    value={newsForm.title}
+                    onChange={handleNewsTitleChange}
+                    placeholder="Enter article title"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+                </div>
+
+                {/* SLUG */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Slug <span className="text-red-500">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    name="slug"
+                    value={newsForm.slug}
+                    onChange={handleNewsFormChange}
+                    placeholder="article-url-slug"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    {editingNews
+                      ? "This is used in the article URL."
+                      : "Generated automatically from the title. You can edit it if needed."}
+                  </p>
+                </div>
+
+                {/* CATEGORY */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Category <span className="text-red-500">*</span>
+                  </label>
+
+<select
+  name="category"
+  value={newsForm.category}
+  onChange={handleNewsFormChange}
+  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+>
+  <option value="News">News</option>
+  <option value="Announcements">Announcements</option>
+  <option value="Events">Events</option>
+  <option value="Achievements">Achievements</option>
+  <option value="Islamic Life">Islamic Life</option>
+</select>
+                </div>
+
+                {/* EXCERPT */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Excerpt
+                    <span className="ml-1 font-normal text-gray-400">
+                      (Optional)
+                    </span>
+                  </label>
+
+                  <textarea
+                    name="excerpt"
+                    value={newsForm.excerpt}
+                    onChange={handleNewsFormChange}
+                    rows={3}
+                    placeholder="Short summary of the article"
+                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+                </div>
+
+                {/* CONTENT */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Content <span className="text-red-500">*</span>
+                  </label>
+
+                  <textarea
+                    name="content"
+                    value={newsForm.content}
+                    onChange={handleNewsFormChange}
+                    rows={8}
+                    placeholder="Write the full article here..."
+                    className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+                </div>
+
+                {/* FEATURED IMAGE */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Featured Image
+                    <span className="ml-1 font-normal text-gray-400">
+                      (Optional)
+                    </span>
+                  </label>
+
+                  <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-5">
+
+                    {newsImagePreview ? (
+                      <div className="space-y-4">
+
+                        <div className="overflow-hidden rounded-lg bg-white">
+                          <img
+                            src={newsImagePreview}
+                            alt="Featured image preview"
+                            className="max-h-64 w-full object-contain"
+                          />
+                        </div>
+
+                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                          <Upload className="h-4 w-4" />
+                          Choose a different image
+
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={handleNewsImageChange}
+                            className="hidden"
+                          />
+                        </label>
+
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer flex-col items-center justify-center py-8">
+
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
+                          <ImageIcon className="h-6 w-6" />
+                        </div>
+
+                        <p className="mt-4 text-sm font-semibold text-[#0d2260]">
+                          Choose an image from your computer
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                          PNG, JPG or WEBP • Maximum 10 MB
+                        </p>
+
+                        <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-xs font-semibold text-white">
+                          <Upload className="h-4 w-4" />
+                          Choose Image
+                        </span>
+
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          onChange={handleNewsImageChange}
+                          className="hidden"
+                        />
+
+                      </label>
+                    )}
+
+                  </div>
+
+                  {editingNews &&
+                    !newsImageFile &&
+                    newsForm.featured_image_url && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        The existing featured image will be kept unless
+                        you choose a new image.
+                      </p>
+                    )}
+                </div>
+
+                {/* LEARNER IMAGE */}
+                {(newsImagePreview ||
+                  newsForm.featured_image_url) && (
+                  <div>
+
+                    <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                      Does this image contain learners?{" "}
+                      <span className="text-red-500">*</span>
+                    </label>
+
+                    <select
+                      value={
+                        newsForm.image_contains_learners
+                          ? "yes"
+                          : "no"
+                      }
+                      onChange={(event) => {
+                        const containsLearners =
+                          event.target.value === "yes";
+
+                        setNewsForm((previous) => ({
+                          ...previous,
+                          image_contains_learners:
+                            containsLearners,
+                          consent_confirmed:
+                            containsLearners
+                              ? previous.consent_confirmed
+                              : false,
+                        }));
+
+                        setNewsFormError("");
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                    >
+                      <option value="no">
+                        No — No learners are visible
+                      </option>
+
+                      <option value="yes">
+                        Yes — Learners are visible
+                      </option>
+                    </select>
+
+                    {newsForm.image_contains_learners && (
+                      <div className="mt-3 space-y-3">
+
+                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                          <div className="flex gap-3">
+
+                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+
+                            <div>
+                              <p className="text-sm font-semibold text-amber-900">
+                                Parent/guardian consent required
+                              </p>
+
+                              <p className="mt-1 text-xs leading-5 text-amber-800">
+                                Consent must be confirmed before this
+                                article can be published with the
+                                learner image.
+                              </p>
+                            </div>
+
+                          </div>
+                        </div>
+
+                        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4">
+
+                          <input
+                            type="checkbox"
+                            checked={newsForm.consent_confirmed}
+                            onChange={(event) => {
+                              setNewsForm((previous) => ({
+                                ...previous,
+                                consent_confirmed:
+                                  event.target.checked,
+                              }));
+
+                              setNewsFormError("");
+                            }}
+                            className="mt-1 h-4 w-4 accent-[#0d2260]"
+                          />
+
+                          <span className="text-sm leading-6 text-gray-700">
+                            I confirm that the required
+                            parent/guardian consent has been obtained
+                            for the learners shown in this image.
+
+                            {newsForm.published && (
+                              <span className="ml-1 text-red-500">
+                                *
+                              </span>
+                            )}
+                          </span>
+
+                        </label>
+
+                        {newsForm.consent_confirmed && (
+                          <p className="text-xs font-semibold text-green-700">
+                            ✓ Parent/guardian consent confirmed
+                          </p>
+                        )}
+
+                      </div>
+                    )}
+
+                  </div>
+                )}
+
+                {/* PUBLISH */}
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+
+                  <input
+                    type="checkbox"
+                    name="published"
+                    checked={newsForm.published}
+                    onChange={handleNewsFormChange}
+                    className="mt-1 h-4 w-4 accent-[#0d2260]"
+                  />
+
+                  <span>
+                    <span className="block text-sm font-semibold text-[#0d2260]">
+                      Publish immediately
+                    </span>
+
+                    <span className="mt-1 block text-xs text-[#5a6a82]">
+                      If unchecked, the article will be saved as a
+                      draft.
+                    </span>
+                  </span>
+
+                </label>
+
+                {/* ERROR */}
+                {newsFormError && (
+                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+                    <p>{newsFormError}</p>
+                  </div>
+                )}
+
+                {/* ACTIONS */}
+                <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+
+                  <button
+                    type="button"
+                    onClick={closeNewsForm}
+                    disabled={submitting}
+                    className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="rounded-lg bg-[#0d2260] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0d2260]/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {submitting
+                      ? editingNews
+                        ? "Saving..."
+                        : "Uploading & Creating..."
+                      : editingNews
+                      ? "Save Changes"
+                      : "Create Article"}
+                  </button>
+
+                </div>
+
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================
+            GALLERY FORM MODAL
+            ====================================================== */}
+
+        {showGalleryForm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
+
+            <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+              {/* HEADER */}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+
+                <div>
+                  <h2 className="text-xl font-bold text-[#0d2260]">
+                    {editingGallery
+                      ? "Edit Photo"
+                      : "Upload Photo"}
+                  </h2>
+
+                  <p className="mt-1 text-sm text-[#5a6a82]">
+                    {editingGallery
+                      ? "Update the gallery photo details."
+                      : "Upload a photo to the school gallery."}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={closeGalleryForm}
+                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+              </div>
+
+              {/* FORM */}
+              <form
+                onSubmit={handleUploadPhoto}
+                noValidate
+                className="max-h-[calc(92vh-90px)] space-y-5 overflow-y-auto px-6 py-6"
+              >
+
+                {/* IMAGE */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Image <span className="text-red-500">*</span>
+                  </label>
+
+                  <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-5">
+
+                    {galleryImagePreview ? (
+                      <div className="space-y-4">
+
+                        <div className="overflow-hidden rounded-lg bg-white">
+                          <img
+                            src={galleryImagePreview}
+                            alt="Gallery image preview"
+                            className="max-h-72 w-full object-contain"
+                          />
+                        </div>
+
+                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
+                          <Upload className="h-4 w-4" />
+                          Choose a different image
+
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            onChange={handleGalleryImageChange}
+                            className="hidden"
+                          />
+                        </label>
+
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer flex-col items-center justify-center py-8">
+
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
+                          <ImageIcon className="h-6 w-6" />
+                        </div>
+
+                        <p className="mt-4 text-sm font-semibold text-[#0d2260]">
+                          Choose an image from your computer
+                        </p>
+
+                        <p className="mt-1 text-xs text-gray-500">
+                          PNG, JPG or WEBP • Maximum 10 MB
+                        </p>
+
+                        <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-xs font-semibold text-white">
+                          <Upload className="h-4 w-4" />
+                          Choose Image
+                        </span>
+
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg,image/webp"
+                          onChange={handleGalleryImageChange}
+                          className="hidden"
+                        />
+
+                      </label>
+                    )}
+
+                  </div>
+                </div>
+
+                {/* TITLE */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Title
+                    <span className="ml-1 font-normal text-gray-400">
+                      (Optional)
+                    </span>
+                  </label>
+
+                  <input
+                    type="text"
+                    name="title"
+                    value={galleryForm.title}
+                    onChange={handleGalleryFormChange}
+                    placeholder="Enter a title for the photo"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+                </div>
+
+                {/* CAPTION */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Caption
+                    <span className="ml-1 font-normal text-gray-400">
+                      (Optional)
+                    </span>
+                  </label>
+
+                  <textarea
+                    name="caption"
+                    value={galleryForm.caption}
+                    onChange={handleGalleryFormChange}
+                    rows={3}
+                    placeholder="Add a short description or caption"
+                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+                </div>
+
+                {/* ALT TEXT */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Alt Text <span className="text-red-500">*</span>
+                  </label>
+
+                  <input
+                    type="text"
+                    name="alt_text"
+                    value={galleryForm.alt_text}
+                    onChange={handleGalleryFormChange}
+                    placeholder="Describe the image for accessibility"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  />
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Briefly describe what is shown in the image.
+                  </p>
+                </div>
+
+                {/* CATEGORY */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Category <span className="text-red-500">*</span>
+                  </label>
+
+                  <select
+                    name="category"
+                    value={galleryForm.category}
+                    onChange={handleGalleryFormChange}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  >
+  <option value="News">News</option>
+  <option value="Announcements">Announcements</option>
+  <option value="Events">Events</option>
+  <option value="Achievements">Achievements</option>
+  <option value="Islamic Life">Islamic Life</option>
+                  </select>
+                </div>
+
+                {/* PHOTO TYPE */}
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
+                    Photo Type <span className="text-red-500">*</span>
+                  </label>
+
+                  <select
+                    name="photo_type"
+                    value={galleryForm.photo_type}
+                    onChange={handleGalleryFormChange}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  >
+                    <option value="general">
+                      General — No learners visible
+                    </option>
+
+                    <option value="learners">
+                      Learners — Learners are visible
+                    </option>
+                  </select>
+
+                  <p className="mt-1 text-xs text-gray-400">
+                    Select &quot;Learners&quot; if identifiable learners are
+                    visible in the photograph.
+                  </p>
+                </div>
+
+                {/* LEARNER CONSENT */}
+                {galleryForm.photo_type === "learners" && (
+                  <div className="space-y-3">
+
+                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+                      <div className="flex gap-3">
+
+                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+
+                        <div>
+                          <p className="text-sm font-semibold text-amber-900">
+                            Parent/guardian consent required
+                          </p>
+
+                          <p className="mt-1 text-xs leading-5 text-amber-800">
+                            Parent/guardian consent must be confirmed
+                            before a learner photograph can be
+                            published on the public website.
+                          </p>
+                        </div>
+
+                      </div>
+                    </div>
+
+                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4">
+
+                      <input
+                        type="checkbox"
+                        name="consent_confirmed"
+                        checked={galleryForm.consent_confirmed}
+                        onChange={handleGalleryFormChange}
+                        className="mt-1 h-4 w-4 accent-[#0d2260]"
+                      />
+
+                      <span className="text-sm leading-6 text-gray-700">
+                        I confirm that the required parent/guardian
+                        consent has been obtained for the learners
+                        shown in this photograph.
+
+                        {galleryForm.published && (
+                          <span className="ml-1 text-red-500">
+                            *
+                          </span>
+                        )}
+                      </span>
+
+                    </label>
+
+                    {galleryForm.consent_confirmed && (
+                      <p className="text-xs font-semibold text-green-700">
+                        ✓ Parent/guardian consent confirmed
+                      </p>
+                    )}
+
+                  </div>
+                )}
+
+                {/* PUBLISH */}
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+
+                  <input
+                    type="checkbox"
+                    name="published"
+                    checked={galleryForm.published}
+                    onChange={handleGalleryFormChange}
+                    className="mt-1 h-4 w-4 accent-[#0d2260]"
+                  />
+
+                  <span>
+                    <span className="block text-sm font-semibold text-[#0d2260]">
+                      Publish immediately
+                    </span>
+
+                    <span className="mt-1 block text-xs text-[#5a6a82]">
+                      If unchecked, the photograph will be saved as
+                      a draft and will not appear on the public
+                      gallery.
+                    </span>
+                  </span>
+
+                </label>
+
+                {/* ERROR */}
+                {galleryFormError && (
+                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+                    <p>{galleryFormError}</p>
+                  </div>
+                )}
+
+                {/* ACTIONS */}
+                <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
+
+                  <button
+                    type="button"
+                    onClick={closeGalleryForm}
+                    disabled={submitting}
+                    className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="rounded-lg bg-[#0d2260] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0d2260]/90 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {submitting
+                      ? editingGallery
+                        ? "Saving..."
+                        : "Uploading..."
+                      : editingGallery
+                      ? "Save Changes"
+                      : "Upload Photo"}
+                  </button>
+
+                </div>
+
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================
+            VIEW MODAL
+            ====================================================== */}
+
+        {showViewModal && viewItem && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
+
+            <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+
+              {/* HEADER */}
+              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-[#c9a227]">
+                    Media Management
+                  </p>
+
+                  <h2 className="mt-1 text-xl font-bold text-[#0d2260]">
+                    View{" "}
+                    {viewType === "news"
+                      ? "Article"
+                      : "Photo"}
+                  </h2>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowViewModal(false);
+                    setViewItem(null);
+                    setViewType(null);
+                  }}
+                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+              </div>
+
+              {/* CONTENT */}
+              <div className="max-h-[calc(92vh-90px)] overflow-y-auto p-6">
+
+                {/* NEWS VIEW */}
+                {viewType === "news" ? (
+                  <div className="space-y-6">
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        Title
+                      </p>
+
+                      <h3 className="mt-1 text-2xl font-bold text-[#0d2260]">
+                        {viewItem.title}
+                      </h3>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+
+                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                        {viewItem.category}
+                      </span>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          viewItem.published
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {viewItem.published
+                          ? "Published"
+                          : "Draft"}
+                      </span>
+
+                      {viewItem.featured_image_url &&
+                        viewItem.image_contains_learners && (
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              viewItem.consent_confirmed
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {viewItem.consent_confirmed
+                              ? "Learner consent confirmed"
+                              : "Consent required"}
+                          </span>
+                        )}
+
+                    </div>
+
+                    {viewItem.excerpt && (
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                          Excerpt
+                        </p>
+
+                        <p className="mt-2 text-sm leading-6 text-gray-700">
+                          {viewItem.excerpt}
+                        </p>
+                      </div>
+                    )}
+
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                        Content
+                      </p>
+
+                      <div className="mt-2 whitespace-pre-wrap rounded-xl bg-gray-50 p-5 text-sm leading-7 text-gray-700">
+                        {viewItem.content}
+                      </div>
+                    </div>
+
+                    {viewItem.featured_image_url && (
+                      <div>
+
+                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                          Featured Image
+                        </p>
+
+                        <div className="mt-2 overflow-hidden rounded-xl bg-gray-100">
+                          <img
+                            src={viewItem.featured_image_url}
+                            alt={viewItem.title || ""}
+                            className="max-h-96 w-full object-contain"
+                          />
+                        </div>
+
+                        {viewItem.image_contains_learners && (
+                          <p className="mt-2 text-xs text-gray-500">
+                            This image contains learners.
+                            Consent status:{" "}
+                            {viewItem.consent_confirmed
+                              ? "Confirmed"
+                              : "Not confirmed"}
+                          </p>
+                        )}
+
+                      </div>
+                    )}
+
+                    <div className="grid gap-3 border-t border-gray-100 pt-5 text-xs text-gray-400 sm:grid-cols-2">
+
+                      <p>
+                        <span className="font-semibold text-gray-500">
+                          Slug:
+                        </span>{" "}
+                        {viewItem.slug || "—"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-gray-500">
+                          Created:
+                        </span>{" "}
+                        {formatDate(viewItem.created_at)}
+                      </p>
+
+                    </div>
+
+                  </div>
+                ) : (
+                  /* GALLERY VIEW */
+                  <div className="space-y-6">
+
+                    <div className="overflow-hidden rounded-xl bg-gray-100">
+                      <img
+                        src={viewItem.image_url}
+                        alt={viewItem.alt_text || ""}
+                        className="max-h-[500px] w-full object-contain"
+                      />
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-[#0d2260]">
+                        {viewItem.title || "Untitled photo"}
+                      </h3>
+
+                      {viewItem.caption && (
+                        <p className="mt-2 text-sm leading-6 text-gray-600">
+                          {viewItem.caption}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+
+                      {viewItem.category && (
+                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                          {viewItem.category}
+                        </span>
+                      )}
+
+                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
+                        {viewItem.photo_type === "learners"
+                          ? "Learners visible"
+                          : "General school photo"}
+                      </span>
+
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-medium ${
+                          viewItem.published
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
+                      >
+                        {viewItem.published
+                          ? "Published"
+                          : "Draft"}
+                      </span>
+
+                      {viewItem.photo_type === "learners" && (
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${
+                            viewItem.consent_confirmed
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {viewItem.consent_confirmed
+                            ? "Consent confirmed"
+                            : "Consent not confirmed"}
+                        </span>
+                      )}
+
+                    </div>
+
+                    <div className="grid gap-3 border-t border-gray-100 pt-5 text-xs text-gray-400 sm:grid-cols-2">
+
+                      <p>
+                        <span className="font-semibold text-gray-500">
+                          Alt text:
+                        </span>{" "}
+                        {viewItem.alt_text || "—"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-gray-500">
+                          Uploaded:
+                        </span>{" "}
+                        {formatDate(viewItem.created_at)}
+                      </p>
+
+                    </div>
+
+                  </div>
+                )}
+
+              </div>
+            </div>
+          </div>
+        )}
+
+
+    </>}
+    spaceY=""
+  >
 
         {/* ======================================================
             PAGE HEADER
@@ -1731,983 +2709,6 @@ return (
           </section>
         )}
 
-        {/* ======================================================
-            NEWS FORM MODAL
-            ====================================================== */}
-
-        {showNewsForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
-
-            <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-
-              {/* HEADER */}
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-
-                <div>
-                  <h2 className="text-xl font-bold text-[#0d2260]">
-                    {editingNews
-                      ? "Edit Article"
-                      : "Create Article"}
-                  </h2>
-
-                  <p className="mt-1 text-sm text-[#5a6a82]">
-                    {editingNews
-                      ? "Update the article details."
-                      : "Create a news article or school announcement."}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={closeNewsForm}
-                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-
-              </div>
-
-              {/* FORM */}
-              <form
-                onSubmit={handleCreateArticle}
-                noValidate
-                className="max-h-[calc(92vh-90px)] space-y-5 overflow-y-auto px-6 py-6"
-              >
-
-                {/* TITLE */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Title <span className="text-red-500">*</span>
-                  </label>
-
-                  <input
-                    type="text"
-                    name="title"
-                    value={newsForm.title}
-                    onChange={handleNewsTitleChange}
-                    placeholder="Enter article title"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-                </div>
-
-                {/* SLUG */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Slug <span className="text-red-500">*</span>
-                  </label>
-
-                  <input
-                    type="text"
-                    name="slug"
-                    value={newsForm.slug}
-                    onChange={handleNewsFormChange}
-                    placeholder="article-url-slug"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    {editingNews
-                      ? "This is used in the article URL."
-                      : "Generated automatically from the title. You can edit it if needed."}
-                  </p>
-                </div>
-
-                {/* CATEGORY */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-
-<select
-  name="category"
-  value={newsForm.category}
-  onChange={handleNewsFormChange}
-  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
->
-  <option value="News">News</option>
-  <option value="Announcements">Announcements</option>
-  <option value="Events">Events</option>
-  <option value="Achievements">Achievements</option>
-  <option value="Islamic Life">Islamic Life</option>
-</select>
-                </div>
-
-                {/* EXCERPT */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Excerpt
-                    <span className="ml-1 font-normal text-gray-400">
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <textarea
-                    name="excerpt"
-                    value={newsForm.excerpt}
-                    onChange={handleNewsFormChange}
-                    rows={3}
-                    placeholder="Short summary of the article"
-                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-                </div>
-
-                {/* CONTENT */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Content <span className="text-red-500">*</span>
-                  </label>
-
-                  <textarea
-                    name="content"
-                    value={newsForm.content}
-                    onChange={handleNewsFormChange}
-                    rows={8}
-                    placeholder="Write the full article here..."
-                    className="w-full resize-y rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-                </div>
-
-                {/* FEATURED IMAGE */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Featured Image
-                    <span className="ml-1 font-normal text-gray-400">
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-5">
-
-                    {newsImagePreview ? (
-                      <div className="space-y-4">
-
-                        <div className="overflow-hidden rounded-lg bg-white">
-                          <img
-                            src={newsImagePreview}
-                            alt="Featured image preview"
-                            className="max-h-64 w-full object-contain"
-                          />
-                        </div>
-
-                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
-                          <Upload className="h-4 w-4" />
-                          Choose a different image
-
-                          <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                            onChange={handleNewsImageChange}
-                            className="hidden"
-                          />
-                        </label>
-
-                      </div>
-                    ) : (
-                      <label className="flex cursor-pointer flex-col items-center justify-center py-8">
-
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
-                          <ImageIcon className="h-6 w-6" />
-                        </div>
-
-                        <p className="mt-4 text-sm font-semibold text-[#0d2260]">
-                          Choose an image from your computer
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                          PNG, JPG or WEBP • Maximum 10 MB
-                        </p>
-
-                        <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-xs font-semibold text-white">
-                          <Upload className="h-4 w-4" />
-                          Choose Image
-                        </span>
-
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/jpg,image/webp"
-                          onChange={handleNewsImageChange}
-                          className="hidden"
-                        />
-
-                      </label>
-                    )}
-
-                  </div>
-
-                  {editingNews &&
-                    !newsImageFile &&
-                    newsForm.featured_image_url && (
-                      <p className="mt-2 text-xs text-gray-500">
-                        The existing featured image will be kept unless
-                        you choose a new image.
-                      </p>
-                    )}
-                </div>
-
-                {/* LEARNER IMAGE */}
-                {(newsImagePreview ||
-                  newsForm.featured_image_url) && (
-                  <div>
-
-                    <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                      Does this image contain learners?{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-
-                    <select
-                      value={
-                        newsForm.image_contains_learners
-                          ? "yes"
-                          : "no"
-                      }
-                      onChange={(event) => {
-                        const containsLearners =
-                          event.target.value === "yes";
-
-                        setNewsForm((previous) => ({
-                          ...previous,
-                          image_contains_learners:
-                            containsLearners,
-                          consent_confirmed:
-                            containsLearners
-                              ? previous.consent_confirmed
-                              : false,
-                        }));
-
-                        setNewsFormError("");
-                      }}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                    >
-                      <option value="no">
-                        No — No learners are visible
-                      </option>
-
-                      <option value="yes">
-                        Yes — Learners are visible
-                      </option>
-                    </select>
-
-                    {newsForm.image_contains_learners && (
-                      <div className="mt-3 space-y-3">
-
-                        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                          <div className="flex gap-3">
-
-                            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
-
-                            <div>
-                              <p className="text-sm font-semibold text-amber-900">
-                                Parent/guardian consent required
-                              </p>
-
-                              <p className="mt-1 text-xs leading-5 text-amber-800">
-                                Consent must be confirmed before this
-                                article can be published with the
-                                learner image.
-                              </p>
-                            </div>
-
-                          </div>
-                        </div>
-
-                        <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4">
-
-                          <input
-                            type="checkbox"
-                            checked={newsForm.consent_confirmed}
-                            onChange={(event) => {
-                              setNewsForm((previous) => ({
-                                ...previous,
-                                consent_confirmed:
-                                  event.target.checked,
-                              }));
-
-                              setNewsFormError("");
-                            }}
-                            className="mt-1 h-4 w-4 accent-[#0d2260]"
-                          />
-
-                          <span className="text-sm leading-6 text-gray-700">
-                            I confirm that the required
-                            parent/guardian consent has been obtained
-                            for the learners shown in this image.
-
-                            {newsForm.published && (
-                              <span className="ml-1 text-red-500">
-                                *
-                              </span>
-                            )}
-                          </span>
-
-                        </label>
-
-                        {newsForm.consent_confirmed && (
-                          <p className="text-xs font-semibold text-green-700">
-                            ✓ Parent/guardian consent confirmed
-                          </p>
-                        )}
-
-                      </div>
-                    )}
-
-                  </div>
-                )}
-
-                {/* PUBLISH */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-
-                  <input
-                    type="checkbox"
-                    name="published"
-                    checked={newsForm.published}
-                    onChange={handleNewsFormChange}
-                    className="mt-1 h-4 w-4 accent-[#0d2260]"
-                  />
-
-                  <span>
-                    <span className="block text-sm font-semibold text-[#0d2260]">
-                      Publish immediately
-                    </span>
-
-                    <span className="mt-1 block text-xs text-[#5a6a82]">
-                      If unchecked, the article will be saved as a
-                      draft.
-                    </span>
-                  </span>
-
-                </label>
-
-                {/* ERROR */}
-                {newsFormError && (
-                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                    <p>{newsFormError}</p>
-                  </div>
-                )}
-
-                {/* ACTIONS */}
-                <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
-
-                  <button
-                    type="button"
-                    onClick={closeNewsForm}
-                    disabled={submitting}
-                    className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="rounded-lg bg-[#0d2260] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0d2260]/90 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {submitting
-                      ? editingNews
-                        ? "Saving..."
-                        : "Uploading & Creating..."
-                      : editingNews
-                      ? "Save Changes"
-                      : "Create Article"}
-                  </button>
-
-                </div>
-
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================
-            GALLERY FORM MODAL
-            ====================================================== */}
-
-        {showGalleryForm && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
-
-            <div className="max-h-[92vh] w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-
-              {/* HEADER */}
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-
-                <div>
-                  <h2 className="text-xl font-bold text-[#0d2260]">
-                    {editingGallery
-                      ? "Edit Photo"
-                      : "Upload Photo"}
-                  </h2>
-
-                  <p className="mt-1 text-sm text-[#5a6a82]">
-                    {editingGallery
-                      ? "Update the gallery photo details."
-                      : "Upload a photo to the school gallery."}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={closeGalleryForm}
-                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-
-              </div>
-
-              {/* FORM */}
-              <form
-                onSubmit={handleUploadPhoto}
-                noValidate
-                className="max-h-[calc(92vh-90px)] space-y-5 overflow-y-auto px-6 py-6"
-              >
-
-                {/* IMAGE */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Image <span className="text-red-500">*</span>
-                  </label>
-
-                  <div className="rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 p-5">
-
-                    {galleryImagePreview ? (
-                      <div className="space-y-4">
-
-                        <div className="overflow-hidden rounded-lg bg-white">
-                          <img
-                            src={galleryImagePreview}
-                            alt="Gallery image preview"
-                            className="max-h-72 w-full object-contain"
-                          />
-                        </div>
-
-                        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
-                          <Upload className="h-4 w-4" />
-                          Choose a different image
-
-                          <input
-                            type="file"
-                            accept="image/png,image/jpeg,image/jpg,image/webp"
-                            onChange={handleGalleryImageChange}
-                            className="hidden"
-                          />
-                        </label>
-
-                      </div>
-                    ) : (
-                      <label className="flex cursor-pointer flex-col items-center justify-center py-8">
-
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#0d2260] text-[#c9a227]">
-                          <ImageIcon className="h-6 w-6" />
-                        </div>
-
-                        <p className="mt-4 text-sm font-semibold text-[#0d2260]">
-                          Choose an image from your computer
-                        </p>
-
-                        <p className="mt-1 text-xs text-gray-500">
-                          PNG, JPG or WEBP • Maximum 10 MB
-                        </p>
-
-                        <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-4 py-2.5 text-xs font-semibold text-white">
-                          <Upload className="h-4 w-4" />
-                          Choose Image
-                        </span>
-
-                        <input
-                          type="file"
-                          accept="image/png,image/jpeg,image/jpg,image/webp"
-                          onChange={handleGalleryImageChange}
-                          className="hidden"
-                        />
-
-                      </label>
-                    )}
-
-                  </div>
-                </div>
-
-                {/* TITLE */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Title
-                    <span className="ml-1 font-normal text-gray-400">
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <input
-                    type="text"
-                    name="title"
-                    value={galleryForm.title}
-                    onChange={handleGalleryFormChange}
-                    placeholder="Enter a title for the photo"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-                </div>
-
-                {/* CAPTION */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Caption
-                    <span className="ml-1 font-normal text-gray-400">
-                      (Optional)
-                    </span>
-                  </label>
-
-                  <textarea
-                    name="caption"
-                    value={galleryForm.caption}
-                    onChange={handleGalleryFormChange}
-                    rows={3}
-                    placeholder="Add a short description or caption"
-                    className="w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-                </div>
-
-                {/* ALT TEXT */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Alt Text <span className="text-red-500">*</span>
-                  </label>
-
-                  <input
-                    type="text"
-                    name="alt_text"
-                    value={galleryForm.alt_text}
-                    onChange={handleGalleryFormChange}
-                    placeholder="Describe the image for accessibility"
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  />
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Briefly describe what is shown in the image.
-                  </p>
-                </div>
-
-                {/* CATEGORY */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Category <span className="text-red-500">*</span>
-                  </label>
-
-                  <select
-                    name="category"
-                    value={galleryForm.category}
-                    onChange={handleGalleryFormChange}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  >
-  <option value="News">News</option>
-  <option value="Announcements">Announcements</option>
-  <option value="Events">Events</option>
-  <option value="Achievements">Achievements</option>
-  <option value="Islamic Life">Islamic Life</option>
-                  </select>
-                </div>
-
-                {/* PHOTO TYPE */}
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#0d2260]">
-                    Photo Type <span className="text-red-500">*</span>
-                  </label>
-
-                  <select
-                    name="photo_type"
-                    value={galleryForm.photo_type}
-                    onChange={handleGalleryFormChange}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
-                  >
-                    <option value="general">
-                      General — No learners visible
-                    </option>
-
-                    <option value="learners">
-                      Learners — Learners are visible
-                    </option>
-                  </select>
-
-                  <p className="mt-1 text-xs text-gray-400">
-                    Select "Learners" if identifiable learners are
-                    visible in the photograph.
-                  </p>
-                </div>
-
-                {/* LEARNER CONSENT */}
-                {galleryForm.photo_type === "learners" && (
-                  <div className="space-y-3">
-
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-                      <div className="flex gap-3">
-
-                        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
-
-                        <div>
-                          <p className="text-sm font-semibold text-amber-900">
-                            Parent/guardian consent required
-                          </p>
-
-                          <p className="mt-1 text-xs leading-5 text-amber-800">
-                            Parent/guardian consent must be confirmed
-                            before a learner photograph can be
-                            published on the public website.
-                          </p>
-                        </div>
-
-                      </div>
-                    </div>
-
-                    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4">
-
-                      <input
-                        type="checkbox"
-                        name="consent_confirmed"
-                        checked={galleryForm.consent_confirmed}
-                        onChange={handleGalleryFormChange}
-                        className="mt-1 h-4 w-4 accent-[#0d2260]"
-                      />
-
-                      <span className="text-sm leading-6 text-gray-700">
-                        I confirm that the required parent/guardian
-                        consent has been obtained for the learners
-                        shown in this photograph.
-
-                        {galleryForm.published && (
-                          <span className="ml-1 text-red-500">
-                            *
-                          </span>
-                        )}
-                      </span>
-
-                    </label>
-
-                    {galleryForm.consent_confirmed && (
-                      <p className="text-xs font-semibold text-green-700">
-                        ✓ Parent/guardian consent confirmed
-                      </p>
-                    )}
-
-                  </div>
-                )}
-
-                {/* PUBLISH */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-
-                  <input
-                    type="checkbox"
-                    name="published"
-                    checked={galleryForm.published}
-                    onChange={handleGalleryFormChange}
-                    className="mt-1 h-4 w-4 accent-[#0d2260]"
-                  />
-
-                  <span>
-                    <span className="block text-sm font-semibold text-[#0d2260]">
-                      Publish immediately
-                    </span>
-
-                    <span className="mt-1 block text-xs text-[#5a6a82]">
-                      If unchecked, the photograph will be saved as
-                      a draft and will not appear on the public
-                      gallery.
-                    </span>
-                  </span>
-
-                </label>
-
-                {/* ERROR */}
-                {galleryFormError && (
-                  <div className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-                    <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                    <p>{galleryFormError}</p>
-                  </div>
-                )}
-
-                {/* ACTIONS */}
-                <div className="flex justify-end gap-3 border-t border-gray-200 pt-5">
-
-                  <button
-                    type="button"
-                    onClick={closeGalleryForm}
-                    disabled={submitting}
-                    className="rounded-lg border border-gray-300 px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="rounded-lg bg-[#0d2260] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0d2260]/90 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {submitting
-                      ? editingGallery
-                        ? "Saving..."
-                        : "Uploading..."
-                      : editingGallery
-                      ? "Save Changes"
-                      : "Upload Photo"}
-                  </button>
-
-                </div>
-
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* ======================================================
-            VIEW MODAL
-            ====================================================== */}
-
-        {showViewModal && viewItem && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
-
-            <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-
-              {/* HEADER */}
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#c9a227]">
-                    Media Management
-                  </p>
-
-                  <h2 className="mt-1 text-xl font-bold text-[#0d2260]">
-                    View{" "}
-                    {viewType === "news"
-                      ? "Article"
-                      : "Photo"}
-                  </h2>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowViewModal(false);
-                    setViewItem(null);
-                    setViewType(null);
-                  }}
-                  className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-
-              </div>
-
-              {/* CONTENT */}
-              <div className="max-h-[calc(92vh-90px)] overflow-y-auto p-6">
-
-                {/* NEWS VIEW */}
-                {viewType === "news" ? (
-                  <div className="space-y-6">
-
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                        Title
-                      </p>
-
-                      <h3 className="mt-1 text-2xl font-bold text-[#0d2260]">
-                        {viewItem.title}
-                      </h3>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-
-                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                        {viewItem.category}
-                      </span>
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          viewItem.published
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {viewItem.published
-                          ? "Published"
-                          : "Draft"}
-                      </span>
-
-                      {viewItem.featured_image_url &&
-                        viewItem.image_contains_learners && (
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-medium ${
-                              viewItem.consent_confirmed
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {viewItem.consent_confirmed
-                              ? "Learner consent confirmed"
-                              : "Consent required"}
-                          </span>
-                        )}
-
-                    </div>
-
-                    {viewItem.excerpt && (
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                          Excerpt
-                        </p>
-
-                        <p className="mt-2 text-sm leading-6 text-gray-700">
-                          {viewItem.excerpt}
-                        </p>
-                      </div>
-                    )}
-
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                        Content
-                      </p>
-
-                      <div className="mt-2 whitespace-pre-wrap rounded-xl bg-gray-50 p-5 text-sm leading-7 text-gray-700">
-                        {viewItem.content}
-                      </div>
-                    </div>
-
-                    {viewItem.featured_image_url && (
-                      <div>
-
-                        <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
-                          Featured Image
-                        </p>
-
-                        <div className="mt-2 overflow-hidden rounded-xl bg-gray-100">
-                          <img
-                            src={viewItem.featured_image_url}
-                            alt={viewItem.title || ""}
-                            className="max-h-96 w-full object-contain"
-                          />
-                        </div>
-
-                        {viewItem.image_contains_learners && (
-                          <p className="mt-2 text-xs text-gray-500">
-                            This image contains learners.
-                            Consent status:{" "}
-                            {viewItem.consent_confirmed
-                              ? "Confirmed"
-                              : "Not confirmed"}
-                          </p>
-                        )}
-
-                      </div>
-                    )}
-
-                    <div className="grid gap-3 border-t border-gray-100 pt-5 text-xs text-gray-400 sm:grid-cols-2">
-
-                      <p>
-                        <span className="font-semibold text-gray-500">
-                          Slug:
-                        </span>{" "}
-                        {viewItem.slug || "—"}
-                      </p>
-
-                      <p>
-                        <span className="font-semibold text-gray-500">
-                          Created:
-                        </span>{" "}
-                        {formatDate(viewItem.created_at)}
-                      </p>
-
-                    </div>
-
-                  </div>
-                ) : (
-                  /* GALLERY VIEW */
-                  <div className="space-y-6">
-
-                    <div className="overflow-hidden rounded-xl bg-gray-100">
-                      <img
-                        src={viewItem.image_url}
-                        alt={viewItem.alt_text || ""}
-                        className="max-h-[500px] w-full object-contain"
-                      />
-                    </div>
-
-                    <div>
-                      <h3 className="text-xl font-bold text-[#0d2260]">
-                        {viewItem.title || "Untitled photo"}
-                      </h3>
-
-                      {viewItem.caption && (
-                        <p className="mt-2 text-sm leading-6 text-gray-600">
-                          {viewItem.caption}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-
-                      {viewItem.category && (
-                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                          {viewItem.category}
-                        </span>
-                      )}
-
-                      <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                        {viewItem.photo_type === "learners"
-                          ? "Learners visible"
-                          : "General school photo"}
-                      </span>
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          viewItem.published
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {viewItem.published
-                          ? "Published"
-                          : "Draft"}
-                      </span>
-
-                      {viewItem.photo_type === "learners" && (
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            viewItem.consent_confirmed
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {viewItem.consent_confirmed
-                            ? "Consent confirmed"
-                            : "Consent not confirmed"}
-                        </span>
-                      )}
-
-                    </div>
-
-                    <div className="grid gap-3 border-t border-gray-100 pt-5 text-xs text-gray-400 sm:grid-cols-2">
-
-                      <p>
-                        <span className="font-semibold text-gray-500">
-                          Alt text:
-                        </span>{" "}
-                        {viewItem.alt_text || "—"}
-                      </p>
-
-                      <p>
-                        <span className="font-semibold text-gray-500">
-                          Uploaded:
-                        </span>{" "}
-                        {formatDate(viewItem.created_at)}
-                      </p>
-
-                    </div>
-
-                  </div>
-                )}
-
-              </div>
-            </div>
-          </div>
-        )}
-
-      </div>
-    </main>
-  </div>
+  </ShellPage>
 );
 }

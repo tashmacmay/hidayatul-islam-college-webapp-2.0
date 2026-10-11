@@ -12,7 +12,7 @@ RefreshCw,
 } from "lucide-react";
 
 import ParentSidebar from "@/components/parent/ParentSidebar";
-import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
+import ShellPage from "@/components/layout/ShellPage";
 import { auth } from "@/lib/firebase";
 import DashboardStatCard from "@/components/ui/DashboardStatCard";
 import SectionCard from "@/components/ui/SectionCard";
@@ -239,11 +239,12 @@ const upcomingBookings = bookings.filter(
 // ==========================================================
 
 return (
-<ResponsiveAppShell
+<ShellPage
 sidebar={(sidebarProps) => (
 <ParentSidebar {...sidebarProps} />
 )}
-> <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100"> <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+spaceY=""
+>
 
        {/* ==================================================
           PAGE HEADER
@@ -359,9 +360,7 @@ sidebar={(sidebarProps) => (
         </SectionCard>
       </div>
 
-    </div>
-  </main>
-</ResponsiveAppShell>
+    </ShellPage>
  
 );
 }
