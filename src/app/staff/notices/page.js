@@ -13,14 +13,15 @@ import {
   Trash2,
   ShieldCheck,
   X,
-  Menu,
   CheckCircle,
   Calendar,
   Save,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function NoticeManagementPage() {
   const router = useRouter();
@@ -41,10 +42,6 @@ export default function NoticeManagementPage() {
   const [selectedAction, setSelectedAction] = useState("publish"); // for UI highlight
   const [filterStatus, setFilterStatus] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-
   // Toast helper
   const showToast = (message, type = "success") => {
     setSuccessMessage(message);
@@ -218,36 +215,26 @@ const fetchNotices = useCallback(async () => {
   const modalTitle = editingNotice ? "Edit Notice" : "Compose Notice";
 
   return (
-    <div className="flex min-h-screen bg-off-white">
-      <StaffSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-      <div
-        className={`flex-1 p-8 md:p-10 transition-all duration-300 ${
-          isSidebarOpen ? "ml-0 md:ml-64" : "ml-0"
-        }`}
-      >
-        {!isSidebarOpen && (
-          <button onClick={toggleSidebar} className="mb-4 text-navy md:hidden">
-            <Menu size={28} />
-          </button>
-        )}
-
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
         <div className="space-y-8">
-          {/* Header */}
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm text-text-muted">
-                Create, schedule and manage school notices
-              </p>
-              <h1 className="text-4xl font-bold text-navy">Notices Management</h1>
-            </div>
-            <button
-              onClick={openNewModal}
-              className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy transition hover:opacity-90"
-            >
-              <Plus size={18} />
-              Compose Notice
-            </button>
-          </div>
+          <PageHeader
+            icon={Bell}
+            portalLabel="Staff Portal"
+            title="Notices Management"
+            subtitle="Create, schedule and manage school notices"
+            action={
+              <button
+                onClick={openNewModal}
+                className="flex items-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy transition hover:opacity-90"
+              >
+                <Plus size={18} />
+                Compose Notice
+              </button>
+            }
+          />
 
           {/* Stats */}
           <div className="grid gap-4 md:grid-cols-4">
@@ -383,7 +370,7 @@ const fetchNotices = useCallback(async () => {
             )}
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Floating Toast Notification */}
       {successMessage && (
@@ -573,6 +560,6 @@ const fetchNotices = useCallback(async () => {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }

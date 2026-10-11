@@ -1,20 +1,20 @@
 "use client";
 
-import { CalendarDays, Menu, Plus, X } from "lucide-react";
+import { CalendarDays, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function BookingsPage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -23,10 +23,6 @@ export default function BookingsPage() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("upcoming");
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -135,36 +131,17 @@ export default function BookingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <StaffSidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} />
-
-      <main
-        className={`flex-1 p-6 transition-all duration-300 md:p-8 lg:p-10 ${
-          isSidebarOpen ? "md:ml-64" : "ml-0"
-        }`}
-      >
-        {!isSidebarOpen && (
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            className="mb-6 rounded-lg p-2 text-navy hover:bg-white md:hidden"
-            aria-label="Open sidebar"
-          >
-            <Menu size={28} />
-          </button>
-        )}
-
-        <div className="space-y-8">
-          {/* Header */}
-          <div>
-            <p className="text-sm text-text-muted">
-              View and manage your Microsoft Bookings appointments
-            </p>
-
-            <h1 className="mt-1 text-4xl font-bold text-navy">My Bookings</h1>
-
-            <div className="mt-3 h-1 w-12 rounded-full bg-gold" />
-          </div>
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
+        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
+          <PageHeader
+            icon={CalendarDays}
+            portalLabel="Staff Portal"
+            title="My Bookings"
+            subtitle="View and manage your Microsoft Bookings appointments."
+          />
 
           {/* Error */}
           {error && (
@@ -289,6 +266,6 @@ export default function BookingsPage() {
           </BookingsCard>
         </div>
       </main>
-    </div>
+    </ResponsiveAppShell>
   );
 }

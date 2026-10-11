@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 import { auth } from "@/lib/firebase";
@@ -165,8 +166,6 @@ export default function LearningResourcesManagementPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -181,10 +180,6 @@ export default function LearningResourcesManagementPage() {
 
   const [form, setForm] = useState({ ...emptyForm });
   const [selectedFile, setSelectedFile] = useState(null);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((current) => !current);
-  };
 
   const getAuthHeaders = async () => {
     const currentUser = auth.currentUser;
@@ -634,17 +629,10 @@ const payload = {
   );
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <StaffSidebar
-        isOpen={isSidebarOpen}
-        onToggle={toggleSidebar}
-      />
-
-      <main
-        className={`flex-1 transition-all duration-300 ${
-          isSidebarOpen ? "md:ml-64" : "ml-0"
-        }`}
-      >
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
         {/* Header */}
         <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
         <PageHeader
@@ -1409,7 +1397,7 @@ const payload = {
 
     <p className="mt-1 text-sm text-text-muted">
       Open the document in a new tab to read it. You can
-      download it using the browser's download option.
+      download it using the browser&apos;s download option.
     </p>
 
     <a
@@ -1542,6 +1530,6 @@ const payload = {
         )}
         </div>
       </main>
-    </div>
+    </ResponsiveAppShell>
   );
 }
