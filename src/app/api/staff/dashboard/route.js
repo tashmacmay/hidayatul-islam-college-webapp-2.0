@@ -50,15 +50,14 @@ export async function GET(req) {
       formatParentBooking(booking, staffLookup)
     );
 
-    // Filter to today only.
-    // The formatted booking has `startDateTime` in ISO form.
-    const today = new Date();
-    const todayStr = today.toISOString().slice(0, 10); // "YYYY-MM-DD"
-
-    const bookings = allBookings.filter((b) => {
-      if (!b.startDateTime) return false;
-      return String(b.startDateTime).slice(0, 10) === todayStr;
-    });
+    const now = new Date();
+    const bookings = allBookings
+      .filter((b) => {
+        if (!b.startDateTime) return false;
+        return new Date(b.startDateTime) >= now;
+      })
+      .sort((a, b) => new Date(a.startDateTime) - new Date(b.startDateTime))
+      .slice(0, 5);
 
     console.log(`✅ Found ${bookings.length} bookings for today`);
 

@@ -295,8 +295,8 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <SectionCard
-              title="Today's Bookings"
-              subtitle="Scheduled appointment bookings"
+              title="Upcoming Bookings"
+              subtitle="Your upcoming appointment bookings"
               href="/staff/bookings"
             >
               {loading ? (
