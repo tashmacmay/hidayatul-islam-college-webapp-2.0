@@ -197,7 +197,7 @@ export default function DashboardPage() {
         <StaffSidebar {...sidebarProps} />
       )}
     >
-      <main className="relative min-w-0 flex-1 bg-slate-100">
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
 
         <div className="mx-auto w-full max-w-[1600px] px-6 py-6 md:px-8 md:py-8">
 
@@ -254,9 +254,9 @@ export default function DashboardPage() {
 
             <DashboardStatCard
               icon={<CalendarDays size={21} />}
-              title="Bookings Today"
+              title="Bookings"
               value={loading ? "..." : bookingsToday}
-              subtitle="Scheduled appointments"
+              subtitle="Upcoming appointments"
               href="/staff/bookings"
             />
 
@@ -295,8 +295,8 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-2">
             <SectionCard
-              title="Today's Bookings"
-              subtitle="Scheduled appointment bookings"
+              title="Upcoming Bookings"
+              subtitle="Your upcoming appointment bookings"
               href="/staff/bookings"
             >
               {loading ? (

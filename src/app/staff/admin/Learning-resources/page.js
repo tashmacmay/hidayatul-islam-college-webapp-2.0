@@ -19,6 +19,7 @@ import {
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 import { auth } from "@/lib/firebase";
 
 const emptyForm = {
@@ -640,43 +641,27 @@ const payload = {
       />
 
       <main
-        className={`flex-1 p-6 transition-all duration-300 md:p-8 lg:p-10 ${
+        className={`flex-1 transition-all duration-300 ${
           isSidebarOpen ? "md:ml-64" : "ml-0"
         }`}
       >
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-
-            <div className="mb-1 flex items-center gap-2">
-              <BookOpen
-                size={21}
-                className="text-gold"
-              />
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Admin Portal
-              </span>
-            </div>
-                       <h1 className="mt-1 text-3xl font-bold text-navy md:text-4xl">
-              Learning Resources Management
-            </h1>
-            <p className="text-sm font-medium text-text-muted">
-              Manage learning resources available to
-              learners and parents
-            </p>
-
-
-          </div>
-
-          <button
-            onClick={openCreateModal}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
-          >
-            <Plus className="h-5 w-5" />
-            Add Resource
-          </button>
-        </div>
+        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
+        <PageHeader
+          icon={BookOpen}
+          portalLabel="Admin Portal"
+          title="Learning Resources Management"
+          subtitle="Manage learning resources available to learners and parents"
+          action={
+            <button
+              onClick={openCreateModal}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
+            >
+              <Plus className="h-5 w-5" />
+              Add Resource
+            </button>
+          }
+        />
 
         {/* Alerts outside form */}
         {success && (
@@ -1555,6 +1540,7 @@ const payload = {
             </div>
           </div>
         )}
+        </div>
       </main>
     </div>
   );

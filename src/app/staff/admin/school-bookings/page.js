@@ -16,6 +16,7 @@ import StaffSidebar from "@/components/staff/StaffSidebar";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function SchoolBookingsPage() {
   const [user, setUser] = useState(null);
@@ -207,26 +208,15 @@ export default function SchoolBookingsPage() {
     <div className="flex min-h-screen bg-slate-100">
       <StaffSidebar />
 
-      <main className="flex-1 p-6 transition-all duration-300 md:ml-64 md:p-8 lg:p-10">
-        <div className="space-y-8">
+      <main className="flex-1 transition-all duration-300 md:ml-64">
+        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           {/* Header */}
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Admin
-            </p>
-
-            <h1 className="mt-2 text-4xl font-bold text-navy">
-              School Bookings
-            </h1>
-
-            <div className="mt-4 h-1 w-16 rounded-full bg-gold" />
-
-            <p className="mt-4 max-w-2xl text-text-muted">
-              Manage and monitor all bookings made across the school.
-              Administrators can view appointments, search records,
-              and create bookings on behalf of parents.
-            </p>
-          </div>
+          <PageHeader
+            icon={CalendarDays}
+            portalLabel="Admin Portal"
+            title="School Bookings"
+            subtitle="Manage and monitor all bookings made across the school. Administrators can view appointments, search records, and create bookings on behalf of parents."
+          />
 
           {/* Error */}
           {error && (

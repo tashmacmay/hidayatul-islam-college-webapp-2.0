@@ -4,6 +4,7 @@ import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function CreateBookingPage() {
   return (
@@ -11,23 +12,13 @@ export default function CreateBookingPage() {
       <StaffSidebar />
 
       <main className="flex-1 p-6 transition-all duration-300 md:ml-64 md:p-8 lg:p-10">
-        <div className="space-y-8">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-              Admin
-            </p>
-
-            <h1 className="mt-2 text-4xl font-bold text-navy">
-              Book New Appointment
-            </h1>
-
-            <div className="mt-4 h-1 w-16 rounded-full bg-gold" />
-
-            <p className="mt-4 max-w-2xl text-text-muted">
-              Create a booking on behalf of a parent. The Microsoft
-              Bookings form will be embedded here.
-            </p>
-          </div>
+        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
+          <PageHeader
+            icon={CalendarDays}
+            portalLabel="Admin Portal"
+            title="Book New Appointment"
+            subtitle="Create a booking on behalf of a parent. The Microsoft Bookings form will be embedded here."
+          />
 
           <div className="rounded-xl bg-white p-10 text-center shadow-sm">
             <CalendarDays

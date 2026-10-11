@@ -117,7 +117,7 @@ export default function ResponsiveAppShell({ sidebar, children }) {
           MAIN CONTENT
           ====================================================== */}
 
-<div className="min-w-0 flex-1 md:ml-[240px]">
+<div className="min-w-0 flex-1 md:ml-[240px] min-h-screen flex flex-col">
         {/* Mobile menu button */}
         <button
           type="button"
