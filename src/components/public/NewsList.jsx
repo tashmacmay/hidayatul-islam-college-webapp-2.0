@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import FilterButtons from "@/components/public/FilterButtons";
 import { EmptyState } from "@/components/ui/primitives";
+import LoadingState from "@/components/ui/LoadingState";
+import usePublicList from "@/hooks/usePublicList";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -15,55 +17,12 @@ function formatDate(iso) {
 }
 
 export default function NewsList() {
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [active, setActive] = useState("All");
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      try {
-        const res = await fetch("/api/news");
-        if (!res.ok) {
-          throw new Error(`Request failed with status ${res.status}`);
-        }
-        const data = await res.json();
-        if (!cancelled) setItems(data.news ?? []);
-      } catch (err) {
-        console.error("NEWS LIST FETCH ERROR:", err);
-        if (!cancelled) setError(err.message);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  // Derive filter list from data. "All" always first, then categories A→Z.
-  const filters = useMemo(() => {
-    const categories = new Set();
-    for (const item of items) {
-      if (item.category) categories.add(item.category);
-    }
-    return ["All", ...[...categories].sort()];
-  }, [items]);
-
-  const visible = useMemo(
-    () =>
-      active === "All"
-        ? items
-        : items.filter((n) => n.category === active),
-    [items, active]
-  );
+  const { items, visible, filters, active, setActive, loading, error, isEmpty, hasFilters } =
+    usePublicList("/api/news", "news");
 
   return (
     <>
-      {!loading && !error && filters.length > 1 && (
+      {!loading && !error && hasFilters && (
         <div className="mb-10 flex flex-wrap items-center gap-3">
           <span className="mr-2 text-xs font-semibold text-navy">Filter:</span>
           <FilterButtons
@@ -75,11 +34,7 @@ export default function NewsList() {
         </div>
       )}
 
-      {loading && (
-        <div className="flex justify-center py-10">
-          <p className="text-sm text-text-muted">Loading news…</p>
-        </div>
-      )}
+      {loading && <LoadingState label="Loading news..." />}
 
       {error && !loading && (
         <div className="flex justify-center py-10">
@@ -89,7 +44,7 @@ export default function NewsList() {
         </div>
       )}
 
-      {!loading && !error && visible.length === 0 && (
+      {isEmpty && (
         <div className="mx-auto max-w-4xl">
           <EmptyState
             icon={<span className="text-2xl">+</span>}
@@ -106,32 +61,45 @@ export default function NewsList() {
               key={item.id}
               className="mb-6 break-inside-avoid rounded-xl bg-white p-6 shadow-sm"
             >
-              {item.featured_image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={item.featured_image_url}
-                  alt={item.title}
-                  className="mb-4 h-48 w-full rounded-lg bg-off-white object-cover"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
+              {item.slug ? (
+                <Link href={`/news/${item.slug}`} className="block">
+                  <NewsCardContent item={item} showReadMore />
+                </Link>
+              ) : (
+                <NewsCardContent item={item} />
               )}
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
-                {item.category}
-              </p>
-              <h3 className="mb-2 text-lg font-semibold text-navy">
-                {item.title}
-              </h3>
-              <p className="mb-3 text-xs text-text-muted">
-                {formatDate(item.published_at)}
-              </p>
-              <p className="line-clamp-2 min-h-[2.5rem] text-sm text-text-muted">
-                {item.excerpt || (item.content ?? "").slice(0, 160)}
-              </p>
             </li>
           ))}
         </ul>
+      )}
+    </>
+  );
+}
+
+function NewsCardContent({ item, showReadMore = false }) {
+  return (
+    <>
+      {item.featured_image_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.featured_image_url}
+          alt={item.title}
+          className="mb-4 h-48 w-full rounded-lg bg-off-white object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
+        />
+      )}
+      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
+        {item.category}
+      </p>
+      <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
+      <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
+      <p className="line-clamp-2 min-h-[2.5rem] text-sm text-text-muted">
+        {item.excerpt || (item.content ?? "").slice(0, 160)}
+      </p>
+      {showReadMore && (
+        <p className="mt-3 text-xs font-semibold text-gold">Read more →</p>
       )}
     </>
   );
