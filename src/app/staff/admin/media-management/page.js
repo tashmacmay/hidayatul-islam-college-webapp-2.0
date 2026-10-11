@@ -21,6 +21,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function MediaManagementPage() {
   const [activeSection, setActiveSection] = useState("news");
@@ -1083,33 +1084,18 @@ return (
     <StaffSidebar />
 
     <main className="min-h-screen min-w-0 md:ml-[240px]">
-      <div className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-5 md:px-8 md:py-8">
+      <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
         {/* ======================================================
             PAGE HEADER
             ====================================================== */}
 
-        <div className="mb-6">
-                 <div className="mb-1 flex items-center gap-2">
-              <ImageIcon
-                size={21}
-                className="text-gold"
-              />
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Admin Portal
-              </span>
-            </div>
-
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#0d2260] md:text-3xl">
-            Media Management
-          </h1>
-
-          <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[#5a6a82]">
-            Manage the news, announcements and gallery content
-            displayed on the public website.
-          </p>
-        </div>
+        <PageHeader
+          icon={ImageIcon}
+          portalLabel="Admin Portal"
+          title="Media Management"
+          subtitle="Manage the news, announcements and gallery content displayed on the public website."
+        />
 
         {/* ======================================================
             PAGE MESSAGES

@@ -16,6 +16,7 @@ import {
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 
 const GRADES = [
   "All Grades",
@@ -438,37 +439,21 @@ return (
         {/* Header */}
         {/* ================================================= */}
 
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <CalendarDays
-                size={21}
-                className="text-gold"
-              />
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Admin Portal
-              </span>
-            </div>
-
-            <h1 className="text-2xl font-bold text-navy md:text-3xl">
-              Term Calendar Management
-            </h1>
-
-            <p className="mt-1 text-sm text-text-muted">
-              Manage school calendars by term and grade.
-            </p>
-          </div>
-
-          {/* ONLY upload button */}
-          <button
-            onClick={() => openUploadModal()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
-          >
-            <Upload size={17} />
-            Upload Calendar
-          </button>
-        </div>
+        <PageHeader
+          icon={CalendarDays}
+          portalLabel="Admin Portal"
+          title="Term Calendar Management"
+          subtitle="Manage school calendars by term and grade."
+          action={
+            <button
+              onClick={() => openUploadModal()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gold px-5 py-3 font-semibold text-navy shadow-sm transition hover:opacity-90"
+            >
+              <Upload size={17} />
+              Upload Calendar
+            </button>
+          }
+        />
 
         {/* ================================================= */}
         {/* Messages */}

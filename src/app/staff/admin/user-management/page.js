@@ -22,6 +22,7 @@ import * as XLSX from "xlsx";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function UsersPage() {
   // ============================================================
@@ -500,7 +501,7 @@ export default function UsersPage() {
       ====================================================== */}
 
       <main
-        className={`flex-1 p-6 md:p-8 lg:p-10 transition-all duration-300 ${
+        className={`flex-1 transition-all duration-300 ${
           isSidebarOpen
             ? "md:ml-64"
             : "ml-0"
@@ -516,33 +517,17 @@ export default function UsersPage() {
           </button>
         )}
 
-        <div className="space-y-8">
+        <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
           {/* ==================================================
               HEADER
           ================================================== */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="mb-1 flex items-center gap-2">
-              <Users
-                size={21}
-                className="text-gold"
-              />
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Admin Portal
-              </span>
-            </div>
-
-            <h1 className="text-2xl font-bold text-navy md:text-3xl">
-              User Management
-            </h1>
-
-            <p className="mt-1 text-sm text-text-muted">
-              Manage system users and access.
-            </p>
-          </div>
-
+        <PageHeader
+          icon={Users}
+          portalLabel="Admin Portal"
+          title="User Management"
+          subtitle="Manage system users and access."
+          action={
             <div className="flex flex-col gap-2 sm:flex-row">
 
               <button
@@ -564,8 +549,8 @@ export default function UsersPage() {
               </button>
 
             </div>
-
-          </div>
+          }
+        />
 
           {/* ==================================================
               ALERTS
