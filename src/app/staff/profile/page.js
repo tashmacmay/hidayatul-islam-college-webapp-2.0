@@ -16,6 +16,7 @@ import {
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 
 export default function MyProfilePage() {
   const [user, setUser] = useState(null);
@@ -194,11 +195,11 @@ export default function MyProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[var(--off-white)]">
-        <StaffSidebar />
-
-        <main className="min-h-screen md:ml-[240px]">
-          <div className="mx-auto w-full max-w-[1600px] px-6 py-6 md:px-8 md:py-8">
+      <ResponsiveAppShell
+        sidebar={(props) => <StaffSidebar {...props} />}
+      >
+        <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
+          <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
             <div className="flex min-h-[70vh] items-center justify-center">
               <div className="text-center">
                 <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--navy)]" />
@@ -210,16 +211,16 @@ export default function MyProfilePage() {
             </div>
           </div>
         </main>
-      </div>
+      </ResponsiveAppShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[var(--off-white)]">
-      <StaffSidebar />
-
-      <main className="min-h-screen md:ml-[240px]">
-        <div className="mx-auto w-full max-w-[1200px] px-6 py-6 md:px-8 md:py-8">
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
+        <div className="mx-auto w-full max-w-[1200px] px-5 py-6 md:px-8 md:py-8">
 
           {/* PAGE HEADER */}
           <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -576,6 +577,6 @@ export default function MyProfilePage() {
           )}
         </div>
       </main>
-    </div>
+    </ResponsiveAppShell>
   );
 }

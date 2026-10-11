@@ -9,7 +9,9 @@ import {
   Filter,
 } from "lucide-react";
 import ParentSidebar from "@/components/parent/ParentSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
 import { getAuth } from "firebase/auth";
 import { app } from "@/lib/firebase";
 
@@ -152,36 +154,18 @@ export default function ParentCalendarPage() {
   // ==========================================================
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <ParentSidebar />
-
-      <main className="min-h-screen md:ml-[240px]">
+    <ResponsiveAppShell
+      sidebar={(props) => <ParentSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
         <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
-          {/* ================================================= */}
-          {/* Header */}
-          {/* ================================================= */}
-
-          <div className="mb-6">
-            <div className="mb-1 flex items-center gap-2">
-              <CalendarDays
-                size={21}
-                className="text-gold"
-              />
-
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                Parent Portal
-              </span>
-            </div>
-
-            <h1 className="text-2xl font-bold text-navy md:text-3xl">
-              School Calendar
-            </h1>
-
-            <p className="mt-1 text-sm text-text-muted">
-              View the school calendar by term and grade.
-            </p>
-          </div>
+          <PageHeader
+            icon={CalendarDays}
+            portalLabel="Parent Portal"
+            title="School Calendar"
+            subtitle="View the school calendar by term and grade."
+          />
 
           {/* ================================================= */}
           {/* Filters */}
@@ -514,6 +498,6 @@ export default function ParentCalendarPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }

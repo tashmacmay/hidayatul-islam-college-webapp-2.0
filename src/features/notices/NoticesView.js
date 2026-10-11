@@ -270,7 +270,7 @@ return (
         : <StaffSidebar {...sidebarProps} />
     }
   >
-    <main className="relative min-w-0 flex-1 bg-slate-100">
+    <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
       <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
         {/* ====================================================

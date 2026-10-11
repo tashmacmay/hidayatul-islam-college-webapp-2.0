@@ -13,6 +13,7 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import BookingsCard from "@/components/bookings/BookingsCard";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import { auth } from "@/lib/firebase";
 import BookingsStats from "@/components/bookings/BookingsStats";
 import BookingStatusBadge from "@/components/bookings/BookingStatusBadge";
@@ -205,10 +206,10 @@ export default function SchoolBookingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      <StaffSidebar />
-
-      <main className="flex-1 transition-all duration-300 md:ml-64">
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
+      <main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
         <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8 space-y-8">
           {/* Header */}
           <PageHeader
@@ -453,6 +454,6 @@ export default function SchoolBookingsPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }

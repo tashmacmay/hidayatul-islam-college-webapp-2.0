@@ -12,7 +12,6 @@ import {
   Trash2,
   ShieldCheck,
   X,
-  Menu,
   CheckCircle,
   Calendar,
   Save,
@@ -21,6 +20,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import StaffSidebar from "@/components/staff/StaffSidebar";
+import ResponsiveAppShell from "@/components/layout/ResponsiveAppShell";
 import LoadingState from "@/components/ui/LoadingState";
 import PageHeader from "@/components/ui/PageHeader";
 import { auth } from "@/lib/firebase";
@@ -58,17 +58,6 @@ export default function NoticeManagementPage() {
   const [filterType, setFilterType] = useState("All");
   const [filterGrade, setFilterGrade] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Sidebar
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // =========================================================
-  // Sidebar
-  // =========================================================
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
 
   // =========================================================
   // Toast
@@ -411,33 +400,18 @@ export default function NoticeManagementPage() {
   // =========================================================
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <ResponsiveAppShell
+      sidebar={(props) => <StaffSidebar {...props} />}
+    >
       {/* =====================================================
           Sidebar
       ====================================================== */}
-
-      <StaffSidebar
-        isOpen={isSidebarOpen}
-        onToggle={toggleSidebar}
-      />
 
       {/* =====================================================
           Main Content
       ====================================================== */}
 
-<main
-  className={`flex-1 transition-all duration-300 ${
-    isSidebarOpen ? "md:ml-64" : "ml-0"
-  }`}
->        {/* Mobile sidebar button */}
-        {!isSidebarOpen && (
-          <button
-            onClick={toggleSidebar}
-            className="mb-4 rounded-lg p-2 text-navy transition hover:bg-white md:hidden"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
-        )}
+<main className="relative min-w-0 flex-1 min-h-screen bg-slate-100">
 
         <div className="mx-auto w-full max-w-[1600px] px-5 py-6 md:px-8 md:py-8">
 
@@ -1176,6 +1150,6 @@ export default function NoticeManagementPage() {
           </div>
         </div>
       )}
-    </div>
+    </ResponsiveAppShell>
   );
 }
