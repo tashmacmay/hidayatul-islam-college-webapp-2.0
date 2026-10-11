@@ -12,6 +12,7 @@ import {
   Bell,
   BookOpen,
   Users,
+  Images,
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
@@ -103,7 +104,7 @@ export default function StaffSidebar() {
     {
       name: "Media Management",
       href: "/staff/admin/media-management",
-      icon: CalendarDays,
+      icon: Images,
     },
   ];
 
