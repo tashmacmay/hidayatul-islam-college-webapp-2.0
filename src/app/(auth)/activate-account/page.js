@@ -1,3 +1,5 @@
+// src/app/(auth)/activate-account/page.js
+
 "use client";
 
 import { useState } from "react";
@@ -8,8 +10,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/public/navbar";
+import Footer from "@/components/public/footer";
 import { Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
 
 export default function ActivateAccountPage() {
@@ -30,58 +32,61 @@ export default function ActivateAccountPage() {
    * --------------------------------------------------------------------------
    * Redirect the newly activated user according to their SQL role
    * --------------------------------------------------------------------------
+   *
+   * Mirrors the logic in the login page:
+   *  - Firebase handles authentication
+   *  - Azure SQL determines the application role
+   *  - The Firebase ID token (and UID) is sent to /api/user-role
    */
   const redirectBasedOnRole = async (user) => {
     try {
       const token = await user.getIdToken();
 
-      const response = await fetch("/api/user-role", {
+      const res = await fetch(`/api/user-role?uid=${user.uid}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-
-        throw new Error(
-          errorData.error || "Unable to determine your user role."
-        );
+      if (!res.ok) {
+        let errorMessage = "Unable to determine your user role.";
+        try {
+          const errorData = await res.json();
+          if (errorData?.error) errorMessage = errorData.error;
+        } catch {
+          // Non-JSON response — keep the default message.
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      const data = await res.json();
 
-      /*
-       * Parent
-       */
+      // Parent users
       if (data.role === "parent") {
         router.push("/dashboard");
         return;
       }
 
-      /*
-       * Staff
-       */
+      // Staff users
       if (data.role === "staff") {
         if (data.is_admin) {
           router.push("/staff/notices");
         } else {
           router.push("/staff/dashboard");
         }
-
         return;
       }
 
+      // Unknown role
       throw new Error(
-        "Your account does not have a valid application role."
+        "Your account does not have a valid application role. Please contact an administrator."
       );
     } catch (err) {
       console.error("Role redirect error:", err);
 
       /*
-       * The Firebase account may have been created,
-       * but if the SQL account cannot be resolved,
-       * sign the user back out.
+       * The Firebase account may have been created, but if the SQL
+       * record cannot be resolved, sign the user back out of Firebase.
        */
       await signOut(auth);
 
@@ -107,20 +112,14 @@ export default function ActivateAccountPage() {
     setSuccess("");
     setLoading(true);
 
-    /*
-     * Basic password confirmation
-     */
+    // Basic password confirmation
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       setLoading(false);
       return;
     }
 
-    /*
-     * Firebase requires passwords to meet its password
-     * requirements. We also provide an early client-side
-     * check for a better user experience.
-     */
+    // Early client-side password length check (Firebase also requires 6+)
     if (password.length < 6) {
       setError("Your password must be at least 6 characters long.");
       setLoading(false);
@@ -132,35 +131,31 @@ export default function ActivateAccountPage() {
        * ----------------------------------------------------------------------
        * Step 1:
        * Create the Firebase email/password account.
+       * If the account already exists, sign in instead.
        * ----------------------------------------------------------------------
-       *
-       * Firebase automatically generates the UID.
        */
       let firebaseUser;
 
-try {
-  // First, try creating a new Firebase account.
-  const userCredential = await createUserWithEmailAndPassword(
-    auth,
-    email.trim(),
-    password
-  );
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+        firebaseUser = userCredential.user;
+      } catch (createError) {
+        if (createError.code !== "auth/email-already-in-use") {
+          throw createError;
+        }
 
-  firebaseUser = userCredential.user;
-} catch (createError) {
-  // If the Firebase account already exists, sign in instead.
-  if (createError.code !== "auth/email-already-in-use") {
-    throw createError;
-  }
+        const signInCredential = await signInWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
+        firebaseUser = signInCredential.user;
+      }
 
-  const signInCredential = await signInWithEmailAndPassword(
-    auth,
-    email.trim(),
-    password
-  );
-
-  firebaseUser = signInCredential.user;
-}
       /*
        * ----------------------------------------------------------------------
        * Step 2:
@@ -172,39 +167,39 @@ try {
       /*
        * ----------------------------------------------------------------------
        * Step 3:
-       * Ask the server to link the Firebase account
-       * to the existing SQL Users record.
-       * ----------------------------------------------------------------------
+       * Ask the server to link the Firebase account to the existing
+       * SQL Users record.
        *
        * IMPORTANT:
-       *
-       * We deliberately do NOT send firebaseUser.uid
-       * in the request body.
-       *
-       * The server obtains the UID from the verified
-       * Firebase token.
+       * We deliberately do NOT send firebaseUser.uid in the request body.
+       * The server obtains the UID from the verified Firebase token.
+       * ----------------------------------------------------------------------
        */
       const linkResponse = await fetch("/api/users/link", {
         method: "POST",
-
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      const linkData = await linkResponse.json();
+      // Defensive JSON parsing — never let a non-JSON response crash us.
+      let linkData = {};
+      try {
+        linkData = await linkResponse.json();
+      } catch {
+        linkData = {};
+      }
 
       /*
        * ----------------------------------------------------------------------
        * Step 4:
-       * If linking failed, don't allow the Firebase account
-       * to remain logged in.
+       * If linking failed, don't allow the Firebase account to remain
+       * logged in.
        * ----------------------------------------------------------------------
        */
       if (!linkResponse.ok) {
         await signOut(auth);
-
         throw new Error(
           linkData.error || "Unable to link your account."
         );
@@ -216,7 +211,7 @@ try {
        * Firebase UID has now been linked to SQL.
        * ----------------------------------------------------------------------
        */
-      setSuccess("Your account has been created successfully.");
+      setSuccess("Your account has been activated successfully.");
 
       /*
        * ----------------------------------------------------------------------
@@ -228,9 +223,6 @@ try {
     } catch (err) {
       console.error("Account activation error:", err);
 
-      /*
-       * Firebase error handling
-       */
       switch (err.code) {
         case "auth/email-already-in-use":
           setError(
@@ -257,10 +249,10 @@ try {
         case "auth/invalid-credential":
         case "auth/wrong-password":
         case "auth/user-not-found":
-            setError(
-                "An account may already exist with this email. Please check your password or reset it before trying again."
-            );
-            break;
+          setError(
+            "An account may already exist with this email. Please check your password or reset it before trying again."
+          );
+          break;
 
         default:
           setError(
@@ -441,7 +433,7 @@ try {
                 disabled={loading}
                 className="w-full rounded-lg bg-gold py-3 font-semibold text-navy transition hover:bg-gold-light focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Activating account..." : "Create Account"}
+                {loading ? "Activating account..." : "Activate Account"}
               </button>
             </form>
 
