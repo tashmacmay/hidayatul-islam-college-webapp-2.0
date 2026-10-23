@@ -3,7 +3,11 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { requireAdmin } from "@/lib/auth";
-import { createCanvas } from "canvas";
+//import { createCanvas } from "canvas";
+//TEMPORARY VERCEL BUILD FIX:
+//PDF thumbnail generation is temporarily disabled because pdfjs-dist
+//requires the unavailable "canvas" module in the Vercel build.
+//Revisit PDF thumbnail generation once a Vercel-compatible solution is chosen.
 
 export const runtime = "nodejs";
 
@@ -69,53 +73,56 @@ export async function POST(req) {
     let thumbnailUrl = fileUrl;
 
     // Generate a thumbnail from the first page of a PDF
-if (file.type === "application/pdf") {
-const pdfjs = await import("pdfjs-dist/legacy/build/pdf.js");
+// if (file.type === "application/pdf") {
+// const pdfjs = await import("pdfjs-dist/legacy/build/pdf.js");
 
-pdfjs.GlobalWorkerOptions.workerSrc = path.join(
-  process.cwd(),
-  "public",
-  "pdf.worker.js"
-);
+// pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+//   process.cwd(),
+//   "public",
+//   "pdf.worker.js"
+// );
 
-const pdf = await pdfjs.getDocument({
-  data: new Uint8Array(fileBuffer),
-}).promise;
+// const pdf = await pdfjs.getDocument({
+//   data: new Uint8Array(fileBuffer),
+// }).promise;
 
-  const page = await pdf.getPage(1);
+//   const page = await pdf.getPage(1);
 
-  const viewport = page.getViewport({
-    scale: 1.2,
-  });
+//   const viewport = page.getViewport({
+//     scale: 1.2,
+//   });
 
-  const canvas = createCanvas(
-    Math.ceil(viewport.width),
-    Math.ceil(viewport.height)
-  );
+//   const canvas = createCanvas(
+//     Math.ceil(viewport.width),
+//     Math.ceil(viewport.height)
+//   );
 
-  const context = canvas.getContext("2d");
+//   const context = canvas.getContext("2d");
 
-  await page.render({
-    canvasContext: context,
-    viewport,
-  }).promise;
+//   await page.render({
+//     canvasContext: context,
+//     viewport,
+//   }).promise;
 
-  const thumbnailFilename = `${fileId}-thumb.png`;
+//   const thumbnailFilename = `${fileId}-thumb.png`;
 
-  const thumbnailPath = path.join(
-    uploadDirectory,
-    thumbnailFilename
-  );
+//   const thumbnailPath = path.join(
+//     uploadDirectory,
+//     thumbnailFilename
+//   );
 
-  const thumbnailBuffer = canvas.toBuffer("image/png");
+//   const thumbnailBuffer = canvas.toBuffer("image/png");
 
-  await writeFile(
-    thumbnailPath,
-    thumbnailBuffer
-  );
+//   await writeFile(
+//     thumbnailPath,
+//     thumbnailBuffer
+//   );
 
-  thumbnailUrl = `/uploads/resources/${thumbnailFilename}`;
-}
+//   thumbnailUrl = `/uploads/resources/${thumbnailFilename}`;
+// }
+// TEMPORARY VERCEL BUILD FIX:
+// Skip PDF thumbnail generation. The original PDF remains the resource URL.
+// Re-enable this functionality once a Vercel-compatible renderer is implemented.
 
     return NextResponse.json({
       success: true,
