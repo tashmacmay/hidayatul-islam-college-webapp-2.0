@@ -1,10 +1,50 @@
 import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/ui/primitives";
 
 const contactRows = [
-  { icon: "⌖", title: "Address", content: <p className="mt-1 text-sm leading-6 text-gray-600">Hidayatul Islam College<br />Cape Town, South Africa</p> },
-  { icon: "☎", title: "Phone", content: <a href="tel:+27000000000" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">+27 21 593 7544</a> },
-  { icon: "✉", title: "Email", content: <a href="mailto:info@hidayatulislamcollege.co.za" className="mt-1 block text-sm text-gray-600 transition hover:text-gold">hislaam@telkomsa.net</a> },
-  { icon: "◷", title: "School Hours", content: <p className="mt-1 text-sm leading-6 text-gray-600">Monday – Friday<br />School hours vary by phase.</p> },
+  {
+    icon: "⌖",
+    title: "Address",
+    content: (
+      <p className="mt-1 text-sm leading-6 text-gray-600">
+        Corner of Second Avenue and Tenth Street<br />
+        Kensington, Cape Town<br />
+        South Africa
+      </p>
+    ),
+  },
+  {
+    icon: "☎",
+    title: "Phone",
+    content: (
+      <div className="mt-1 space-y-1 text-sm text-gray-600">
+        <a href="tel:+27215937544" className="block transition hover:text-gold">021 593 7544</a>
+        <a href="tel:+27215936423" className="block transition hover:text-gold">021 593 6423</a>
+      </div>
+    ),
+  },
+  {
+    icon: "✉",
+    title: "Email",
+    content: (
+      <div className="mt-1 text-sm leading-6 text-gray-600">
+        <a href="mailto:hidayatulprimary@gmail.com" className="block transition hover:text-gold">hidayatulprimary@gmail.com</a>
+        <p className="mt-3 font-semibold text-navy">Principal &amp; Chief Operations Officer contact</p>
+        <p>Mr J. Alexander — Principal<br />Mrs A. Fridie — Chief Operations Officer</p>
+        <a href="mailto:afridie@hidayatulprimary.co.za" className="block transition hover:text-gold">afridie@hidayatulprimary.co.za</a>
+      </div>
+    ),
+  },
+  {
+    icon: "◷",
+    title: "School Starting & Dismissal Times",
+    content: (
+      <div className="mt-1 text-sm leading-6 text-gray-600">
+        <p>Monday–Thursday: All grades start at 07:45.</p>
+        <p>Dismissal: Grade R 13:15; Grades 1–2 13:40; Grade 3 14:00; Grades 4–7 15:00.</p>
+        <p>Friday: All grades dismiss at 12:00.</p>
+      </div>
+    ),
+  },
 ];
 
 export default function Contact() {
@@ -46,7 +86,7 @@ export default function Contact() {
                 <p className="mt-6 text-sm font-semibold uppercase tracking-[3px] text-gold">Find Us</p>
                 <h3 className="mt-3 text-base font-semibold text-navy">Hidayatul Islam College</h3>
                 <p className="mt-3 max-w-sm text-sm leading-6 text-gray-600">Find our campus and get directions using Google Maps.</p>
-                <a href="https://www.google.com/maps/search/?api=1&query=Hidayatul+Islam+College" target="_blank" rel="noopener noreferrer" className="mt-7 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-navy transition hover:opacity-90">Open in Google Maps</a>
+                <a href="https://www.google.com/maps/search/?api=1&query=Corner+of+Second+Avenue+and+Tenth+Street%2C+Kensington%2C+Cape+Town" target="_blank" rel="noopener noreferrer" className="mt-7 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-navy transition hover:opacity-90">Open in Google Maps</a>
               </div>
             </div>
           </div>
@@ -81,7 +121,7 @@ export default function Contact() {
 
       <CtaBanner
         title="Ready to be part of the HIC family?"
-        actions={[{ label: "Email Us", href: "mailto:hislaam@telkomsa.net", variant: "primary" }]}
+        actions={[{ label: "Email Us", href: "mailto:hidayatulprimary@gmail.com", variant: "primary" }]}
       />
 
     </>

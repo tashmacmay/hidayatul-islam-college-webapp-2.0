@@ -1,4 +1,4 @@
-import { IconCard, PageHero, SectionHeader, StatStrip } from "@/components/ui/primitives";
+import { PageHero, SectionHeader, StatStrip } from "@/components/ui/primitives";
 import {
   BookOpen,
   HeartHandshake,
@@ -10,34 +10,16 @@ import {
 
 const schoolHistory = [
   {
-    year: "1982",
-    title: "The School is Founded",
-    description: "Hidayatul Islam College opens its doors in Kensington, Cape Town, established by community members with a vision to provide Islamic education alongside a quality academic curriculum.",
+    year: "1999",
+    title: "The School Opens",
+    description: "Hidayatul Islam College officially opened with 14 Grade 1 learners.",
     side: "left",
   },
   {
-    year: "1990s",
-    title: "Growth & Community Roots",
-    description: "The school grows steadily through the 1990s, deepening its ties with the Kensington Muslim community and expanding its learner population.",
+    year: "2005",
+    title: "Grades R–7",
+    description: "As the learners progressed and grades were added, the school became a fully fledged primary school offering Grades R to 7.",
     side: "right",
-  },
-  {
-    year: "2000s",
-    title: "Curriculum Alignment",
-    description: "Formal alignment with the South African Department of Education curriculum while maintaining a strong Islamic educational foundation.",
-    side: "left",
-  },
-  {
-    year: "2010s",
-    title: "Facilities & Staff Development",
-    description: "Investment in infrastructure, sports facilities, learning resources and educator development programmes.",
-    side: "right",
-  },
-  {
-    year: "Today",
-    title: "Digital & Community Expansion",
-    description: "Embracing technology, strengthening parent communication and continuing to grow as a vibrant educational community.",
-    side: "left",
   },
 ];
 
@@ -51,53 +33,41 @@ const schoolImages = [
 
 const leadership = [
   {
-    initials: "AF",
-    name: "Mrs. Ayesha Fridie",
+    initials: "JA",
+    name: "Mr J. Alexander",
     role: "Principal",
-    description: "Leading Hidayatul Islam College with vision, compassion and a deep commitment to every learner’s potential.",
   },
   {
-    initials: "DH",
-    name: "Deputy Principal",
-    role: "Academic Leadership",
-    description: "Overseeing curriculum development, staff coordination and academic standards across all grades.",
-  },
-  {
-    initials: "AS",
-    name: "Admin & Support Staff",
-    role: "Office & Operations",
-    description: "Ensuring the school runs smoothly for learners, parents and staff every day.",
+    initials: "AF",
+    name: "Mrs A. Fridie",
+    role: "Chief Operations Officer",
   },
 ];
 
 const schoolValues = [
-  "Taqwa — God-consciousness",
-  "Ilm — Love of learning",
-  "Adab — Respect & good character",
-  "Khidmah — Service to community",
-  "Ihsan — Excellence in all things",
-  "Ukhuwwah — Brotherhood & sisterhood",
+  "Self-respect",
+  "Self-discipline",
+  "Honesty",
+  "Kindness",
+  "Integrity",
+  "Leadership",
+  "Compassion",
+  "Thankfulness and gratefulness",
+  "Responsibility",
 ];
 
 const schoolStats = [
-  { title: "40+", text: "Years of Service" },
-  { title: "R–7", text: "Grades Offered" },
-  { title: "100%", text: "Dept. of Ed. Compliant" },
-  { title: "Cape Town", text: "Kensington Community" },
+  { title: "Opened 1999", text: "Kensington" },
+  { title: "Grades R–7", text: "Primary School" },
+  { title: "Co-educational", text: "CAPS Curriculum" },
+  { title: "WCED-registered", text: "Independent Entity" },
 ];
 
 const communityHighlights = [
-  { icon: BookOpen, title: "Integrated Curriculum", description: "National curriculum enriched with Islamic studies, Arabic and Quran." },
-  { icon: Users, title: "Parent Partnership", description: "Open communication, school events and strong family involvement." },
-  { icon: Star, title: "Holistic Excellence", description: "Academic, spiritual, sporting and cultural development." },
-  { icon: MapPin, title: "Rooted In Kensington", description: "Proudly serving our local community for more than 40 years." },
-];
-
-const accreditations = [
-  "Western Cape Education Department",
-  "Dept. of Basic Education Registered",
-  "POPIA Compliant",
-  "Independent Schools Association",
+  { icon: BookOpen, title: "Integrated Curriculum", description: "A coeducational school following the CAPS curriculum with an integrated Islamic syllabus." },
+  { icon: Users, title: "Parent Partnership", description: "The booklet emphasizes cooperation between parents and teachers and parent involvement in school activities." },
+  { icon: Star, title: "Holistic Development", description: "The school's aims include learners' academic, economic, social, religious, cultural and sporting development." },
+  { icon: MapPin, title: "Kensington Location", description: "Corner of 10th Street and 2nd Avenue, Kensington." },
 ];
 
 export default function About() {
@@ -109,7 +79,7 @@ export default function About() {
         imageAlt="Hidayatul Islam College"
         breadcrumb="About Us"
         title={<>About <span className="text-gold">Our School</span></>}
-        description="A community of learners, educators, and families united by faith, knowledge, and a shared commitment to excellence since 1982."
+        description="A faith-based, coeducational primary school in Kensington, offering Grades R–7 and registered with the Western Cape Education Department."
       />
 
       <section className="section-shell--white px-6 py-24 md:px-10 md:py-28">
@@ -123,20 +93,20 @@ export default function About() {
             />
 
             <p className="mt-8 body-copy">
-              Hidayatul Islam College is an independent Islamic primary school serving the Kensington community in Cape Town.
+              Hidayatul Islam College is an independent, faith-based community institution registered with the Western Cape Education Department as an Independent Entity. The school is located on the corner of 10th Street and 2nd Avenue in Kensington.
             </p>
             <p className="mt-6 body-copy">
-              Established in 1982, we have spent over four decades nurturing learners who are academically confident, morally grounded, and ready for the world.
+              The coeducational primary school offers Grades R to 7 and follows the CAPS curriculum with an integrated Islamic syllabus.
             </p>
             <p className="mt-6 body-copy">
-              We offer a balanced education that integrates the South African national curriculum with Islamic studies and values, ensuring that every learner develops a strong sense of identity, purpose, and responsibility.
+              Foundational learning focuses on reading, writing and arithmetic, alongside Islamic studies and the development of learners&apos; character.
             </p>
           </div>
 
           <div className="card-navy p-10 text-center">
             <p className="text-2xl text-gold">علم نور</p>
             <h3 className="mt-6 text-lg font-semibold">“Knowledge is Light”</h3>
-            <p className="mt-4 text-blue-200">School Motto · Est. 1982</p>
+            <p className="mt-4 text-blue-200">Foundational Learning · Character · Faith</p>
           </div>
         </div>
       </section>
@@ -145,7 +115,7 @@ export default function About() {
         <div className="mx-auto max-w-7xl">
           <SectionHeader
             label="Our Foundation"
-            title="Mission, Vision & Values"
+            title="Our Aims & Values"
             className="mb-8 text-center"
             variant="centered--tight"
           />
@@ -153,23 +123,23 @@ export default function About() {
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="rounded-2xl border border-navy/10 bg-navy p-8 text-white shadow-md">
               <BookOpen className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold">Our Mission</h3>
+              <h3 className="mt-5 text-base font-semibold">Holistic Development</h3>
               <p className="mt-4 text-sm leading-7 text-blue-100">
-                To provide a nurturing, values-driven educational environment that empowers every learner to achieve academic excellence and grow into a person of strong character, guided by the principles of Islam.
+                The school aims to develop holistic people rooted in Godliness, with positive interpersonal relationships and a positive approach to life’s challenges.
               </p>
             </div>
 
             <div className="rounded-2xl border border-gold/30 bg-gold-pale p-8 shadow-md">
               <HeartHandshake className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold text-navy">Our Vision</h3>
+              <h3 className="mt-5 text-base font-semibold text-navy">Developing Learner Potential</h3>
               <p className="mt-4 text-sm leading-7 text-gray-600">
-                To be a leading centre of holistic learning in the Western Cape where faith and knowledge illuminate every learner&apos;s path.
+                The school aims to develop learners’ full potential academically, economically, socially, religiously, culturally and on the sports field.
               </p>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-md">
               <Star className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold text-navy">Our Values</h3>
+              <h3 className="mt-5 text-base font-semibold text-navy">Values & Character</h3>
               <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-600">
                 {schoolValues.map((value) => <li key={value}>{value}</li>)}
               </ul>
@@ -184,8 +154,8 @@ export default function About() {
         <div className="mx-auto max-w-5xl">
           <SectionHeader
             label="Our Story"
-            title="A Legacy of Learning"
-            description="From humble beginnings in Kensington to a fully accredited primary school, our journey reflects the dedication of an entire community."
+            title="School History"
+            description="The school opened in 1999 with 14 Grade 1 learners and expanded to offer Grades R to 7 by 2005."
             variant="centered--roomy"
           />
 
@@ -230,91 +200,21 @@ export default function About() {
           <SectionHeader
             label="Our People"
             title="School Leadership"
-            description="Our dedicated leadership team works tirelessly to ensure every learner thrives academically, spiritually, and socially."
+            description="School leadership includes Mr J. Alexander, Principal, and Mrs A. Fridie, Chief Operations Officer."
             variant="centered"
           />
 
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
             {leadership.map((person) => (
               <div key={person.initials} className="card-person">
                 <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold">{person.initials}</div>
                 <h3 className="mt-5 text-base font-semibold text-navy">{person.name}</h3>
                 <p className="mt-2 font-medium text-gold">{person.role}</p>
-                <p className="mt-3 text-sm leading-6 text-gray-600">{person.description}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
-
-{/* Principal Message */}
-
-<section className="section-shell section-shell--navy">
-
-  <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-2 lg:items-center">
-
-    <div>
-
-      <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-gold bg-white text-4xl font-bold text-navy">
-        AF
-      </div>
-
-      <h3 className="mt-8 text-lg font-semibold text-gold">
-        Mrs. Ayesha Fridie
-      </h3>
-
-      <p className="mt-2 text-blue-200">
-        Principal, Hidayatul Islam College
-      </p>
-
-      <ul className="mt-6 rounded-xl border border-white/10 bg-white/5 p-5 text-sm leading-7 text-blue-100">
-        <li>• BEd (Primary Education)</li>
-        <li>• Advanced Certificate in School Leadership</li>
-        <li>• Over 20 years in education</li>
-        <li>• Community-rooted educator</li>
-      </ul>
-
-    </div>
-
-    <div>
-
-      <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">
-        A Message From The Principal
-      </p>
-
-      <h2 className="mt-3 text-xl font-bold leading-tight md:text-2xl">
-        A Word from
-        <span className="block text-gold">
-          Mrs. Fridie
-        </span>
-      </h2>
-
-      <blockquote className="mt-8 rounded-r-xl border-l-4 border-gold bg-white/5 px-6 py-5 text-base italic leading-7 text-blue-100">
-        “At Hidayatul Islam College, we believe every child carries a light
-        within them. Our role is to help that light shine — through knowledge,
-        values, and a community that truly cares.”
-      </blockquote>
-
-      <p className="mt-8 leading-8 text-blue-100">
-        Bismillah. Welcome to Hidayatul Islam College, a school that has served
-        the Kensington community with pride and dedication for over four decades.
-      </p>
-
-      <p className="mt-6 leading-8 text-blue-100">
-        We are an independent Islamic primary school where academic achievement
-        goes hand in hand with character, compassion and faith.
-      </p>
-
-      <p className="mt-6 leading-8 text-blue-100">
-        Together, we are raising the next generation of thinkers, leaders and
-        believers. May Allah bless our collective efforts.
-      </p>
-
-    </div>
-
-  </div>
-
-</section>
 
 {/* Community & Culture */}
 
@@ -332,15 +232,11 @@ export default function About() {
         />
 
       <p className="mt-8 leading-8 text-gray-600">
-        Hidayatul Islam College has always been more than a place of learning.
-        We are a community — a family of educators, parents and learners
-        committed to growing together.
+        Hidayatul Islam College is a faith-based community institution that encourages cooperation between parents and teachers and parent involvement in school activities.
       </p>
 
       <p className="mt-6 leading-8 text-gray-600">
-        From our annual sports day to Islamic awareness programmes, parent
-        evenings and outreach initiatives, we create spaces where relationships
-        are formed and values are lived out.
+        The school’s aims include developing positive relationships, a constructive role in communities, and each learner’s full potential.
       </p>
 
     </div>
@@ -363,31 +259,29 @@ export default function About() {
 
 </section>
 
-{/* Accreditation */}
+{/* Registration */}
 
 <section className="section-shell section-shell--gold-pale">
 
   <div className="mx-auto max-w-5xl text-center">
 
     <SectionHeader
-      label="Accreditation & Affiliation"
-      title="Recognised & Accredited"
+      label="Registration"
+      title="Independent School Registered with WCED"
       className="text-center"
     />
 
     <p className="mx-auto mt-6 max-w-3xl leading-8 text-gray-600">
-      Hidayatul Islam College meets all requirements of the Western Cape
-      Education Department and remains committed to excellence.
+      Hidayatul Islam College is registered with the Western Cape Education
+      Department as an Independent Entity.
     </p>
 
     <div className="mt-10 flex flex-wrap justify-center gap-3">
 
-      {accreditations.map((name) => (
-        <div key={name} className="badge-outline">
-          <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
-          {name}
-        </div>
-      ))}
+      <div className="badge-outline">
+        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
+        Western Cape Education Department
+      </div>
 
     </div>
 

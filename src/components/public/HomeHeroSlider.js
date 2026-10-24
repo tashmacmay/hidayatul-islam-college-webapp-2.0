@@ -52,7 +52,7 @@ export default function HomeHeroSlider() {
           </div>
 
           <div className="mb-8 inline-block rounded-full border border-gold/40 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[2px] text-gold">
-            Est. 1982 - Kensington, Cape Town
+            Opened 1999 - Kensington, Cape Town
           </div>
 
           <h2 className="font-serif text-3xl font-bold leading-tight md:text-[42px]">
@@ -61,9 +61,9 @@ export default function HomeHeroSlider() {
           </h2>
 
           <p className="mt-6 max-w-lg text-sm leading-7 text-blue-100">
-            An independent community primary school rooted in Islamic values,
-            dedicated to academic excellence and holistic development from
-            Grade R to Grade 7.
+            An independent, coeducational primary school in Kensington, Cape
+            Town, offering Grades R-7. We follow the CAPS curriculum with an
+            integrated Islamic syllabus.
           </p>
 
           <div className="mt-8 flex gap-4">
