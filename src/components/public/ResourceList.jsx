@@ -46,6 +46,13 @@ export default function ResourceList({ selectedGrade = "All Grades" }) {
         />
       )}
 
+      {!loading && !error && !isEmpty && gradeVisible.length === 0 && (
+        <EmptyState
+          title="No resources available for this grade"
+          description="No resources are currently available for the selected grade."
+        />
+      )}
+
       {!loading && !error && gradeVisible.length > 0 && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {gradeVisible.map((resource) => {

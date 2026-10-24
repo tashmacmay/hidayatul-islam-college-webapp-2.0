@@ -9,90 +9,84 @@ import {
   ScrollText,
 } from "lucide-react";
 
-const grades = {
-  "Grade R": {
-    phase: "Foundation Phase",
-    age: "5–6",
-    description:
-      "Grade R introduces learners to structured learning through play, creativity, early literacy and numeracy development.",
-  },
-
-  "Grade 1": {
-    phase: "Foundation Phase",
-    age: "6–7",
-    description:
-      "Grade 1 marks the start of formal reading, writing and arithmetic while building confidence and independence.",
-  },
-
-  "Grade 2": {
-    phase: "Foundation Phase",
-    age: "7–8",
-    description:
-      "Grade 2 strengthens literacy, numeracy and critical thinking through engaging classroom activities.",
-  },
-
-  "Grade 3": {
-    phase: "Foundation Phase",
-    age: "8–9",
-    description:
-      "Grade 3 prepares learners for the Intermediate Phase while developing problem-solving and communication skills.",
-  },
-
-  "Grade 4": {
-    phase: "Intermediate Phase",
-    age: "9–10",
-    description:
-      "Grade 4 introduces more independent learning, expanded subject content and analytical thinking.",
-  },
-
-  "Grade 5": {
-    phase: "Intermediate Phase",
-    age: "10–11",
-    description:
-      "Grade 5 develops deeper understanding across subjects while encouraging responsibility and leadership.",
-  },
-
-  "Grade 6": {
-    phase: "Intermediate Phase",
-    age: "11–12",
-    description:
-      "Grade 6 focuses on critical thinking, research skills and preparation for senior primary learning.",
-  },
-
-  "Grade 7": {
-    phase: "Senior Primary",
-    age: "12–13",
-    description:
-      "Grade 7 prepares learners academically, socially and spiritually for the transition into high school.",
-  },
+const gradePhases = {
+  "Grade R": "foundation",
+  "Grade 1": "foundation",
+  "Grade 2": "foundation",
+  "Grade 3": "foundation",
+  "Grade 4": "intermediate",
+  "Grade 5": "intermediate",
+  "Grade 6": "intermediate",
+  "Grade 7": "grade7",
 };
 
-const subjects = [
-  {
-    icon: <BookOpen className="h-5 w-5 text-gold" />,
-    name: "Home Language",
-  },
-  {
-    icon: <Languages className="h-5 w-5 text-gold" />,
-    name: "First Additional Language",
-  },
-  {
-    icon: <Calculator className="h-5 w-5 text-gold" />,
-    name: "Mathematics",
-  },
-  {
-    icon: <HeartHandshake className="h-5 w-5 text-gold" />,
-    name: "Life Skills",
-  },
-  {
-    icon: <BookOpen className="h-5 w-5 text-gold" />,
-    name: "Islamic Studies",
-  },
-  {
-    icon: <ScrollText className="h-5 w-5 text-gold" />,
-    name: "Quran & Arabic",
-  },
-];
+const gradeDescriptions = {
+  "Grade R":
+    "Grade R introduces learners to structured learning through play, creativity, early literacy and numeracy development.",
+  "Grade 1":
+    "Grade 1 marks the start of formal reading, writing and arithmetic while building confidence and independence.",
+  "Grade 2":
+    "Grade 2 strengthens literacy, numeracy and critical thinking through engaging classroom activities.",
+  "Grade 3":
+    "Grade 3 prepares learners for the Intermediate Phase while developing problem-solving and communication skills.",
+  "Grade 4":
+    "Grade 4 introduces more independent learning, expanded subject content and analytical thinking.",
+  "Grade 5":
+    "Grade 5 develops deeper understanding across subjects while encouraging responsibility and leadership.",
+  "Grade 6":
+    "Grade 6 focuses on critical thinking, research skills and preparation for senior primary learning.",
+  "Grade 7":
+    "Grade 7 prepares learners academically, socially and spiritually for the transition into high school.",
+};
+
+const phaseSubjects = {
+  foundation: [
+    "Literacy",
+    "Numeracy",
+    "Mathematics",
+    "Life Skills",
+    "Islamic Studies",
+    "Art",
+  ],
+  intermediate: [
+    "English Home Language",
+    "Afrikaans First Additional Language",
+    "Mathematics",
+    "Natural Science and Technology",
+    "Social Science",
+    "Personal and Social Well-being (including Physical Education, Life Skills and Creative Arts)",
+    "Islamic Studies",
+    "Art",
+  ],
+  grade7: [
+    "English Home Language",
+    "Afrikaans First Additional Language",
+    "Mathematics",
+    "Natural Science",
+    "Technology",
+    "Economic and Management Science",
+    "Social Science",
+    "Creative Arts",
+    "Life Orientation",
+    "Islamic Studies",
+    "Art",
+  ],
+};
+
+const phaseNames = {
+  foundation: "Foundation Phase",
+  intermediate: "Intermediate Phase",
+  grade7: "Grade 7",
+};
+
+function subjectIcon(subject) {
+  const className = "h-5 w-5 text-gold";
+  if (/English|Afrikaans|Literacy/.test(subject)) return <Languages className={className} />;
+  if (/Mathematics|Numeracy/.test(subject)) return <Calculator className={className} />;
+  if (/Life Skills|Well-being/.test(subject)) return <HeartHandshake className={className} />;
+  if (/Islamic Studies|Art/.test(subject)) return <BookOpen className={className} />;
+  return <ScrollText className={className} />;
+}
 
 export default function GradeExplorer() {
   const [selectedGrade, setSelectedGrade] = useState("Grade 1");
@@ -112,15 +106,14 @@ export default function GradeExplorer() {
           <div className="mx-auto mt-5 h-1 w-20 rounded-full bg-gold" />
 
           <p className="mx-auto mt-6 max-w-3xl leading-8 text-gray-600">
-            Select a grade to see the focus areas, learning approach and
-            subjects offered at each level.
+            Select a grade to view the subjects listed for its phase.
           </p>
         </div>
 
         {/* Grade Filters */}
 
         <div className="mt-12 flex flex-wrap justify-center gap-3">
-          {Object.keys(grades).map((grade) => (
+          {Object.keys(gradePhases).map((grade) => (
             <button
               key={grade}
               onClick={() => setSelectedGrade(grade)}
@@ -141,36 +134,28 @@ export default function GradeExplorer() {
         <div className="mt-14 grid gap-8 lg:grid-cols-2">
           <div className="rounded-3xl bg-navy p-10 text-white shadow-xl">
             <span className="rounded-full bg-gold px-4 py-2 text-xs font-bold text-navy">
-              {grades[selectedGrade].phase}
+              {phaseNames[gradePhases[selectedGrade]]}
             </span>
 
             <h3 className="mt-6 text-4xl font-bold">
               {selectedGrade}
             </h3>
 
-            <p className="mt-2 text-gold font-medium">
-              Ages {grades[selectedGrade].age}
-            </p>
-
             <p className="mt-8 leading-8 text-blue-100">
-              {grades[selectedGrade].description}
+              {gradeDescriptions[selectedGrade]}
             </p>
 
             <div className="mt-10 flex flex-wrap gap-3">
               <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Academic Excellence
+                Reading
               </span>
 
               <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Character Building
+                Writing
               </span>
 
               <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Islamic Values
-              </span>
-
-              <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Holistic Growth
+                Arithmetic
               </span>
             </div>
           </div>
@@ -183,15 +168,15 @@ export default function GradeExplorer() {
             </h3>
 
             <div className="mt-8 grid gap-4 md:grid-cols-2">
-              {subjects.map((subject) => (
+              {phaseSubjects[gradePhases[selectedGrade]].map((subject) => (
                 <div
-                  key={subject.name}
+                  key={subject}
                   className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition hover:bg-gold/10"
                 >
-                  {subject.icon}
+                  {subjectIcon(subject)}
 
                   <span className="font-medium text-navy">
-                    {subject.name}
+                    {subject}
                   </span>
                 </div>
               ))}

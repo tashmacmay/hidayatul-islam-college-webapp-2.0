@@ -3,57 +3,45 @@ import {
   BookOpen,
   HeartHandshake,
   Languages,
-  MapPin,
   ShieldCheck,
   Star,
   Users,
 } from "lucide-react";
 import GradeExplorer from "@/components/public/GradeExplorer";
 
-const nationalSubjects = [
-  "Home Language (English / Afrikaans)",
-  "First Additional Language",
-  "Mathematics",
-  "Life Skills / Social Sciences",
-  "Natural Sciences & Technology",
-  "Economic & Management Sciences",
-];
-
-const islamicSubjects = [
-  "Islamic Studies (Fiqh, Aqeedah, Seerah)",
-  "Quran Recitation & Memorisation",
-  "Arabic Language",
-  "Islamic History & Ethics",
-  "Du'a and Salah",
+const foundationalLearning = [
+  "Reading",
+  "Writing",
+  "Arithmetic",
 ];
 
 const islamicTopics = [
-  { icon: BookOpen, title: "Quran Recitation & Hifz", description: "Daily Quran lessons focus on Tajweed, understanding and memorisation." },
-  { icon: ShieldCheck, title: "Aqeedah & Fiqh", description: "Foundational Islamic theology and jurisprudence for everyday life." },
-  { icon: Star, title: "Seerah & Islamic History", description: "Inspiring lessons from the life of the Prophet ﷺ and Islamic civilisation." },
-  { icon: Languages, title: "Arabic Language", description: "Reading, writing and conversational Arabic taught progressively." },
-  { icon: HeartHandshake, title: "Akhlaq & Character", description: "Islamic ethics and good character integrated into daily school life." },
-  { icon: MapPin, title: "Salah & Daily Practice", description: "Practical worship, du'a and daily Islamic habits reinforced throughout the school day." },
+  { icon: BookOpen, title: "Fiqh" },
+  { icon: ShieldCheck, title: "Islamic History" },
+  { icon: HeartHandshake, title: "Adaab & Akhlaaq" },
+  { icon: Users, title: "Masnoon/Daily duahs" },
+  { icon: Star, title: "Selective Surah Reading" },
 ];
 
-const teachingApproaches = [
-  { number: "01", title: "Differentiated Instruction", description: "Our educators plan lessons that meet learners where they are, adapting teaching strategies to ensure every child can thrive." },
-  { number: "02", title: "Values-Integrated Learning", description: "Islamic values are woven throughout the curriculum, shaping character alongside academic growth." },
-  { number: "03", title: "Active & Collaborative Learning", description: "Learners participate through discussion, teamwork, projects, presentations and hands-on activities." },
-  { number: "04", title: "Parent & Community Partnership", description: "We work closely with parents to support every learner's educational journey both at school and at home." },
+const educationalAims = [
+  { number: "01", title: "Foundational Learning", description: "The booklet emphasizes reading, writing and arithmetic." },
+  { number: "02", title: "CAPS and Islamic Syllabus", description: "The school follows the secular CAPS curriculum with an integrated Islamic syllabus." },
+  { number: "03", title: "Holistic Development", description: "The school's aims include learners' academic, economic, social, religious, cultural and sporting development." },
+  { number: "04", title: "Character and Relationships", description: "The booklet describes developing learners rooted in Godliness, with positive relationships and a positive approach to life's challenges." },
 ];
 
 const languageCards = [
-  { icon: "🇿🇦", title: "English", subtitle: "Home Language / FAL", description: "English serves as the primary language of learning and teaching, developing strong reading, writing and communication skills." },
-  { icon: "🇿🇦", title: "Afrikaans", subtitle: "First Additional Language", description: "Afrikaans is offered as a First Additional Language, recognising its importance in our local context." },
-  { icon: "🕌", title: "Arabic", subtitle: "Islamic & Quran Studies", description: "Arabic is taught from Grade R as both a language of worship and a gateway to understanding the Quran." },
+  { icon: "📖", title: "Literacy", subtitle: "Foundation Phase · Grades R–3", description: "Listed as a Foundation Phase subject." },
+  { icon: "🇬🇧", title: "English Home Language", subtitle: "Intermediate and Grade 7", description: "Listed for Grades 4–6 and Grade 7." },
+  { icon: "🇿🇦", title: "Afrikaans First Additional Language", subtitle: "Intermediate and Grade 7", description: "Listed for Grades 4–6 and Grade 7." },
 ];
 
-const assessmentMethods = [
-  { icon: BookOpen, title: "Continuous Assessment (CASS)", description: "Projects, class activities, oral tasks and written work contribute to term marks." },
-  { icon: ShieldCheck, title: "Formal Examinations", description: "Mid-year and end-of-year examinations prepare learners for future academic success." },
-  { icon: Users, title: "Term Reports", description: "Four comprehensive reports are issued annually with opportunities for parent consultations." },
-  { icon: HeartHandshake, title: "Islamic Studies Assessment", description: "Quran recitation, Islamic Studies tests and character development form part of our holistic assessment approach." },
+const learnerSupport = [
+  { icon: BookOpen, title: "Early Identification", description: "Teachers identify learning difficulties and barriers to progress early." },
+  { icon: HeartHandshake, title: "Individual and Small-Group Support", description: "Support may include individual attention and small-group or one-to-one intervention." },
+  { icon: Languages, title: "Literacy and Numeracy", description: "Intervention can reinforce foundational literacy and numeracy skills." },
+  { icon: Users, title: "Monitoring and Parent Partnership", description: "Progress is monitored, and parents are kept informed and involved." },
+  { icon: Star, title: "Further Referral", description: "Referral for further assessment or specialised support may be considered when necessary." },
 ];
 
 export default function Academics() {
@@ -65,7 +53,7 @@ export default function Academics() {
         imageAlt="Academics"
         breadcrumb="Academics"
         title={<>Our <span className="text-gold">Academics</span></>}
-        description="A balanced, enriching curriculum that combines the South African national programme with Islamic studies, preparing every learner for life in all its dimensions."
+        description="A coeducational primary school offering Grades R–7, following the secular CAPS curriculum with an integrated Islamic syllabus."
       />
 
       <section className="section-shell section-shell--white">
@@ -79,27 +67,22 @@ export default function Academics() {
             />
 
             <p className="mt-8 body-copy">
-              At Hidayatul Islam College, we follow the South African national curriculum as prescribed by the Department of Basic Education, offering the full Grades R through 7 programme.
+              Hidayatul Islam College is coeducational and offers Grades R to 7. The school follows the secular CAPS curriculum with an integrated Islamic syllabus.
             </p>
             <p className="mt-6 body-copy">
-              This is enriched by a comprehensive Islamic studies curriculum, ensuring our learners develop academically and spiritually in equal measure.
-            </p>
-            <p className="mt-6 body-copy">
-              We believe that excellence in secular knowledge and excellence in Islamic knowledge are not in competition — they are two wings of the same bird.
+              The booklet emphasizes the foundations of learning: reading, writing and arithmetic.
             </p>
           </div>
 
           <div className="card-navy p-8 md:p-10">
-            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">National Curriculum (CAPS)</p>
-            <h3 className="mt-4 text-lg font-semibold">DoE-Registered Subjects</h3>
+            <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">Foundational Learning</p>
+            <h3 className="mt-4 text-lg font-semibold">The 3 Rs</h3>
 
-            <SubjectList items={nationalSubjects} />
+            <SubjectList items={foundationalLearning} />
 
             <div className="mt-10 border-t border-white/20 pt-8">
-              <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">Islamic Enrichment</p>
-              <h3 className="mt-4 text-lg font-semibold">Faith & Character Subjects</h3>
-
-              <SubjectList items={islamicSubjects} />
+              <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">Curriculum</p>
+              <h3 className="mt-4 text-lg font-semibold">CAPS with an Integrated Islamic Syllabus</h3>
             </div>
           </div>
         </div>
@@ -111,21 +94,19 @@ export default function Academics() {
         <div className="mx-auto max-w-6xl">
           <SectionHeader
             label="Faith & Knowledge"
-            title="Islamic Studies Programme"
-            description="Our Islamic curriculum runs alongside the national programme from Grade R to Grade 7, nurturing learners who are grounded in their faith and equipped for the world."
+            title="Islamic Syllabus Topics"
+            description="The booklet lists the following topics within its Islamic Studies syllabus."
             variant="onNavy"
           />
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {islamicTopics.map(({ icon: Icon, title, description }) => (
+            {islamicTopics.map(({ icon: Icon, title }) => (
               <IconCard
                 key={title}
                 icon={<Icon className="h-5 w-5 text-gold" />}
                 title={title}
                 variant="dark"
-              >
-                <p className="mt-3 text-sm leading-6 text-blue-100">{description}</p>
-              </IconCard>
+              />
             ))}
           </div>
         </div>
@@ -136,14 +117,14 @@ export default function Academics() {
           <div className="text-center">
             <SectionHeader
               label="How We Teach"
-              title="Our Teaching Philosophy"
-              description="We draw on evidence-based pedagogical approaches and Islamic educational traditions to create classrooms where every learner is seen, heard, and challenged."
+              title="Educational Aims"
+              description="The booklet describes foundational learning, holistic development and character as part of the school's educational aims."
               variant="centered"
             />
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2">
-            {teachingApproaches.map((item) => (
+            {educationalAims.map((item) => (
               <div key={item.number} className="card-soft">
                 <span className="text-2xl font-bold text-gold/30">{item.number}</span>
                 <h3 className="mt-3 text-base font-semibold text-navy">{item.title}</h3>
@@ -158,9 +139,9 @@ export default function Academics() {
         <div className="mx-auto max-w-6xl">
           <div className="text-center">
             <SectionHeader
-              label="Language of Learning"
-              title="Languages at HIC"
-              description="We honour the multilingual identities of our learners while providing strong foundations in English, Afrikaans and Arabic."
+              label="Subjects by Phase"
+              title="Literacy and Languages"
+              description="The booklet lists literacy in Foundation Phase, and English Home Language and Afrikaans First Additional Language in Grades 4–7."
               variant="centered"
             />
           </div>
@@ -185,18 +166,18 @@ export default function Academics() {
         <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
           <div>
             <SectionHeader
-              label="How We Track Progress"
-              title="Assessment & Reporting"
+              label="Learner Support"
+              title="Learning Intervention"
               className="text-left"
               variant="left"
             />
-            <p className="mt-8 body-copy">Assessment at Hidayatul Islam College is continuous, formative, and designed to support learning — not just measure it.</p>
-            <p className="mt-6 body-copy">We follow CAPS assessment requirements while also tracking learners&apos; growth in Islamic character, leadership and personal development.</p>
-            <p className="mt-6 body-copy">Parents receive regular progress reports and have opportunities to engage directly with teachers throughout the year.</p>
+            <p className="mt-8 body-copy">The school aims to identify learning difficulties and barriers to progress early, then provide appropriate support.</p>
+            <p className="mt-6 body-copy">Support may include individual attention, small-group or one-to-one intervention, and reinforcement of foundational literacy and numeracy.</p>
+            <p className="mt-6 body-copy">Teachers monitor progress and work with parents. Further assessment or specialised support may be referred to when necessary.</p>
           </div>
 
           <div className="space-y-3">
-            {assessmentMethods.map(({ icon: Icon, title, description }) => (
+            {learnerSupport.map(({ icon: Icon, title, description }) => (
               <IconCard
                 key={title}
                 icon={<Icon className="h-5 w-5 text-navy" />}
@@ -214,20 +195,18 @@ export default function Academics() {
         <div className="mx-auto max-w-6xl">
           <SectionHeader
             label="Beyond the Classroom"
-            title="Extramural & Enrichment Activities"
-            description="Learning doesn&apos;t stop at the classroom door. We provide opportunities that develop the whole child."
+            title="Sport & Co-Curricular Activities"
+            description="The booklet describes school sports and co-curricular activities, including educational outings."
             variant="centered"
           />
 
           <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {[
-              "Sport",
-              "Creative Arts",
-              "Maths Olympiad",
-              "Reading Programme",
-              "Community Service",
-              "Digital Literacy",
-              "Quran Recitation",
+              "Athletics",
+              "Soccer",
+              "Tag Rugby",
+              "Swimming",
+              "Co-Curricular Activities",
               "Educational Outings",
             ].map((item) => (
               <div key={item} className="rounded-xl border border-gray-200 bg-off-white p-5 text-center shadow-sm transition hover:border-gold/40 hover:shadow-md">

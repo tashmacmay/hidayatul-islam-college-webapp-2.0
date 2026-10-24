@@ -31,25 +31,20 @@ export default function NewsArticlePage() {
           `/api/news/${encodeURIComponent(slug)}`
         );
 
-        const data = await response.json();
-
-        console.log("ARTICLE PAGE RESPONSE:", data);
-
         if (!response.ok) {
-          throw new Error(
-            data.error || "Failed to load the news article."
-          );
+          setError(response.status === 404 ? "not-found" : "unavailable");
+          return;
         }
+
+        const data = await response.json();
+        console.log("ARTICLE PAGE RESPONSE:", data);
 
         // The API returns:
         // { news: { ...article } }
         setArticle(data.news);
       } catch (error) {
         console.error("Failed to fetch news article:", error);
-
-        setError(
-          error.message || "Failed to load the news article."
-        );
+        setError("unavailable");
       } finally {
         setLoading(false);
       }
@@ -81,6 +76,8 @@ export default function NewsArticlePage() {
   // ============================================================
 
   if (error || !article) {
+    const articleNotFound = error === "not-found" || (!error && !article);
+
     return (
       <main className="min-h-screen bg-[#f8f9fc]">
         <div className="mx-auto max-w-4xl px-6 py-20 text-center">
@@ -89,11 +86,15 @@ export default function NewsArticlePage() {
           </div>
 
           <h1 className="text-3xl font-bold text-[#0d2260]">
-            Article not found
+            {articleNotFound
+              ? "Article not found"
+              : "Unable to load this article right now."}
           </h1>
 
           <p className="mx-auto mt-3 max-w-lg text-[#5a6a82]">
-            {error || "This news article could not be found."}
+            {articleNotFound
+              ? "This news article could not be found."
+              : "Please try again later."}
           </p>
 
           <Link
