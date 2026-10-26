@@ -834,7 +834,7 @@ export default function NoticeManagementPage() {
                   </th>
 
                   <th className="w-[14%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
-                    Date
+                    Last Edited
                   </th>
 
                   <th className="w-[12%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
@@ -874,9 +874,9 @@ export default function NoticeManagementPage() {
                     </td>
 
                     <td className="px-4 py-4 text-sm text-text">
-                      {notice.created_at
-                        ? new Date(notice.created_at).toLocaleDateString()
-                        : "-"}
+                      {notice.updated_at
+                        ? new Date(notice.updated_at).toLocaleDateString()
+                        : "—"}
                     </td>
 
                     <td className="px-4 py-4">
