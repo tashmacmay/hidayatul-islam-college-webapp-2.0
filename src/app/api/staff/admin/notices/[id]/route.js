@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
 import { requireAdmin } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
@@ -13,19 +12,17 @@ export async function GET(req, { params }) {
 
     const id = Number(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query(`
+    const result = await pool.query(
+      `
         SELECT
           id,
           title,
@@ -37,11 +34,13 @@ export async function GET(req, { params }) {
           created_by_uid,
           created_at,
           updated_at
-        FROM dbo.Notices
-        WHERE id = @id
-      `);
+        FROM "dbo"."Notices"
+        WHERE id = $1
+      `,
+      [id]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }
@@ -49,7 +48,7 @@ export async function GET(req, { params }) {
     }
 
     return NextResponse.json({
-      notice: result.recordset[0],
+      notice: result.rows[0],
     });
   } catch (error) {
     console.error("GET notice error:", error);
@@ -69,7 +68,7 @@ export async function PUT(req, { params }) {
 
     const id = Number(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -129,46 +128,44 @@ export async function PUT(req, { params }) {
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .input("title", sql.NVarChar(255), title.trim())
-      .input("category", sql.NVarChar(50), category.trim())
-      .input("content", sql.NVarChar(sql.MAX), content.trim())
-      .input("recipients", sql.NVarChar(100), recipients.trim())
-      .input("status", sql.NVarChar(20), status)
-      .input(
-        "scheduled_for",
-        sql.DateTime,
-        scheduled_for ? new Date(scheduled_for) : null
-      )
-      .query(`
-        UPDATE dbo.Notices
+    const result = await pool.query(
+      `
+        UPDATE "dbo"."Notices"
         SET
-          title = @title,
-          category = @category,
-          content = @content,
-          recipients = @recipients,
-          status = @status,
-          scheduled_for = @scheduled_for,
-          updated_at = GETDATE()
-        OUTPUT
-          INSERTED.id,
-          INSERTED.title,
-          INSERTED.category,
-          INSERTED.content,
-          INSERTED.recipients,
-          INSERTED.status,
-          INSERTED.scheduled_for,
-          INSERTED.created_by_uid,
-          INSERTED.created_at,
-          INSERTED.updated_at
-        WHERE id = @id
-      `);
+          title = $1,
+          category = $2,
+          content = $3,
+          recipients = $4,
+          status = $5,
+          scheduled_for = $6,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $7
+        RETURNING
+          id,
+          title,
+          category,
+          content,
+          recipients,
+          status,
+          scheduled_for,
+          created_by_uid,
+          created_at,
+          updated_at
+      `,
+      [
+        title.trim(),
+        category.trim(),
+        content.trim(),
+        recipients.trim(),
+        status,
+        scheduled_for ? new Date(scheduled_for) : null,
+        id,
+      ]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }
@@ -177,7 +174,7 @@ export async function PUT(req, { params }) {
 
     return NextResponse.json({
       message: "Notice updated successfully",
-      notice: result.recordset[0],
+      notice: result.rows[0],
     });
   } catch (error) {
     console.error("PUT notice error:", error);
@@ -197,26 +194,25 @@ export async function DELETE(req, { params }) {
 
     const id = Number(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query(`
-        DELETE FROM dbo.Notices
-        OUTPUT
-          DELETED.id
-        WHERE id = @id
-      `);
+    const result = await pool.query(
+      `
+        DELETE FROM "dbo"."Notices"
+        WHERE id = $1
+        RETURNING id
+      `,
+      [id]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }
