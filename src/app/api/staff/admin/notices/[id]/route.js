@@ -4,17 +4,29 @@ import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
+// Validate the notice ID used by GET, PUT, and DELETE.
+function getValidNoticeId(rawId) {
+  if (!/^\d+$/.test(String(rawId))) {
+    return null;
+  }
+
+  const id = Number(rawId);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return null;
+  }
+
+  return id;
+}
+
 // GET /api/staff/admin/notices/[id]
 export async function GET(req, { params }) {
   try {
     await requireAdmin(req);
 
-    const id = Number(params.id);
-      if (
-        !/^\d+$/.test(String(params.id)) ||
-        !Number.isSafeInteger(id) ||
-        id < 1
-      ) {
+    const id = getValidNoticeId(params.id);
+
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -32,7 +44,11 @@ export async function GET(req, { params }) {
           content,
           grade,
           status,
-          TO_CHAR(scheduled_for, 'YYYY-MM-DD HH24:MI:SS') AS scheduled_for,
+          TO_CHAR(
+            scheduled_for,
+            'YYYY-MM-DD HH24:MI:SS'
+          ) AS scheduled_for,
+          published_at,
           created_by_uid,
           created_at,
           updated_at
@@ -49,7 +65,9 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ notice: result.rows[0] });
+    return NextResponse.json({
+      notice: result.rows[0],
+    });
   } catch (error) {
     console.error("GET notice error:", error);
 
@@ -65,9 +83,9 @@ export async function PUT(req, { params }) {
   try {
     await requireAdmin(req);
 
-    const id = Number(params.id);
+    const id = getValidNoticeId(params.id);
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -77,34 +95,50 @@ export async function PUT(req, { params }) {
     const body = await req.json();
     const { title, type, content, grade, action } = body;
 
-    if (!title?.trim()) {
+    // Validate the required fields.
+    if (
+      typeof title !== "string" ||
+      !title.trim()
+    ) {
       return NextResponse.json(
         { error: "Title is required" },
         { status: 400 }
       );
     }
 
-    if (!type?.trim()) {
+    if (
+      typeof type !== "string" ||
+      !type.trim()
+    ) {
       return NextResponse.json(
         { error: "Type is required" },
         { status: 400 }
       );
     }
 
-    if (!content?.trim()) {
+    if (
+      typeof content !== "string" ||
+      !content.trim()
+    ) {
       return NextResponse.json(
         { error: "Content is required" },
         { status: 400 }
       );
     }
 
-    if (!grade?.trim()) {
+    if (
+      typeof grade !== "string" ||
+      !grade.trim()
+    ) {
       return NextResponse.json(
         { error: "Grade is required" },
         { status: 400 }
       );
     }
 
+    // "save" preserves the existing publication status and timestamp.
+    // "publish" publishes or republishes the notice.
+    // "draft" converts the notice back to a draft.
     if (!["save", "publish", "draft"].includes(action)) {
       return NextResponse.json(
         { error: "Invalid notice action" },
@@ -129,12 +163,24 @@ export async function PUT(req, { params }) {
           type = $2,
           content = $3,
           grade = $4,
+
           status = CASE
             WHEN $5 = 'save' THEN status
             ELSE $6
           END,
+
+          published_at = CASE
+            WHEN $5 = 'publish'
+              THEN CURRENT_TIMESTAMP
+            WHEN $5 = 'draft'
+              THEN NULL
+            ELSE published_at
+          END,
+
           updated_at = CURRENT_TIMESTAMP
+
         WHERE id = $7
+
         RETURNING
           id,
           title,
@@ -143,6 +189,7 @@ export async function PUT(req, { params }) {
           grade,
           status,
           scheduled_for,
+          published_at,
           created_by_uid,
           created_at,
           updated_at
@@ -165,8 +212,15 @@ export async function PUT(req, { params }) {
       );
     }
 
+    const message =
+      action === "publish"
+        ? "Notice published successfully"
+        : action === "draft"
+          ? "Notice converted to draft successfully"
+          : "Notice changes saved successfully";
+
     return NextResponse.json({
-      message: "Notice updated successfully",
+      message,
       notice: result.rows[0],
     });
   } catch (error) {
@@ -184,9 +238,9 @@ export async function DELETE(req, { params }) {
   try {
     await requireAdmin(req);
 
-    const id = Number(params.id);
+    const id = getValidNoticeId(params.id);
 
-    if (!Number.isInteger(id) || id <= 0) {
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }

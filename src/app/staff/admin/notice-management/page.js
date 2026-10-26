@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import {
   Bell,
   Send,
-  Clock3,
   FileText,
   Plus,
   Search,
@@ -46,8 +45,6 @@ export default function NoticeManagementPage() {
     content: "",
     grade: "All Grades",
   });
-
-  const [selectedAction, setSelectedAction] = useState("publish");
 
   // Filters
   const [filterStatus, setFilterStatus] = useState("All");
@@ -174,7 +171,6 @@ export default function NoticeManagementPage() {
       grade: "All Grades",
     });
 
-    setSelectedAction("publish");
     setShowModal(true);
   };
 
@@ -192,12 +188,20 @@ export default function NoticeManagementPage() {
       grade: notice.grade || "All Grades",
     });
 
-    setSelectedAction("save");
     setShowModal(true);
   };
 
   // =========================================================
   // Submit Notice
+  //
+  // Create:
+  //   draft   -> creates a Draft
+  //   publish -> creates a Published notice
+  //
+  // Edit:
+  //   save    -> preserves status and published_at
+  //   draft   -> converts to Draft and clears published_at
+  //   publish -> publishes or republishes and refreshes published_at
   // =========================================================
 
   const handleSubmit = async (e, action) => {
@@ -239,6 +243,8 @@ export default function NoticeManagementPage() {
         throw new Error(data.error || "Failed to save notice");
       }
 
+      const wasEditing = Boolean(editingNotice);
+
       setShowModal(false);
       setEditingNotice(null);
 
@@ -249,12 +255,14 @@ export default function NoticeManagementPage() {
         grade: "All Grades",
       });
 
-      if (editingNotice && action === "save") {
+      if (wasEditing && action === "save") {
         showToast("Notice changes saved.");
-      } else if (editingNotice && action === "draft") {
+      } else if (wasEditing && action === "draft") {
         showToast("Notice converted to draft.");
-      } else if (editingNotice && action === "publish") {
-        showToast("Notice changes published successfully.");
+      } else if (wasEditing && action === "publish") {
+        showToast(
+          "Notice published successfully. Its publication date has been updated."
+        );
       } else if (action === "publish") {
         showToast("Notice published successfully.");
       } else {
@@ -315,6 +323,7 @@ export default function NoticeManagementPage() {
   };
 
   const modalTitle = editingNotice ? "Edit Notice" : "Compose Notice";
+
   const modalDescription = editingNotice
     ? "Update the notice details or choose a status change."
     : "Create a notice for parents and staff.";
@@ -364,6 +373,7 @@ export default function NoticeManagementPage() {
                       <label className="mb-2 block text-sm font-semibold text-navy">
                         Title *
                       </label>
+
                       <input
                         name="title"
                         value={formData.title}
@@ -380,6 +390,7 @@ export default function NoticeManagementPage() {
                         <label className="mb-2 block text-sm font-semibold text-navy">
                           Type *
                         </label>
+
                         <select
                           name="type"
                           value={formData.type}
@@ -396,6 +407,7 @@ export default function NoticeManagementPage() {
                         <label className="mb-2 block text-sm font-semibold text-navy">
                           Grade *
                         </label>
+
                         <select
                           name="grade"
                           value={formData.grade}
@@ -419,10 +431,12 @@ export default function NoticeManagementPage() {
                     <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
                       <div className="flex gap-3">
                         <Bell className="mt-0.5 h-5 w-5 shrink-0 text-navy" />
+
                         <div>
                           <p className="text-sm font-semibold text-navy">
                             Notice Audience
                           </p>
+
                           <p className="mt-1 text-sm leading-6 text-gray-600">
                             All published notices are available to both parents
                             and staff. The selected grade determines which
@@ -437,6 +451,7 @@ export default function NoticeManagementPage() {
                       <label className="mb-2 block text-sm font-semibold text-navy">
                         Message *
                       </label>
+
                       <textarea
                         name="content"
                         value={formData.content}
@@ -452,10 +467,12 @@ export default function NoticeManagementPage() {
                     <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-4">
                       <div className="flex gap-3">
                         <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+
                         <div>
                           <p className="text-sm font-semibold text-navy">
                             POPIA Reminder
                           </p>
+
                           <p className="mt-1 text-sm leading-6 text-gray-600">
                             Do not include learner names or sensitive personal
                             information in notices.
@@ -477,63 +494,64 @@ export default function NoticeManagementPage() {
 
                     {editingNotice ? (
                       <>
+                        {/* Save changes without changing publication status */}
                         <button
                           type="button"
-                          onClick={(e) => {
-                            setSelectedAction("save");
-                            handleSubmit(e, "save");
-                          }}
-                          className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
-                            selectedAction === "save"
-                              ? "border-gold bg-gold/10 text-navy"
-                              : "border-slate-200 text-text hover:bg-slate-50"
-                          }`}
+                          onClick={(e) => handleSubmit(e, "save")}
+                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
                         >
                           <Save className="h-4 w-4" />
                           Save Changes
                         </button>
 
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            setSelectedAction("draft");
-                            handleSubmit(e, "draft");
-                          }}
-                          className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
-                        >
-                          <Save className="h-4 w-4" />
-                          Convert to Draft
-                        </button>
+                        {editingNotice.status === "Published" ? (
+                          /* Published notice: allow conversion to draft */
+                          <button
+                            type="button"
+                            onClick={(e) => handleSubmit(e, "draft")}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
+                          >
+                            <FileText className="h-4 w-4" />
+                            Convert to Draft
+                          </button>
+                        ) : (
+                          /* Draft: provide one Publish button */
+                          <button
+                            type="button"
+                            onClick={(e) => handleSubmit(e, "publish")}
+                            className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
+                          >
+                            <Send className="h-4 w-4" />
+                            Publish
+                          </button>
+                        )}
                       </>
                     ) : (
+                      /* New notice: save as draft */
                       <button
                         type="button"
-                        onClick={(e) => {
-                          setSelectedAction("draft");
-                          handleSubmit(e, "draft");
-                        }}
-                        className={`inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${
-                          selectedAction === "draft"
-                            ? "border-gold bg-gold/10 text-navy"
-                            : "border-slate-200 text-text hover:bg-slate-50"
-                        }`}
+                        onClick={(e) => handleSubmit(e, "draft")}
+                        className="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-5 py-2.5 text-sm font-semibold text-text transition hover:bg-slate-50"
                       >
                         <Save className="h-4 w-4" />
                         Save Draft
                       </button>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        setSelectedAction("publish");
-                        handleSubmit(e, "publish");
-                      }}
-                      className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
-                    >
-                      <Send className="h-4 w-4" />
-                      {editingNotice ? "Publish Changes" : "Publish Now"}
-                    </button>
+                    {/* Only show the primary Publish button for new notices
+                        or already-published notices. Draft editing has its
+                        own Publish button above. */}
+                    {(!editingNotice ||
+                      editingNotice.status === "Published") && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleSubmit(e, "publish")}
+                        className="inline-flex items-center gap-2 rounded-xl bg-gold px-5 py-2.5 text-sm font-semibold text-navy transition hover:opacity-90"
+                      >
+                        <Send className="h-4 w-4" />
+                        {editingNotice ? "Republish Notice" : "Publish Now"}
+                      </button>
+                    )}
                   </div>
                 </form>
               </div>
@@ -572,6 +590,7 @@ export default function NoticeManagementPage() {
         >
           <CheckCircle className="h-5 w-5 shrink-0" />
           <span>{successMessage}</span>
+
           <button
             type="button"
             onClick={() => setSuccessMessage("")}
@@ -590,11 +609,20 @@ export default function NoticeManagementPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-text-muted">Published</p>
+
               <h2 className="mt-1 text-3xl font-bold text-navy">
-                {notices.filter((notice) => notice.status === "Published").length}
+                {
+                  notices.filter(
+                    (notice) => notice.status === "Published"
+                  ).length
+                }
               </h2>
-              <p className="mt-1 text-xs text-text-muted">Published notices</p>
+
+              <p className="mt-1 text-xs text-text-muted">
+                Published notices
+              </p>
             </div>
+
             <Send className="h-7 w-7 text-navy" />
           </div>
         </div>
@@ -604,11 +632,17 @@ export default function NoticeManagementPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-text-muted">Drafts</p>
+
               <h2 className="mt-1 text-3xl font-bold text-navy">
-                {notices.filter((notice) => notice.status === "Draft").length}
+                {
+                  notices.filter((notice) => notice.status === "Draft")
+                    .length
+                }
               </h2>
+
               <p className="mt-1 text-xs text-text-muted">Not published</p>
             </div>
+
             <FileText className="h-7 w-7 text-gold" />
           </div>
         </div>
@@ -618,11 +652,16 @@ export default function NoticeManagementPage() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm text-text-muted">Total Notices</p>
+
               <h2 className="mt-1 text-3xl font-bold text-navy">
                 {totalNotices}
               </h2>
-              <p className="mt-1 text-xs text-text-muted">Matching filters</p>
+
+              <p className="mt-1 text-xs text-text-muted">
+                Matching filters
+              </p>
             </div>
+
             <Bell className="h-7 w-7 text-green-600" />
           </div>
         </div>
@@ -639,6 +678,7 @@ export default function NoticeManagementPage() {
           {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+
             <input
               type="text"
               placeholder="Search notices..."
@@ -660,6 +700,7 @@ export default function NoticeManagementPage() {
               <option value="Reminder">Reminder</option>
               <option value="Emergency">Emergency</option>
             </select>
+
             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           </div>
 
@@ -680,6 +721,7 @@ export default function NoticeManagementPage() {
               <option value="Grade 6">Grade 6</option>
               <option value="Grade 7">Grade 7</option>
             </select>
+
             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           </div>
 
@@ -694,6 +736,7 @@ export default function NoticeManagementPage() {
               <option value="Published">Published</option>
               <option value="Draft">Draft</option>
             </select>
+
             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
           </div>
         </div>
@@ -726,6 +769,7 @@ export default function NoticeManagementPage() {
               <Bell className="h-5 w-5 text-navy" />
               <h2 className="font-semibold text-navy">School Notices</h2>
             </div>
+
             <p className="mt-1 text-sm text-text-muted">
               Showing {notices.length} of {totalNotices} notices
             </p>
@@ -750,7 +794,11 @@ export default function NoticeManagementPage() {
         ) : notices.length === 0 ? (
           <div className="flex min-h-[250px] flex-col items-center justify-center px-6 text-center">
             <Bell className="h-10 w-10 text-slate-300" />
-            <h3 className="mt-4 font-semibold text-navy">No notices found</h3>
+
+            <h3 className="mt-4 font-semibold text-navy">
+              No notices found
+            </h3>
+
             <p className="mt-1 max-w-md text-sm text-text-muted">
               {totalNotices === 0
                 ? "No notices have been created yet."
@@ -776,18 +824,23 @@ export default function NoticeManagementPage() {
                   <th className="w-[32%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Notice
                   </th>
+
                   <th className="w-[14%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Grade
                   </th>
+
                   <th className="w-[14%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Type
                   </th>
+
                   <th className="w-[14%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Date
                   </th>
+
                   <th className="w-[12%] px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Status
                   </th>
+
                   <th className="w-[14%] px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-text-muted">
                     Actions
                   </th>
@@ -805,6 +858,7 @@ export default function NoticeManagementPage() {
                         <p className="truncate font-semibold text-navy">
                           {notice.title}
                         </p>
+
                         <p className="mt-1 truncate text-sm text-text-muted">
                           {notice.content}
                         </p>

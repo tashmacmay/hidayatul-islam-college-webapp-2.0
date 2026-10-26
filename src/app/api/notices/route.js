@@ -1,5 +1,3 @@
-// app/api/notices/route.js
-
 import { NextResponse } from "next/server";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
@@ -7,45 +5,14 @@ import { verifyUser } from "@/lib/auth";
 export const runtime = "nodejs";
 
 export async function GET(req) {
-  console.log("🔍 GET /api/notices called");
-
   try {
-    // ---------------------------------------------------------
-    // Verify logged-in user
-    // ---------------------------------------------------------
-
-    const user = await verifyUser(req);
-
-    console.log("✅ User verified:", {
-      uid: user.uid,
-      role: user.role,
-    });
-
-    // ---------------------------------------------------------
-    // Read filters
-    // ---------------------------------------------------------
+    await verifyUser(req);
 
     const url = new URL(req.url);
-
-    const status = url.searchParams.get("status");
     const search = url.searchParams.get("search");
     const grade = url.searchParams.get("grade");
 
-    console.log("🔍 Filters:", {
-      status,
-      search,
-      grade,
-    });
-
-    // ---------------------------------------------------------
-    // Connect to database
-    // ---------------------------------------------------------
-
     const pool = getPostgresConnection();
-
-    // ---------------------------------------------------------
-    // Build GET query
-    // ---------------------------------------------------------
 
     let query = `
       SELECT
@@ -57,30 +24,13 @@ export async function GET(req) {
         status,
         scheduled_for,
         created_at,
-        updated_at
+        updated_at,
+        published_at
       FROM "dbo"."Notices"
       WHERE status = 'Published'
     `;
 
     const values = [];
-
-    // ---------------------------------------------------------
-    // Status filter
-    //
-    // Normal users should only see Published notices.
-    //
-    // If the API is explicitly asked for another status,
-    // allow it for future flexibility.
-    // ---------------------------------------------------------
-
-    if (status && status !== "All") {
-      values.push(status);
-      query += ` AND status = $${values.length}`;
-    }
-
-    // ---------------------------------------------------------
-    // Grade filter
-    // ---------------------------------------------------------
 
     if (grade && grade !== "All") {
       values.push(grade);
@@ -91,10 +41,6 @@ export async function GET(req) {
         )
       `;
     }
-
-    // ---------------------------------------------------------
-    // Search
-    // ---------------------------------------------------------
 
     if (search?.trim()) {
       values.push(`%${search.trim()}%`);
@@ -108,42 +54,18 @@ export async function GET(req) {
       `;
     }
 
-    // ---------------------------------------------------------
-    // Sort newest first
-    // ---------------------------------------------------------
-
     query += `
-      ORDER BY created_at DESC
+      ORDER BY published_at DESC NULLS LAST, created_at DESC
     `;
-
-    // ---------------------------------------------------------
-    // Execute query
-    // ---------------------------------------------------------
 
     const result = await pool.query(query, values);
 
-    console.log(
-      `✅ Found ${result.rows.length} published notices`
-    );
-
     return NextResponse.json(result.rows);
   } catch (err) {
-    console.error("❌ GET /api/notices error:", err);
-
-    if (
-      err.message === "User not found in database" ||
-      err.message === "Invalid token" ||
-      err.message ===
-        "Missing or invalid Authorization header"
-    ) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+    console.error("GET /api/notices error:", err);
 
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to fetch notices" },
       { status: 500 }
     );
   }

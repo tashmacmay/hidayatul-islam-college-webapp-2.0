@@ -4,6 +4,8 @@ import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
+// GET /api/staff/admin/notices
+// Admin listing: includes drafts and published notices.
 export async function GET(req) {
   try {
     await requireAdmin(req);
@@ -24,7 +26,11 @@ export async function GET(req) {
         content,
         grade,
         status,
-        TO_CHAR(scheduled_for, 'YYYY-MM-DD HH24:MI:SS') AS scheduled_for,
+        TO_CHAR(
+          scheduled_for,
+          'YYYY-MM-DD HH24:MI:SS'
+        ) AS scheduled_for,
+        published_at,
         created_by_uid,
         created_at,
         updated_at
@@ -49,18 +55,22 @@ export async function GET(req) {
       query += ` AND grade = $${values.length}`;
     }
 
-    if (search) {
-      values.push(`%${search}%`);
+    if (search?.trim()) {
+      values.push(`%${search.trim()}%`);
       const searchParameter = `$${values.length}`;
 
-      query += ` AND (
-        title ILIKE ${searchParameter}
-        OR content ILIKE ${searchParameter}
-        OR type ILIKE ${searchParameter}
-      )`;
+      query += `
+        AND (
+          title ILIKE ${searchParameter}
+          OR content ILIKE ${searchParameter}
+          OR type ILIKE ${searchParameter}
+        )
+      `;
     }
 
-    query += " ORDER BY created_at DESC";
+    query += `
+      ORDER BY published_at DESC NULLS LAST, created_at DESC
+    `;
 
     const result = await pool.query(query, values);
 
@@ -79,6 +89,7 @@ export async function GET(req) {
 }
 
 // POST /api/staff/admin/notices
+// Create a new draft or publish a new notice immediately.
 export async function POST(req) {
   try {
     const user = await requireAdmin(req);
@@ -86,28 +97,28 @@ export async function POST(req) {
 
     const { title, type, content, grade, action } = body;
 
-    if (!title?.trim()) {
+    if (typeof title !== "string" || !title.trim()) {
       return NextResponse.json(
         { error: "Title is required" },
         { status: 400 }
       );
     }
 
-    if (!type?.trim()) {
+    if (typeof type !== "string" || !type.trim()) {
       return NextResponse.json(
         { error: "Type is required" },
         { status: 400 }
       );
     }
 
-    if (!content?.trim()) {
+    if (typeof content !== "string" || !content.trim()) {
       return NextResponse.json(
         { error: "Content is required" },
         { status: 400 }
       );
     }
 
-    if (!grade?.trim()) {
+    if (typeof grade !== "string" || !grade.trim()) {
       return NextResponse.json(
         { error: "Grade is required" },
         { status: 400 }
@@ -121,7 +132,9 @@ export async function POST(req) {
       );
     }
 
-    const createdStatus = action === "publish" ? "Published" : "Draft";
+    const createdStatus =
+      action === "publish" ? "Published" : "Draft";
+
     const pool = getPostgresConnection();
 
     const result = await pool.query(
@@ -132,12 +145,22 @@ export async function POST(req) {
           content,
           grade,
           status,
+          published_at,
           created_by_uid,
           created_at,
           updated_at
         )
         VALUES (
-          $1, $2, $3, $4, $5, $6,
+          $1,
+          $2,
+          $3,
+          $4,
+          $5::varchar,
+          CASE
+            WHEN $5::varchar = 'Published' THEN CURRENT_TIMESTAMP
+            ELSE NULL
+          END,
+          $6,
           CURRENT_TIMESTAMP,
           CURRENT_TIMESTAMP
         )
@@ -149,6 +172,7 @@ export async function POST(req) {
           grade,
           status,
           scheduled_for,
+          published_at,
           created_by_uid,
           created_at,
           updated_at
@@ -165,7 +189,10 @@ export async function POST(req) {
 
     return NextResponse.json(
       {
-        message: "Notice created successfully",
+        message:
+          action === "publish"
+            ? "Notice published successfully"
+            : "Draft saved successfully",
         notice: result.rows[0],
       },
       { status: 201 }
