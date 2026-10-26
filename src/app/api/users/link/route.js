@@ -1,13 +1,8 @@
-//users/link/route.js
 import { NextResponse } from "next/server";
-import sql from "mssql";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyFirebaseToken } from "@/lib/verifyToken";
 
 export async function POST(request) {
-  // Step 1: Authenticate Firebase directly.
-  // Do NOT use verifyUser() here because the UID may not
-  // have been linked to the SQL user yet.
   const authHeader = request.headers.get("authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -37,7 +32,6 @@ export async function POST(request) {
     );
   }
 
-  // Firebase's standard UID claim is "sub".
   const uid = decoded.sub;
   const email = decoded.email?.trim().toLowerCase();
 
@@ -48,56 +42,34 @@ export async function POST(request) {
     );
   }
 
-  /*
-
-// Require the Firebase email address to be verified.
-if (decoded.email_verified !== true) {
-  return NextResponse.json(
-    {
-      error:
-        "Please verify your email address before activating your account.",
-    },
-    { status: 403 }
-  );
-}
-
-
-   * SECURITY:
-   * Before deploying, ensure your activation flow verifies
-   * ownership of the email address before allowing it to be
-   * linked to an invitation.
-   *
-   * If your flow already requires Firebase email verification,
-   * enforce decoded.email_verified === true here.
-   */
+  // Keep your existing email-verification policy consistent with
+  // the activation flow before deploying this endpoint.
 
   try {
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    // Step 2: Is this Firebase account already linked?
-    const existingUid = await pool
-      .request()
-      .input("uid", sql.NVarChar(255), uid)
-      .query(`
+    // Is this Firebase account already linked?
+    const existingUid = await pool.query(
+      `
         SELECT id, email, display_name, role, is_admin
-        FROM Users
-        WHERE firebase_uid = @uid
-      `);
+        FROM "dbo"."Users"
+        WHERE firebase_uid = $1
+      `,
+      [uid]
+    );
 
-    if (existingUid.recordset.length > 0) {
+    if (existingUid.rows.length > 0) {
       return NextResponse.json({
         success: true,
         linked: false,
         message: "Firebase account is already linked.",
-        user: existingUid.recordset[0],
+        user: existingUid.rows[0],
       });
     }
 
-    // Step 3: Find the administrator-created invitation.
-    const invitedResult = await pool
-      .request()
-      .input("email", sql.NVarChar(255), email)
-      .query(`
+    // Find the administrator-created invitation by normalized email.
+    const invitedResult = await pool.query(
+      `
         SELECT
           id,
           firebase_uid,
@@ -105,11 +77,14 @@ if (decoded.email_verified !== true) {
           display_name,
           role,
           is_admin
-        FROM Users
-        WHERE LOWER(LTRIM(RTRIM(email))) = @email
-      `);
+        FROM "dbo"."Users"
+        WHERE LOWER(BTRIM(email)) = $1
+        LIMIT 1
+      `,
+      [email]
+    );
 
-    if (invitedResult.recordset.length === 0) {
+    if (invitedResult.rows.length === 0) {
       return NextResponse.json(
         {
           error:
@@ -119,13 +94,10 @@ if (decoded.email_verified !== true) {
       );
     }
 
-    const invitedUser = invitedResult.recordset[0];
+    const invitedUser = invitedResult.rows[0];
 
-    // Step 4: Never replace another Firebase identity.
-    if (
-      invitedUser.firebase_uid &&
-      invitedUser.firebase_uid !== uid
-    ) {
+    // Never replace a different Firebase identity.
+    if (invitedUser.firebase_uid && invitedUser.firebase_uid !== uid) {
       return NextResponse.json(
         {
           error:
@@ -135,33 +107,29 @@ if (decoded.email_verified !== true) {
       );
     }
 
-    // Step 5: Link only if the UID is still unclaimed,
-    // or already belongs to this same Firebase account.
-    // This also helps prevent simultaneous requests from
-    // overwriting a different UID.
-    const updateResult = await pool
-      .request()
-      .input("id", sql.Int, invitedUser.id)
-      .input("uid", sql.NVarChar(255), uid)
-      .query(`
-        UPDATE Users
+    // Update only if the UID is still unclaimed or already matches.
+    const updateResult = await pool.query(
+      `
+        UPDATE "dbo"."Users"
         SET
-          firebase_uid = @uid,
-          updated_at = GETDATE()
-        OUTPUT
-          INSERTED.id,
-          INSERTED.email,
-          INSERTED.display_name,
-          INSERTED.role,
-          INSERTED.is_admin
-        WHERE id = @id
+          firebase_uid = $1,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2
           AND (
             firebase_uid IS NULL
-            OR firebase_uid = @uid
+            OR firebase_uid = $1
           )
-      `);
+        RETURNING
+          id,
+          email,
+          display_name,
+          role,
+          is_admin
+      `,
+      [uid, invitedUser.id]
+    );
 
-    if (updateResult.recordset.length === 0) {
+    if (updateResult.rows.length === 0) {
       return NextResponse.json(
         {
           error:
@@ -175,11 +143,9 @@ if (decoded.email_verified !== true) {
       success: true,
       linked: true,
       message: "Firebase account successfully linked.",
-      user: updateResult.recordset[0],
+      user: updateResult.rows[0],
     });
   } catch (error) {
-    // Log diagnostic details on the server without returning
-    // database internals to the browser.
     console.error("POST /api/users/link failed:", {
       code: error?.code,
       message: error?.message,

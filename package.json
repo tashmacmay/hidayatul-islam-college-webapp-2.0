@@ -21,8 +21,6 @@
     "isomorphic-fetch": "^3.0.0",
     "jose": "^6.2.9",
     "lucide-react": "^1.20.0",
-    "mssql": "^12.7.0",
-    "mysql2": "^3.22.5",
     "next": "^14.2.35",
     "nodemailer": "^9.0.1",
     "pdfjs-dist": "^3.11.174",

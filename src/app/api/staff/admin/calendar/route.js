@@ -1,49 +1,21 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
 import { requireAdmin } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
-// ============================================================
 // GET /api/staff/admin/calendar
-//
-// Optional filters:
-// ?term=1
-// ?grade=Grade 4
-// ?term=1&grade=Grade 4
-// ============================================================
-
+// Optional filters: ?term=1 and/or ?grade=Grade%204
 export async function GET(req) {
   try {
     await requireAdmin(req);
 
     const { searchParams } = new URL(req.url);
-
     const term = searchParams.get("term");
     const grade = searchParams.get("grade");
 
-    const pool = await getConnection();
-
-    let query = `
-      SELECT
-        id,
-        term,
-        grade,
-        file_name,
-        file_url,
-        file_type,
-        created_at,
-        updated_at
-      FROM dbo.TermCalendars
-      WHERE 1 = 1
-    `;
-
-    const request = pool.request();
-
-    // ---------------------------------------------------------
-    // Term filter
-    // ---------------------------------------------------------
+    const conditions = [];
+    const values = [];
 
     if (term && term !== "All") {
       const termNumber = Number(term);
@@ -55,154 +27,127 @@ export async function GET(req) {
         );
       }
 
-      query += ` AND term = @term`;
-
-      request.input("term", sql.Int, termNumber);
+      values.push(termNumber);
+      conditions.push(`term = $${values.length}`);
     }
-
-    // ---------------------------------------------------------
-    // Grade filter
-    // ---------------------------------------------------------
 
     if (grade && grade !== "All") {
-      query += ` AND grade = @grade`;
-
-      request.input(
-        "grade",
-        sql.NVarChar(50),
-        grade
-      );
+      values.push(grade);
+      conditions.push(`grade = $${values.length}`);
     }
 
-    // ---------------------------------------------------------
-    // Sort
-    // ---------------------------------------------------------
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
-    query += `
-      ORDER BY
-        term ASC,
-        grade ASC
-    `;
+    const pool = getPostgresConnection();
 
-    const result = await request.query(query);
+    const result = await pool.query(
+      `
+        SELECT
+          id,
+          term,
+          grade,
+          file_name,
+          file_url,
+          file_type,
+          created_at,
+          updated_at
+        FROM "dbo"."TermCalendars"
+        ${whereClause}
+        ORDER BY term ASC, grade ASC
+      `,
+      values
+    );
 
     return NextResponse.json({
-      calendars: result.recordset,
-      total: result.recordset.length,
+      calendars: result.rows,
+      total: result.rows.length,
     });
   } catch (error) {
     console.error("GET admin calendar error:", error);
 
     return NextResponse.json(
       {
-        error: "Failed to fetch calendars",
+        error:
+          error.statusCode && error.statusCode < 500
+            ? error.message
+            : "Failed to fetch calendars",
       },
-      { status: 500 }
+      { status: error.statusCode || 500 }
     );
   }
 }
 
-// ============================================================
 // POST /api/staff/admin/calendar
-//
-// Creates a calendar record after the file has already been
-// uploaded using the generic /api/upload route.
-// ============================================================
-
+// The file is uploaded separately through /api/upload.
 export async function POST(req) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
     const body = await req.json();
 
-    const {
-      term,
-      grade,
-      file_name,
-      file_url,
-      file_type,
-    } = body;
-
-    // ---------------------------------------------------------
-    // Basic validation
-    // ---------------------------------------------------------
-
+    const { term, grade, file_name, file_url, file_type } = body;
     const termNumber = Number(term);
+    const normalizedGrade =
+      typeof grade === "string" ? grade.trim() : "";
+    const normalizedFileName =
+      typeof file_name === "string" ? file_name.trim() : "";
+    const normalizedFileUrl =
+      typeof file_url === "string" ? file_url.trim() : "";
+    const normalizedFileType =
+      typeof file_type === "string"
+        ? file_type.toUpperCase()
+        : "";
 
     if (![1, 2, 3, 4].includes(termNumber)) {
       return NextResponse.json(
-        {
-          error: "Term must be 1, 2, 3 or 4",
-        },
+        { error: "Term must be 1, 2, 3 or 4" },
         { status: 400 }
       );
     }
 
-    if (!grade?.trim()) {
+    if (!normalizedGrade) {
       return NextResponse.json(
-        {
-          error: "Grade is required",
-        },
+        { error: "Grade is required" },
         { status: 400 }
       );
     }
 
-    if (!file_name?.trim()) {
+    if (!normalizedFileName) {
       return NextResponse.json(
-        {
-          error: "File name is required",
-        },
+        { error: "File name is required" },
         { status: 400 }
       );
     }
 
-    if (!file_url?.trim()) {
+    if (!normalizedFileUrl) {
       return NextResponse.json(
-        {
-          error: "File URL is required",
-        },
+        { error: "File URL is required" },
         { status: 400 }
       );
     }
 
-    const normalisedFileType =
-      file_type?.toUpperCase();
-
-    if (!["PNG", "PDF"].includes(normalisedFileType)) {
+    if (!["PNG", "PDF"].includes(normalizedFileType)) {
       return NextResponse.json(
-        {
-          error: "Only PNG and PDF files are allowed",
-        },
+        { error: "Only PNG and PDF files are allowed" },
         { status: 400 }
       );
     }
 
-    // ---------------------------------------------------------
-    // Connect to database
-    // ---------------------------------------------------------
+    const pool = getPostgresConnection();
 
-    const pool = await getConnection();
-
-    // ---------------------------------------------------------
-    // Check whether this term + grade already exists
-    // ---------------------------------------------------------
-
-    const existing = await pool
-      .request()
-      .input("term", sql.Int, termNumber)
-      .input(
-        "grade",
-        sql.NVarChar(50),
-        grade.trim()
-      )
-      .query(`
+    const existing = await pool.query(
+      `
         SELECT id
-        FROM dbo.TermCalendars
-        WHERE term = @term
-          AND grade = @grade
-      `);
+        FROM "dbo"."TermCalendars"
+        WHERE term = $1 AND grade = $2
+        LIMIT 1
+      `,
+      [termNumber, normalizedGrade]
+    );
 
-    if (existing.recordset.length > 0) {
+    if (existing.rows.length > 0) {
       return NextResponse.json(
         {
           error:
@@ -212,35 +157,9 @@ export async function POST(req) {
       );
     }
 
-    // ---------------------------------------------------------
-    // Insert calendar
-    // ---------------------------------------------------------
-
-    const result = await pool
-      .request()
-      .input("term", sql.Int, termNumber)
-      .input(
-        "grade",
-        sql.NVarChar(50),
-        grade.trim()
-      )
-      .input(
-        "file_name",
-        sql.NVarChar(255),
-        file_name.trim()
-      )
-      .input(
-        "file_url",
-        sql.NVarChar(500),
-        file_url.trim()
-      )
-      .input(
-        "file_type",
-        sql.NVarChar(20),
-        normalisedFileType
-      )
-      .query(`
-        INSERT INTO dbo.TermCalendars (
+    const result = await pool.query(
+      `
+        INSERT INTO "dbo"."TermCalendars" (
           term,
           grade,
           file_name,
@@ -249,41 +168,54 @@ export async function POST(req) {
           created_at,
           updated_at
         )
-        OUTPUT
-          INSERTED.id,
-          INSERTED.term,
-          INSERTED.grade,
-          INSERTED.file_name,
-          INSERTED.file_url,
-          INSERTED.file_type,
-          INSERTED.created_at,
-          INSERTED.updated_at
-        VALUES (
-          @term,
-          @grade,
-          @file_name,
-          @file_url,
-          @file_type,
-          GETDATE(),
-          GETDATE()
-        )
-      `);
+        VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        RETURNING
+          id,
+          term,
+          grade,
+          file_name,
+          file_url,
+          file_type,
+          created_at,
+          updated_at
+      `,
+      [
+        termNumber,
+        normalizedGrade,
+        normalizedFileName,
+        normalizedFileUrl,
+        normalizedFileType,
+      ]
+    );
 
     return NextResponse.json(
       {
         message: "Calendar uploaded successfully",
-        calendar: result.recordset[0],
+        calendar: result.rows[0],
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("POST admin calendar error:", error);
 
+    if (error.code === "23505") {
+      return NextResponse.json(
+        {
+          error:
+            "A calendar already exists for this term and grade. Please replace the existing calendar.",
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       {
-        error: "Failed to create calendar",
+        error:
+          error.statusCode && error.statusCode < 500
+            ? error.message
+            : "Failed to create calendar",
       },
-      { status: 500 }
+      { status: error.statusCode || 500 }
     );
   }
 }

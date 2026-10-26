@@ -1,80 +1,57 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
 import { unlink } from "fs/promises";
 import path from "path";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { requireAdmin } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-// ==========================================================
-// DELETE
-// ==========================================================
-
+// DELETE calendar
 export async function DELETE(req, { params }) {
   try {
     await requireAdmin(req);
 
     const { id } = await params;
 
-    if (!id || isNaN(Number(id))) {
+    if (!id || !/^\d+$/.test(String(id)) || Number(id) <= 0) {
       return NextResponse.json(
         { error: "Invalid calendar ID." },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    // ------------------------------------------------------
-    // Get calendar record first
-    // ------------------------------------------------------
+    const result = await pool.query(
+      `
+        SELECT id, file_url, file_name, file_type
+        FROM "dbo"."TermCalendars"
+        WHERE id = $1
+      `,
+      [Number(id)]
+    );
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, Number(id))
-      .query(`
-        SELECT
-          id,
-          file_url,
-          file_name,
-          file_type
-        FROM dbo.TermCalendars
-        WHERE id = @id
-      `);
-
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Calendar not found." },
         { status: 404 }
       );
     }
 
-    const calendar = result.recordset[0];
+    const calendar = result.rows[0];
 
-    // ------------------------------------------------------
-    // Delete database record
-    // ------------------------------------------------------
+    await pool.query(
+      `
+        DELETE FROM "dbo"."TermCalendars"
+        WHERE id = $1
+      `,
+      [Number(id)]
+    );
 
-    await pool
-      .request()
-      .input("id", sql.Int, Number(id))
-      .query(`
-        DELETE FROM dbo.TermCalendars
-        WHERE id = @id
-      `);
-
-    // ------------------------------------------------------
-    // Delete physical file
-    // ------------------------------------------------------
-
+    // Preserve the existing local-file cleanup behaviour.
     if (calendar.file_url) {
       try {
-        const relativePath = calendar.file_url.replace(
-          /^\/+/,
-          ""
-        );
-
+        const relativePath = calendar.file_url.replace(/^\/+/, "");
         const filePath = path.join(
           process.cwd(),
           "public",
@@ -82,15 +59,8 @@ export async function DELETE(req, { params }) {
         );
 
         await unlink(filePath);
-
-        console.log(
-          "Calendar file deleted:",
-          filePath
-        );
+        console.log("Calendar file deleted:", filePath);
       } catch (fileError) {
-        // The database record has already been deleted.
-        // If the physical file is missing, don't fail
-        // the whole delete operation.
         console.warn(
           "Could not delete calendar file:",
           fileError.message
@@ -103,33 +73,23 @@ export async function DELETE(req, { params }) {
       message: "Calendar deleted successfully.",
     });
   } catch (error) {
-    console.error(
-      "Calendar DELETE error:",
-      error
-    );
+    console.error("Calendar DELETE error:", error);
 
     return NextResponse.json(
-      {
-        error:
-          error.message ||
-          "Failed to delete calendar.",
-      },
-      { status: 500 }
+      { error: error.message || "Failed to delete calendar." },
+      { status: error.statusCode || 500 }
     );
   }
 }
 
-// ==========================================================
-// PUT
-// ==========================================================
-
+// UPDATE calendar
 export async function PUT(req, { params }) {
   try {
     await requireAdmin(req);
 
     const { id } = await params;
 
-    if (!id || isNaN(Number(id))) {
+    if (!id || !/^\d+$/.test(String(id)) || Number(id) <= 0) {
       return NextResponse.json(
         { error: "Invalid calendar ID." },
         { status: 400 }
@@ -173,38 +133,40 @@ export async function PUT(req, { params }) {
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, Number(id))
-      .input("term", sql.Int, Number(term))
-      .input("grade", sql.NVarChar(50), grade)
-      .input("file_name", sql.NVarChar(255), file_name)
-      .input("file_url", sql.NVarChar(500), file_url)
-      .input("file_type", sql.NVarChar(20), file_type)
-      .query(`
-        UPDATE dbo.TermCalendars
+    const result = await pool.query(
+      `
+        UPDATE "dbo"."TermCalendars"
         SET
-          term = @term,
-          grade = @grade,
-          file_name = @file_name,
-          file_url = @file_url,
-          file_type = @file_type,
-          updated_at = GETDATE()
-        OUTPUT
-          INSERTED.id,
-          INSERTED.term,
-          INSERTED.grade,
-          INSERTED.file_name,
-          INSERTED.file_url,
-          INSERTED.file_type,
-          INSERTED.created_at,
-          INSERTED.updated_at
-        WHERE id = @id
-      `);
+          term = $1,
+          grade = $2,
+          file_name = $3,
+          file_url = $4,
+          file_type = $5,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $6
+        RETURNING
+          id,
+          term,
+          grade,
+          file_name,
+          file_url,
+          file_type,
+          created_at,
+          updated_at
+      `,
+      [
+        Number(term),
+        grade,
+        file_name,
+        file_url,
+        file_type,
+        Number(id),
+      ]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Calendar not found." },
         { status: 404 }
@@ -213,16 +175,12 @@ export async function PUT(req, { params }) {
 
     return NextResponse.json({
       success: true,
-      calendar: result.recordset[0],
+      calendar: result.rows[0],
     });
   } catch (error) {
-    console.error(
-      "Calendar PUT error:",
-      error
-    );
+    console.error("Calendar PUT error:", error);
 
-    // Handle duplicate term + grade
-    if (error.number === 2627 || error.number === 2601) {
+    if (error.code === "23505") {
       return NextResponse.json(
         {
           error:
@@ -233,12 +191,8 @@ export async function PUT(req, { params }) {
     }
 
     return NextResponse.json(
-      {
-        error:
-          error.message ||
-          "Failed to update calendar.",
-      },
-      { status: 500 }
+      { error: error.message || "Failed to update calendar." },
+      { status: error.statusCode || 500 }
     );
   }
 }

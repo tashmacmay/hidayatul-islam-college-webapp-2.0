@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-
 import { verifyUser } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET(request) {
   try {
     let user;
+
     try {
       user = await verifyUser(request);
     } catch (error) {
@@ -22,18 +22,21 @@ export async function GET(request) {
       );
     }
 
-    const pool = await getConnection();
-    const result = await pool.request().query(`
+    const pool = getPostgresConnection();
+    const result = await pool.query(`
       SELECT
         MAX(synced_at) AS synced_at,
         COUNT(*) AS total
-      FROM dbo.bookings
+      FROM "dbo"."bookings"
     `);
-    const row = result.recordset[0];
+
+    const row = result.rows[0];
 
     return NextResponse.json({
-      syncedAt: row.synced_at ? new Date(row.synced_at).toISOString() : null,
-      total: row.total,
+      syncedAt: row.synced_at
+        ? new Date(row.synced_at).toISOString()
+        : null,
+      total: Number(row.total),
     });
   } catch (error) {
     console.error("LAST SYNC ERROR:", error);
