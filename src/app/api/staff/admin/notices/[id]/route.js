@@ -1,47 +1,64 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
 import { requireAdmin } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
+// Validate the notice ID used by GET, PUT, and DELETE.
+function getValidNoticeId(rawId) {
+  if (!/^\d+$/.test(String(rawId))) {
+    return null;
+  }
+
+  const id = Number(rawId);
+
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return null;
+  }
+
+  return id;
+}
 
 // GET /api/staff/admin/notices/[id]
 export async function GET(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
-    const id = Number(params.id);
+    const id = getValidNoticeId(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query(`
+    const result = await pool.query(
+      `
         SELECT
           id,
           title,
-          category,
+          type,
           content,
-          recipients,
+          grade,
           status,
-          scheduled_for,
+          TO_CHAR(
+            scheduled_for,
+            'YYYY-MM-DD HH24:MI:SS'
+          ) AS scheduled_for,
+          published_at,
           created_by_uid,
           created_at,
           updated_at
-        FROM dbo.Notices
-        WHERE id = @id
-      `);
+        FROM "dbo"."Notices"
+        WHERE id = $1
+      `,
+      [id]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }
@@ -49,7 +66,7 @@ export async function GET(req, { params }) {
     }
 
     return NextResponse.json({
-      notice: result.recordset[0],
+      notice: result.rows[0],
     });
   } catch (error) {
     console.error("GET notice error:", error);
@@ -61,15 +78,14 @@ export async function GET(req, { params }) {
   }
 }
 
-
 // PUT /api/staff/admin/notices/[id]
 export async function PUT(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
-    const id = Number(params.id);
+    const id = getValidNoticeId(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -77,107 +93,135 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json();
+    const { title, type, content, grade, action } = body;
 
-    const {
-      title,
-      category,
-      content,
-      recipients,
-      status,
-      scheduled_for,
-    } = body;
-
-    if (!title?.trim()) {
+    // Validate the required fields.
+    if (
+      typeof title !== "string" ||
+      !title.trim()
+    ) {
       return NextResponse.json(
         { error: "Title is required" },
         { status: 400 }
       );
     }
 
-    if (!category?.trim()) {
+    if (
+      typeof type !== "string" ||
+      !type.trim()
+    ) {
       return NextResponse.json(
-        { error: "Category is required" },
+        { error: "Type is required" },
         { status: 400 }
       );
     }
 
-    if (!content?.trim()) {
+    if (
+      typeof content !== "string" ||
+      !content.trim()
+    ) {
       return NextResponse.json(
         { error: "Content is required" },
         { status: 400 }
       );
     }
 
-    if (!recipients?.trim()) {
+    if (
+      typeof grade !== "string" ||
+      !grade.trim()
+    ) {
       return NextResponse.json(
-        { error: "Recipients are required" },
+        { error: "Grade is required" },
         { status: 400 }
       );
     }
 
-    if (!["Published", "Scheduled", "Draft"].includes(status)) {
+    // "save" preserves the existing publication status and timestamp.
+    // "publish" publishes or republishes the notice.
+    // "draft" converts the notice back to a draft.
+    if (!["save", "publish", "draft"].includes(action)) {
       return NextResponse.json(
-        { error: "Invalid notice status" },
+        { error: "Invalid notice action" },
         { status: 400 }
       );
     }
 
-    if (status === "Scheduled" && !scheduled_for) {
-      return NextResponse.json(
-        { error: "Scheduled date and time are required" },
-        { status: 400 }
-      );
-    }
+    const updatedStatus =
+      action === "publish"
+        ? "Published"
+        : action === "draft"
+          ? "Draft"
+          : null;
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .input("title", sql.NVarChar(255), title.trim())
-      .input("category", sql.NVarChar(50), category.trim())
-      .input("content", sql.NVarChar(sql.MAX), content.trim())
-      .input("recipients", sql.NVarChar(100), recipients.trim())
-      .input("status", sql.NVarChar(20), status)
-      .input(
-        "scheduled_for",
-        sql.DateTime,
-        scheduled_for ? new Date(scheduled_for) : null
-      )
-      .query(`
-        UPDATE dbo.Notices
+    const result = await pool.query(
+      `
+        UPDATE "dbo"."Notices"
         SET
-          title = @title,
-          category = @category,
-          content = @content,
-          recipients = @recipients,
-          status = @status,
-          scheduled_for = @scheduled_for,
-          updated_at = GETDATE()
-        OUTPUT
-          INSERTED.id,
-          INSERTED.title,
-          INSERTED.category,
-          INSERTED.content,
-          INSERTED.recipients,
-          INSERTED.status,
-          INSERTED.scheduled_for,
-          INSERTED.created_by_uid,
-          INSERTED.created_at,
-          INSERTED.updated_at
-        WHERE id = @id
-      `);
+          title = $1,
+          type = $2,
+          content = $3,
+          grade = $4,
 
-    if (result.recordset.length === 0) {
+          status = CASE
+            WHEN $5 = 'save' THEN status
+            ELSE $6
+          END,
+
+          published_at = CASE
+            WHEN $5 = 'publish'
+              THEN CURRENT_TIMESTAMP
+            WHEN $5 = 'draft'
+              THEN NULL
+            ELSE published_at
+          END,
+
+          updated_at = CURRENT_TIMESTAMP
+
+        WHERE id = $7
+
+        RETURNING
+          id,
+          title,
+          type,
+          content,
+          grade,
+          status,
+          scheduled_for,
+          published_at,
+          created_by_uid,
+          created_at,
+          updated_at
+      `,
+      [
+        title.trim(),
+        type.trim(),
+        content.trim(),
+        grade.trim(),
+        action,
+        updatedStatus,
+        id,
+      ]
+    );
+
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }
       );
     }
 
+    const message =
+      action === "publish"
+        ? "Notice published successfully"
+        : action === "draft"
+          ? "Notice converted to draft successfully"
+          : "Notice changes saved successfully";
+
     return NextResponse.json({
-      message: "Notice updated successfully",
-      notice: result.recordset[0],
+      message,
+      notice: result.rows[0],
     });
   } catch (error) {
     console.error("PUT notice error:", error);
@@ -189,34 +233,32 @@ export async function PUT(req, { params }) {
   }
 }
 
-
 // DELETE /api/staff/admin/notices/[id]
 export async function DELETE(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
-    const id = Number(params.id);
+    const id = getValidNoticeId(params.id);
 
-    if (!Number.isInteger(id)) {
+    if (id === null) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query(`
-        DELETE FROM dbo.Notices
-        OUTPUT
-          DELETED.id
-        WHERE id = @id
-      `);
+    const result = await pool.query(
+      `
+        DELETE FROM "dbo"."Notices"
+        WHERE id = $1
+        RETURNING id
+      `,
+      [id]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Notice not found" },
         { status: 404 }

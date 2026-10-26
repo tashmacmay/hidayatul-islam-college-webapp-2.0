@@ -1,56 +1,57 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET(req, { params }) {
-  try {
-    const id = parseInt(params.id);
+try {
+const id = Number.parseInt(params.id, 10);
 
-    if (Number.isNaN(id)) {
-      return NextResponse.json(
-        { error: "Invalid gallery image ID." },
-        { status: 400 }
-      );
-    }
+if (Number.isNaN(id)) {
+  return NextResponse.json(
+    { error: "Invalid gallery image ID." },
+    { status: 400 }
+  );
+}
 
-    const pool = await getConnection();
+const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query(`
-        SELECT
-          id,
-          image_url,
-          title,
-          caption,
-          alt_text,
-          category,
-          photo_type,
-          created_at,
-          updated_at
-        FROM Gallery
-        WHERE id = @id
-          AND published = 1
-          AND consent_confirmed = 1
-      `);
+const result = await pool.query(
+  `
+    SELECT
+      id,
+      image_url,
+      title,
+      caption,
+      alt_text,
+      category,
+      photo_type,
+      created_at,
+      updated_at
+    FROM "dbo"."GalleryImages"
+    WHERE id = $1
+      AND published = TRUE
+      AND (photo_type <> 'learners' OR consent_confirmed = TRUE)
+  `,
+  [id]
+);
 
-    if (result.recordset.length === 0) {
-      return NextResponse.json(
-        { error: "Gallery image not found." },
-        { status: 404 }
-      );
-    }
+if (result.rows.length === 0) {
+  return NextResponse.json(
+    { error: "Gallery image not found." },
+    { status: 404 }
+  );
+}
 
-    return NextResponse.json({
-      gallery: result.recordset[0],
-    });
-  } catch (error) {
-    console.error("Public Gallery GET by ID error:", error);
+return NextResponse.json({
+  gallery: result.rows[0],
+});
 
-    return NextResponse.json(
-      { error: "Failed to fetch gallery image." },
-      { status: 500 }
-    );
-  }
+} catch (error) {
+console.error("Public Gallery GET by ID error:", error);
+
+return NextResponse.json(
+  { error: "Failed to fetch gallery image." },
+  { status: 500 }
+);
+
+}
 }

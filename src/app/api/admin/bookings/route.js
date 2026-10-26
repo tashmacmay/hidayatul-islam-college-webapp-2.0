@@ -1,29 +1,23 @@
 import { NextResponse } from "next/server";
-import { getConnection } from "@/lib/db";
-
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
 
 function formatDate(date) {
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}/${String(date.getDate()).padStart(2, "0")}`;
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function formatTime(date) {
-  return `${String(date.getHours()).padStart(2, "0")}:${String(
-    date.getMinutes()
-  ).padStart(2, "0")}`;
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 function normalizeStatus(status) {
-  const normalized = String(status || "").toLowerCase();
-  return normalized === "cancelled" ? "cancelled" : normalized;
+  return String(status || "").toLowerCase();
 }
 
 export async function GET(request) {
   try {
     let user;
+
     try {
       user = await verifyUser(request);
     } catch (error) {
@@ -40,8 +34,9 @@ export async function GET(request) {
       );
     }
 
-    const pool = await getConnection();
-    const result = await pool.request().query(`
+    const pool = getPostgresConnection();
+
+    const result = await pool.query(`
       SELECT
         ms_booking_id,
         reference,
@@ -53,11 +48,11 @@ export async function GET(request) {
         status,
         customer_name,
         customer_email
-      FROM dbo.bookings
+      FROM "dbo"."bookings"
       ORDER BY start_at DESC
     `);
 
-    const bookings = result.recordset.map((booking) => {
+    const bookings = result.rows.map((booking) => {
       const start = new Date(booking.start_at);
       const end = new Date(booking.end_at);
 

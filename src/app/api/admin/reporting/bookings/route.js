@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-
 import { verifyUser } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET(request) {
   try {
     let user;
+
     try {
       user = await verifyUser(request);
     } catch (error) {
@@ -26,7 +25,14 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const fromStr = searchParams.get("from");
     const toStr = searchParams.get("to");
-    const isValidDate = (s) => s && /^\d{4}-\d{2}-\d{2}$/.test(s);
+
+    const isValidDate = (value) => {
+      if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+      const date = new Date(`${value}T00:00:00Z`);
+      return !Number.isNaN(date.getTime()) &&
+        date.toISOString().slice(0, 10) === value;
+    };
 
     if (fromStr && !isValidDate(fromStr)) {
       return NextResponse.json(
@@ -49,43 +55,50 @@ export async function GET(request) {
       );
     }
 
-    const pool = await getConnection();
-    const req = pool.request();
-    let whereClause = "";
+    const pool = getPostgresConnection();
+    const conditions = [];
+    const values = [];
 
     if (fromStr) {
-      req.input("from", sql.DateTime2, new Date(`${fromStr}T00:00:00Z`));
-      whereClause += " AND start_at >= @from";
+      values.push(new Date(`${fromStr}T00:00:00.000Z`));
+      conditions.push(`start_at >= $${values.length}`);
     }
 
     if (toStr) {
-      const toDate = new Date(`${toStr}T00:00:00Z`);
-      toDate.setUTCDate(toDate.getUTCDate() + 1);
-      req.input("to", sql.DateTime2, toDate);
-      whereClause += " AND start_at < @to";
+      const exclusiveEnd = new Date(`${toStr}T00:00:00.000Z`);
+      exclusiveEnd.setUTCDate(exclusiveEnd.getUTCDate() + 1);
+      values.push(exclusiveEnd);
+      conditions.push(`start_at < $${values.length}`);
     }
 
-    const result = await req.query(`
-      SELECT
-        id,
-        reference,
-        customer_name,
-        customer_email,
-        learner_name,
-        staff_name,
-        appointment_type,
-        start_at,
-        end_at,
-        status,
-        cancelled_at,
-        synced_at,
-        ms_booking_id
-      FROM dbo.bookings
-      WHERE 1=1${whereClause}
-      ORDER BY start_at DESC
-    `);
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
-    return NextResponse.json({ bookings: result.recordset });
+    const result = await pool.query(
+      `
+        SELECT
+          id,
+          reference,
+          customer_name,
+          customer_email,
+          learner_name,
+          staff_name,
+          appointment_type,
+          start_at,
+          end_at,
+          status,
+          cancelled_at,
+          synced_at,
+          ms_booking_id
+        FROM "dbo"."bookings"
+        ${whereClause}
+        ORDER BY start_at DESC
+      `,
+      values
+    );
+
+    return NextResponse.json({ bookings: result.rows });
   } catch (error) {
     console.error("REPORTING BOOKINGS ERROR:", error);
     return NextResponse.json(

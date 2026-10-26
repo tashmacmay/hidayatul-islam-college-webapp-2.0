@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET() {
   try {
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         id,
         title,
@@ -20,13 +20,13 @@ export async function GET() {
         is_published,
         created_at,
         updated_at
-      FROM LearningResources
-      WHERE is_published = 1
+      FROM "dbo"."LearningResources"
+      WHERE is_published = TRUE
       ORDER BY created_at DESC
     `);
 
     return NextResponse.json({
-      resources: result.recordset,
+      resources: result.rows,
     });
   } catch (error) {
     console.error("Public Resources GET error:", error);

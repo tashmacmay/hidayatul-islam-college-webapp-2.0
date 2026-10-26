@@ -1,0 +1,76 @@
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:89: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:122: UPDATE dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:125: cancelled_at = GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:126: updated_at = GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:127: synced_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:10: )}/${String(date.getDate()).padStart(2, "0")}`;
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:56: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:83: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:3: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:100: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:30: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:36: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:5: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:6: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:61: UPDATE dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:64: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:68: AND scheduled_for <= GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:86: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:42: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:63: DELETE FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:187: UPDATE dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:194: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:38: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:200: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:243: INSERT INTO dbo.TermCalendars (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:267: GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:268: GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:201: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:202: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:125: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:239: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:240: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:245: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:246: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:209: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:40: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:148: UPDATE dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:156: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:213: DELETE FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:33: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:159: INSERT INTO dbo.Notices (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:189: GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:190: GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:164: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:318: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:319: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:79: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:201: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:4: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:3: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:150: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:150: .query(` INSERT INTO Users ( firebase_uid, email, display_name, role, is_admin, created_at, updated_at ) OUTPUT INSERTED.id, INSERTED.firebase_uid, INSERTED.email, INSERTED.display_name, INSERTED.role, INSERTED.is_admin, INSERTED.created_at, INSERTED.updated_at VALUES ( NULL, @email, @display_name, @role, @is_admin, GETDATE(), GETDATE() ) `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:257: .query(` UPDATE Users SET email = @email, display_name = @display_name, role = @role, is_admin = @is_admin, updated_at = GETDATE() OUTPUT INSERTED.id, INSERTED.firebase_uid, INSERTED.email, INSERTED.display_name, INSERTED.role, INSERTED.is_admin, INSERTED.created_at, INSERTED.updated_at WHERE id = @id `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:27: FROM dbo.Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:65: UPDATE dbo.bookings SET
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:87: INSERT INTO dbo.bookings (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:4: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\db.js:3: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\db.js:160: const newPool = new sql.ConnectionPool(config);

@@ -1,7 +1,7 @@
 // app/api/staff/dashboard/route.js
 
 import { NextResponse } from "next/server";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
 import {
   initializeGraphForAppOnlyAuth,
@@ -32,8 +32,7 @@ export async function GET(req) {
     console.log("✅ Staff verified:", user.uid);
 
     // ---------------------------------------------------------
-    // BOOKINGS — from Microsoft Graph (same source as
-    // /api/bookings and the parent dashboard)
+    // BOOKINGS — continue using Microsoft Graph
     // ---------------------------------------------------------
 
     initializeGraphForAppOnlyAuth();
@@ -51,24 +50,32 @@ export async function GET(req) {
     );
 
     const now = new Date();
+
     const bookings = allBookings
-      .filter((b) => {
-        if (!b.startDateTime) return false;
-        return new Date(b.startDateTime) >= now;
+      .filter((booking) => {
+        if (!booking.startDateTime) return false;
+        return new Date(booking.startDateTime) >= now;
       })
-      .sort((a, b) => new Date(a.startDateTime) - new Date(b.startDateTime))
+      .sort(
+        (a, b) =>
+          new Date(a.startDateTime) - new Date(b.startDateTime)
+      )
       .slice(0, 5);
 
-    console.log(`✅ Found ${bookings.length} bookings for today`);
+    console.log(`✅ Found ${bookings.length} upcoming bookings`);
 
     // ---------------------------------------------------------
-    // NOTICES — same source as /api/notices (top 5, published)
+    // POSTGRESQL CONNECTION
     // ---------------------------------------------------------
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const noticesResult = await pool.request().query(`
-      SELECT TOP 5
+    // ---------------------------------------------------------
+    // NOTICES — top 5 published notices
+    // ---------------------------------------------------------
+
+    const noticesResult = await pool.query(`
+      SELECT
         id,
         title,
         type,
@@ -76,36 +83,37 @@ export async function GET(req) {
         grade,
         status,
         created_at
-      FROM dbo.Notices
+      FROM "dbo"."Notices"
       WHERE status = 'Published'
       ORDER BY created_at DESC
+      LIMIT 5
     `);
 
     // ---------------------------------------------------------
-    // RESOURCES COUNT — same table as /api/resources
+    // RESOURCES COUNT — published learning resources
     // ---------------------------------------------------------
 
-    const resourcesResult = await pool.request().query(`
+    const resourcesResult = await pool.query(`
       SELECT COUNT(*) AS total
-      FROM LearningResources
-      WHERE is_published = 1
+      FROM "dbo"."LearningResources"
+      WHERE is_published = TRUE
     `);
 
     // ---------------------------------------------------------
     // PARENTS COUNT
     // ---------------------------------------------------------
 
-    const parentsResult = await pool.request().query(`
+    const parentsResult = await pool.query(`
       SELECT COUNT(*) AS total
-      FROM Users
+      FROM "dbo"."Users"
       WHERE role = 'parent'
     `);
 
     return NextResponse.json({
       bookings,
-      notices: noticesResult.recordset,
-      resourceCount: resourcesResult.recordset[0]?.total || 0,
-      parentCount: parentsResult.recordset[0]?.total || 0,
+      notices: noticesResult.rows,
+      resourceCount: Number(resourcesResult.rows[0]?.total ?? 0),
+      parentCount: Number(parentsResult.rows[0]?.total ?? 0),
     });
   } catch (error) {
     console.error("❌ Staff dashboard error:", error);

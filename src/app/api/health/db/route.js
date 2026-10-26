@@ -1,23 +1,26 @@
-// app/api/health/db/route.js
 
-import { getConnection } from '@/lib/db';
+import { getPostgresConnection } from '@/lib/db-postgres';
 
 export async function GET() {
-    try {
-        const pool = await getConnection();
+  try {
+    const pool = getPostgresConnection();
 
-        await pool.request().query('SELECT 1');
+    await pool.query('SELECT 1');
 
-        return Response.json({
-            status: 'healthy',
-        });
-    } catch (error) {
-        return Response.json(
-            {
-                status: 'unhealthy',
-                error: error.message,
-            },
-            { status: 500 }
-        );
-    }
+    return Response.json({
+      status: 'healthy',
+      database: 'postgres',
+    });
+  } catch (error) {
+    console.error('PostgreSQL health check failed:', error.message);
+
+    return Response.json(
+      {
+        status: 'unhealthy',
+        database: 'postgres',
+        error: 'Database connection failed',
+      },
+      { status: 500 }
+    );
+  }
 }

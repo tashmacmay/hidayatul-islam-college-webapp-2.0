@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -17,13 +16,13 @@ export async function GET(req) {
 
     await verifyUser(req);
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
     // ------------------------------------------------------
     // Get all calendars
     // ------------------------------------------------------
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         id,
         term,
@@ -33,7 +32,7 @@ export async function GET(req) {
         file_type,
         created_at,
         updated_at
-      FROM dbo.TermCalendars
+      FROM "dbo"."TermCalendars"
       ORDER BY
         term ASC,
         CASE
@@ -45,7 +44,7 @@ export async function GET(req) {
 
     return NextResponse.json({
       success: true,
-      calendars: result.recordset,
+      calendars: result.rows,
     });
   } catch (error) {
     console.error("Parent calendar GET error:", error);

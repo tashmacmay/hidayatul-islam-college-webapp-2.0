@@ -1,0 +1,354 @@
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:5: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:12: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:88: SELECT id, status, ms_booking_id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:89: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:122: UPDATE dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:125: cancelled_at = GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:126: updated_at = GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\[id]\route.js:127: synced_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:2: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:10: )}/${String(date.getDate()).padStart(2, "0")}`;
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:45: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\bookings\route.js:56: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:5: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:27: const fromStr = searchParams.get("from");
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:31: if (fromStr && !isValidDate(fromStr)) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:33: { error: "Invalid 'from' date. Expected YYYY-MM-DD." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:45: if (fromStr && toStr && fromStr > toStr) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:47: { error: "'from' must be on or before 'to'." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:56: if (fromStr) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:57: req.input("from", sql.DateTime2, new Date(`${fromStr}T00:00:00Z`));
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:58: whereClause += " AND start_at >= @from";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:69: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings\route.js:83: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:2: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:3: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:5: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:44: // Optional date range: ?from=YYYY-MM-DD&to=YYYY-MM-DD
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:46: const fromStr = searchParams.get("from");
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:51: if (fromStr && !isValidDate(fromStr)) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:53: { error: "Invalid 'from' date. Expected YYYY-MM-DD." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:65: if (fromStr && toStr && fromStr > toStr) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:67: { error: "'from' must be on or before 'to'." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:76: if (fromStr) {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:77: req.input("from", sql.DateTime2, new Date(`${fromStr}T00:00:00Z`));
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:78: whereClause += " AND start_at >= @from";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:88: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:100: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:119: const lines = [headers.join(",")];
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:134: ].join(","));
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:137: const csv = lines.join("\r\n");
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:139: fromStr || toStr
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\bookings.csv\route.js:140: ? `-${fromStr || "start"}-to-${toStr || "today"}`
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:3: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:27: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\last-sync\route.js:30: FROM dbo.bookings
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\sync\route.js:2: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\sync\route.js:3: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\admin\reporting\sync\route.js:4: import { syncBookingsToDb } from "@/lib/reporting/bookingsSync";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\[id]\route.js:2: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\[id]\route.js:7: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:1: //Adapting index.js from https://learn.microsoft.com/en-us/graph/tutorials/javascript-app-only to Next.js webapp
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:2: import { NextResponse } from 'next/server';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:4: import { verifyUser } from '@/lib/auth';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:5: import { //Importing "export"ed functions from the graphHelper
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:10: } from '@/lib/graph/graphHelper';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\bookings\route.js:26: //Normalise the email from the token (comparisons later are safe)
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:27: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\calendar\route.js:36: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:22: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\[id]\route.js:32: FROM Gallery
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\route.js:2: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\route.js:9: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\gallery\route.js:21: FROM GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\health\db\route.js:3: import { getConnection } from '@/lib/db';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\health\db\route.js:9: await pool.request().query('SELECT 1');
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:22: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\[slug]\route.js:33: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\route.js:2: import { NextResponse } from 'next/server';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\route.js:3: import { getConnection } from '@/lib/db';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\route.js:12: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\news\route.js:23: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:2: import { NextResponse } from 'next/server';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:3: import { getConnection } from '@/lib/db';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:4: import { verifyUser } from '@/lib/auth';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:5: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:31: UPDATE Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\[id]\route.js:61: .query('DELETE FROM Notices WHERE id = @id');
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:3: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:5: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:6: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:61: UPDATE dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:64: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:68: AND scheduled_for <= GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:76: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\notices\route.js:86: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\resources\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\resources\route.js:2: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\resources\route.js:9: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\resources\route.js:23: FROM LearningResources
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:2: import { mkdir, writeFile } from "fs/promises";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:3: import path from "path";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:4: import crypto from "crypto";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:5: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:31: error: "Please select a calendar file to upload.",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:78: const uploadDirectory = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:93: const filePath = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\upload\route.js:98: const fileBuffer = Buffer.from(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:3: import { unlink } from "fs/promises";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:4: import path from "path";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:5: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:6: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:37: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:42: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:63: DELETE FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:78: const filePath = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:187: UPDATE dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:194: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\[id]\route.js:239: "Failed to update calendar.",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:3: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:29: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:38: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:199: SELECT id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:200: FROM dbo.TermCalendars
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:243: INSERT INTO dbo.TermCalendars (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:267: GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\calendar\route.js:268: GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:2: import { mkdir, writeFile } from "fs/promises";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:3: import path from "path";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:4: import crypto from "crypto";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:5: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:26: { error: "Please select an image to upload." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:54: const uploadDirectory = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:63: const filePath = path.join(uploadDirectory, filename);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\upload\route.js:65: const fileBuffer = Buffer.from(await file.arrayBuffer());
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:4: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:39: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:52: FROM GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:159: SELECT id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:160: FROM GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:191: UPDATE GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:201: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:202: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:218: error: "Failed to update gallery image",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\[id]\route.js:249: DELETE FROM GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:4: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:14: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:28: FROM GalleryImages AS g
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:29: LEFT JOIN Users AS u
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:114: INSERT INTO GalleryImages (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:125: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:156: // PUT update gallery image
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:229: UPDATE GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:239: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:240: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:259: { error: "Failed to update gallery image." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\gallery\route.js:286: DELETE FROM GalleryImages
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:2: import { mkdir, writeFile } from "fs/promises";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:3: import path from "path";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:4: import crypto from "crypto";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:5: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:26: { error: "Please select an image to upload." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:54: const uploadDirectory = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:63: const filePath = path.join(uploadDirectory, filename);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\upload\route.js:65: const fileBuffer = Buffer.from(await file.arrayBuffer());
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:4: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:27: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:43: FROM NewsAnnouncements AS n
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:44: LEFT JOIN Users AS u
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:128: // Learners cannot be selected if there is no image.
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:163: SELECT id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:164: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:183: SELECT id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:184: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:233: UPDATE NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:245: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:246: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:259: error: "Failed to update news article.",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\[slug]\route.js:280: DELETE FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:4: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:23: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:38: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:148: SELECT id
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:149: FROM NewsAnnouncements
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:196: INSERT INTO NewsAnnouncements (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\news\route.js:209: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:3: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:29: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:40: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:148: UPDATE dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:156: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:186: { error: "Failed to update notice" },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\[id]\route.js:213: DELETE FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:3: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:22: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:33: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:159: INSERT INTO dbo.Notices (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:189: GETDATE(),
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\notices\route.js:190: GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:2: import { mkdir, writeFile } from "fs/promises";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:3: import path from "path";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:4: import crypto from "crypto";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:5: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:6: //import { createCanvas } from "canvas";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:31: { error: "Please select a file to upload." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:57: const uploadDirectory = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:66: const filePath = path.join(uploadDirectory, filename);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:67: const fileBuffer = Buffer.from(await file.arrayBuffer());
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:75: // Generate a thumbnail from the first page of a PDF
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:79: // pdfjs.GlobalWorkerOptions.workerSrc = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\upload\route.js:109: //   const thumbnailPath = path.join(
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:4: import { requireAdmin } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:14: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:30: FROM LearningResources AS lr
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:31: LEFT JOIN Users AS u
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:151: INSERT INTO LearningResources (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:164: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:306: UPDATE LearningResources
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:318: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:319: OUTPUT INSERTED.*
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:338: { error: "Failed to update learning resource." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\admin\resources\route.js:365: DELETE FROM LearningResources
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\[id]\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\[id]\route.js:3: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\[id]\route.js:9: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\route.js:3: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\route.js:5: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\bookings\route.js:11: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:3: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:5: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:11: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:35: // BOOKINGS — from Microsoft Graph (same source as
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:71: SELECT TOP 5
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:79: FROM dbo.Notices
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:89: SELECT COUNT(*) AS total
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:90: FROM LearningResources
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:99: SELECT COUNT(*) AS total
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\dashboard\route.js:100: FROM Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:5: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:13: | The Firebase UID from the authenticated user is used to find
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:52: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:62: FROM Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:101: | PUT - Update the logged-in staff member's profile
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:131: * Only staff members can update their profile.
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:171: * Update ONLY the editable profile fields.
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:196: UPDATE Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:201: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\staff\profile\route.js:242: error: "Failed to update profile.",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:1: import { NextResponse } from 'next/server';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:2: import { getConnection } from '@/lib/db';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:3: import { verifyUser } from '@/lib/auth';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:4: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\user-role\route.js:14: .query('SELECT role, is_admin FROM Users WHERE firebase_uid = @uid');
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:2: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:3: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:4: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:5: import { verifyFirebaseToken } from "@/lib/verifyToken";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:82: SELECT id, email, display_name, role, is_admin
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:83: FROM Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:101: SELECT
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:108: FROM Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:140: // This also helps prevent simultaneous requests from
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:147: UPDATE Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\link\route.js:150: updated_at = GETDATE()
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:1: import { NextResponse } from "next/server";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:4: import { verifyUser } from "@/lib/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:25: .query(` SELECT id, role, is_admin FROM Users WHERE firebase_uid = @uid `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:55: .query(` SELECT id, firebase_uid, email, display_name, role, is_admin, created_at, updated_at FROM Users ORDER BY display_name ASC `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:128: .query(` SELECT id, firebase_uid FROM Users WHERE email = @email `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:150: .query(` INSERT INTO Users ( firebase_uid, email, display_name, role, is_admin, created_at, updated_at ) OUTPUT INSERTED.id, INSERTED.firebase_uid, INSERTED.email, INSERTED.display_name, INSERTED.role, INSERTED.is_admin, INSERTED.created_at, INSERTED.updated_at VALUES ( NULL, @email, @display_name, @role, @is_admin, GETDATE(), GETDATE() ) `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:186: | PUT - Update a user
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:232: .query(` SELECT id FROM Users WHERE email = @email AND id <> @id `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:257: .query(` UPDATE Users SET email = @email, display_name = @display_name, role = @role, is_admin = @is_admin, updated_at = GETDATE() OUTPUT INSERTED.id, INSERTED.firebase_uid, INSERTED.email, INSERTED.display_name, INSERTED.role, INSERTED.is_admin, INSERTED.created_at, INSERTED.updated_at WHERE id = @id `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:292: { error: "Failed to update user." },
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\app\api\users\route.js:321: .query(` DELETE FROM Users WHERE id = @id `);
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\graph\graphHelper.js:5: import { ClientSecretCredential } from '@azure/identity';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\graph\graphHelper.js:6: import { Client } from '@microsoft/microsoft-graph-client';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\graph\graphHelper.js:8: import { TokenCredentialAuthenticationProvider } from
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\graph\graphHelper.js:21: _clientSecretCredential = new ClientSecretCredential( //Make a new one! Using our secret IDs from .env.local
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\graph\graphHelper.js:54: //byID: parent view renders the teacher's name from a booking's staffMemberIds bookings can be filtered the same way the parent view filters by email
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:2: import sql from "mssql";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:3: import { getConnection } from "@/lib/db";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:20: const placeholders = normalised.map((_, i) => `@e${i}`).join(",");
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:26: SELECT id, LOWER(LTRIM(RTRIM(email))) AS email
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:27: FROM dbo.Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:63: // UPDATE first — if no row matched, INSERT.
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:65: UPDATE dbo.bookings SET
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsRepository.js:87: INSERT INTO dbo.bookings (
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsSync.js:6: } from "@/lib/graph/graphHelper";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsSync.js:7: import { getUserIdsByEmail, upsertBooking } from "@/lib/reporting/bookingsRepository";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsSync.js:30: "Unexpected timeZone from Graph:",
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsSync.js:88: export async function fetchRecentBookingsFromGraph() {
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\reporting\bookingsSync.js:104: const rows = await fetchRecentBookingsFromGraph();
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:2: import { verifyFirebaseToken } from './verifyToken';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:3: import { getConnection } from './db';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:4: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:53: SELECT id, role, is_admin
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\auth.js:54: FROM Users
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\db.js:3: import sql from 'mssql';
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\db.js:8: * Environment variables are loaded from .env.local during development
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\db.js:55: * This prevents multiple simultaneous requests from all attempting
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\firebase.js:1: import { initializeApp } from "firebase/app";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\firebase.js:2: import { getAuth, GoogleAuthProvider } from "firebase/auth";
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\firebase.js:4: // Your web app's Firebase configuration (copied from your code)
+C:\Users\tashm\Desktop\VSCode_Projects\hidayatul-islam-college-webapp-2.0\src\lib\verifyToken.js:2: import { createRemoteJWKSet, jwtVerify } from 'jose';

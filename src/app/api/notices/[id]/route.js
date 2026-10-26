@@ -1,13 +1,16 @@
 // app/api/notices/[id]/route.js
 import { NextResponse } from 'next/server';
-import { getConnection } from '@/lib/db';
+import { getPostgresConnection } from '@/lib/db-postgres';
 import { verifyUser } from '@/lib/auth';
-import sql from 'mssql';
 
 export async function PUT(req, { params }) {
   try {
     const user = await verifyUser(req);
-    const id = params.id;
+    const id = Number(params.id);
+    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
+      return NextResponse.json({ error: 'Invalid notice ID' }, { status: 400 });
+    }
+
     const body = await req.json();
     const { title, category, content, recipients, status, scheduled_for } = body;
 
@@ -18,27 +21,34 @@ export async function PUT(req, { params }) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const pool = await getConnection();
-    await pool.request()
-      .input('id', sql.Int, id)
-      .input('title', sql.NVarChar, title)
-      .input('category', sql.NVarChar, category)
-      .input('content', sql.NVarChar, content)
-      .input('recipients', sql.NVarChar, recipients)
-      .input('status', sql.NVarChar, status)
-      .input('scheduled_for', sql.DateTime, scheduled_for ? new Date(scheduled_for) : null)
-      .query(`
-        UPDATE Notices
+    const pool = getPostgresConnection();
+    const result = await pool.query(
+      `
+        UPDATE "dbo"."Notices"
         SET
-          title=@title,
-          category=@category,
-          content=@content,
-          recipients=@recipients,
-          status=@status,
-          scheduled_for=@scheduled_for,
-          updated_at=GETUTCDATE()
-        WHERE id=@id
-      `);
+          title = $1,
+          category = $2,
+          content = $3,
+          recipients = $4,
+          status = $5,
+          scheduled_for = $6,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $7
+      `,
+      [
+        title,
+        category,
+        content,
+        recipients,
+        status,
+        scheduled_for ? new Date(scheduled_for) : null,
+        id,
+      ]
+    );
+
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
+    }
 
     console.log('✅ Notice updated:', id);
     return NextResponse.json({ success: true });
@@ -54,11 +64,20 @@ export async function PUT(req, { params }) {
 export async function DELETE(req, { params }) {
   try {
     const user = await verifyUser(req);
-    const id = params.id;
-    const pool = await getConnection();
-    await pool.request()
-      .input('id', sql.Int, id)
-      .query('DELETE FROM Notices WHERE id = @id');
+    const id = Number(params.id);
+    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
+      return NextResponse.json({ error: 'Invalid notice ID' }, { status: 400 });
+    }
+
+    const pool = getPostgresConnection();
+    const result = await pool.query(
+      'DELETE FROM "dbo"."Notices" WHERE id = $1',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
+    }
     console.log('🗑️ Notice deleted:', id);
     return NextResponse.json({ success: true });
   } catch (err) {

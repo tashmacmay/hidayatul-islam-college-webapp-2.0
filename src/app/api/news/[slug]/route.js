@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET(request, { params }) {
   try {
-    const slug = decodeURIComponent(params.slug);
+    const { slug: rawSlug } = await params;
+    const slug = decodeURIComponent(rawSlug);
 
     if (!slug) {
       return NextResponse.json(
@@ -13,12 +13,10 @@ export async function GET(request, { params }) {
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("slug", sql.NVarChar(255), slug)
-      .query(`
+    const result = await pool.query(
+      `
         SELECT
           id,
           title,
@@ -30,13 +28,18 @@ export async function GET(request, { params }) {
           published_at,
           created_at,
           updated_at
-        FROM NewsAnnouncements
-        WHERE slug = @slug
-          AND published = 1
-          AND (image_contains_learners = 0 OR consent_confirmed = 1)
-      `);
+        FROM "dbo"."NewsAnnouncements"
+        WHERE slug = $1
+          AND published = TRUE
+          AND (
+            image_contains_learners = FALSE
+            OR consent_confirmed = TRUE
+          )
+      `,
+      [slug]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "News article not found." },
         { status: 404 }
@@ -44,7 +47,7 @@ export async function GET(request, { params }) {
     }
 
     return NextResponse.json({
-      news: result.recordset[0],
+      news: result.rows[0],
     });
   } catch (error) {
     console.error("PUBLIC NEWS SLUG ERROR:", error);

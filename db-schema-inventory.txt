@@ -1,0 +1,120 @@
+-- Schema inventory export; no application rows exported.
+-- Generated 2026-10-26T08:43:36.667Z
+
+TABLE COLUMNS
+dbo.bookings.id | int | nullable=false | identity=true | max_length=4
+dbo.bookings.ms_booking_id | nvarchar | nullable=false | identity=false | max_length=510
+dbo.bookings.reference | nvarchar | nullable=true | identity=false | max_length=100
+dbo.bookings.parent_id | int | nullable=true | identity=false | max_length=4
+dbo.bookings.customer_email | nvarchar | nullable=true | identity=false | max_length=510
+dbo.bookings.customer_name | nvarchar | nullable=true | identity=false | max_length=510
+dbo.bookings.learner_name | nvarchar | nullable=true | identity=false | max_length=510
+dbo.bookings.staff_ms_id | nvarchar | nullable=true | identity=false | max_length=256
+dbo.bookings.staff_name | nvarchar | nullable=true | identity=false | max_length=510
+dbo.bookings.appointment_type | nvarchar | nullable=true | identity=false | max_length=200
+dbo.bookings.start_at | datetime2 | nullable=false | identity=false | max_length=8
+dbo.bookings.end_at | datetime2 | nullable=false | identity=false | max_length=8
+dbo.bookings.status | nvarchar | nullable=false | identity=false | max_length=40
+dbo.bookings.cancelled_at | datetime2 | nullable=true | identity=false | max_length=8
+dbo.bookings.synced_at | datetime2 | nullable=true | identity=false | max_length=8
+dbo.bookings.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.bookings.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Gallery.id | int | nullable=false | identity=true | max_length=4
+dbo.Gallery.image_url | nvarchar | nullable=false | identity=false | max_length=1000
+dbo.Gallery.title | nvarchar | nullable=true | identity=false | max_length=510
+dbo.Gallery.caption | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.Gallery.alt_text | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.Gallery.category | nvarchar | nullable=true | identity=false | max_length=100
+dbo.Gallery.photo_type | nvarchar | nullable=true | identity=false | max_length=100
+dbo.Gallery.consent_confirmed | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.Gallery.published | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.Gallery.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Gallery.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.GalleryImages.id | int | nullable=false | identity=true | max_length=4
+dbo.GalleryImages.image_url | nvarchar | nullable=false | identity=false | max_length=1000
+dbo.GalleryImages.title | nvarchar | nullable=true | identity=false | max_length=510
+dbo.GalleryImages.caption | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.GalleryImages.alt_text | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.GalleryImages.category | nvarchar | nullable=true | identity=false | max_length=100
+dbo.GalleryImages.photo_type | nvarchar | nullable=true | identity=false | max_length=100
+dbo.GalleryImages.consent_confirmed | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.GalleryImages.published | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.GalleryImages.uploaded_by | int | nullable=true | identity=false | max_length=4
+dbo.GalleryImages.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.GalleryImages.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.LearningResources.id | int | nullable=false | identity=true | max_length=4
+dbo.LearningResources.title | nvarchar | nullable=false | identity=false | max_length=510
+dbo.LearningResources.caption | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.LearningResources.description | nvarchar | nullable=true | identity=false | max_length=-1
+dbo.LearningResources.category | nvarchar | nullable=true | identity=false | max_length=100
+dbo.LearningResources.grade | nvarchar | nullable=true | identity=false | max_length=100
+dbo.LearningResources.resource_type | nvarchar | nullable=true | identity=false | max_length=100
+dbo.LearningResources.youtube_url | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.LearningResources.file_url | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.LearningResources.thumbnail_url | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.LearningResources.is_published | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.LearningResources.created_by | int | nullable=true | identity=false | max_length=4
+dbo.LearningResources.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.LearningResources.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.NewsAnnouncements.id | int | nullable=false | identity=true | max_length=4
+dbo.NewsAnnouncements.title | nvarchar | nullable=false | identity=false | max_length=510
+dbo.NewsAnnouncements.slug | nvarchar | nullable=false | identity=false | max_length=510
+dbo.NewsAnnouncements.category | nvarchar | nullable=true | identity=false | max_length=100
+dbo.NewsAnnouncements.excerpt | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.NewsAnnouncements.content | nvarchar | nullable=true | identity=false | max_length=-1
+dbo.NewsAnnouncements.featured_image_url | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.NewsAnnouncements.image_contains_learners | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.NewsAnnouncements.consent_confirmed | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.NewsAnnouncements.published | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.NewsAnnouncements.published_at | datetime2 | nullable=true | identity=false | max_length=8
+dbo.NewsAnnouncements.created_by | int | nullable=true | identity=false | max_length=4
+dbo.NewsAnnouncements.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.NewsAnnouncements.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Notices.id | int | nullable=false | identity=true | max_length=4
+dbo.Notices.title | nvarchar | nullable=false | identity=false | max_length=510
+dbo.Notices.type | nvarchar | nullable=true | identity=false | max_length=100
+dbo.Notices.category | nvarchar | nullable=true | identity=false | max_length=100
+dbo.Notices.content | nvarchar | nullable=true | identity=false | max_length=-1
+dbo.Notices.grade | nvarchar | nullable=true | identity=false | max_length=100
+dbo.Notices.recipients | nvarchar | nullable=true | identity=false | max_length=510
+dbo.Notices.status | nvarchar | nullable=false | identity=false | max_length=40 | default=('Draft')
+dbo.Notices.scheduled_for | datetime2 | nullable=true | identity=false | max_length=8
+dbo.Notices.created_by_uid | nvarchar | nullable=true | identity=false | max_length=510
+dbo.Notices.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Notices.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.TermCalendars.id | int | nullable=false | identity=true | max_length=4
+dbo.TermCalendars.term | int | nullable=false | identity=false | max_length=4
+dbo.TermCalendars.grade | nvarchar | nullable=false | identity=false | max_length=100
+dbo.TermCalendars.file_name | nvarchar | nullable=false | identity=false | max_length=510
+dbo.TermCalendars.file_url | nvarchar | nullable=false | identity=false | max_length=1000
+dbo.TermCalendars.file_type | nvarchar | nullable=false | identity=false | max_length=40
+dbo.TermCalendars.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.TermCalendars.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Users.id | int | nullable=false | identity=true | max_length=4
+dbo.Users.firebase_uid | nvarchar | nullable=true | identity=false | max_length=510
+dbo.Users.email | nvarchar | nullable=false | identity=false | max_length=510
+dbo.Users.display_name | nvarchar | nullable=true | identity=false | max_length=510
+dbo.Users.role | nvarchar | nullable=false | identity=false | max_length=100
+dbo.Users.is_admin | bit | nullable=false | identity=false | max_length=1 | default=((0))
+dbo.Users.profile_picture_url | nvarchar | nullable=true | identity=false | max_length=1000
+dbo.Users.created_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+dbo.Users.updated_at | datetime2 | nullable=false | identity=false | max_length=8 | default=(getdate())
+
+INDEXES AND PRIMARY KEYS
+dbo.bookings | IX_bookings_ms_booking_id | primary=false | unique=true | column=ms_booking_id | order=1
+dbo.bookings | IX_bookings_start_at | primary=false | unique=false | column=start_at | order=1
+dbo.bookings | PK__bookings__3213E83F59547A01 | primary=true | unique=true | column=id | order=1
+dbo.Gallery | PK__Gallery__3213E83FE8BB9644 | primary=true | unique=true | column=id | order=1
+dbo.GalleryImages | PK__GalleryI__3213E83F07375E2A | primary=true | unique=true | column=id | order=1
+dbo.LearningResources | PK__Learning__3213E83F45EF7FFF | primary=true | unique=true | column=id | order=1
+dbo.NewsAnnouncements | IX_NewsAnnouncements_slug | primary=false | unique=true | column=slug | order=1
+dbo.NewsAnnouncements | PK__NewsAnno__3213E83F685B48D2 | primary=true | unique=true | column=id | order=1
+dbo.Notices | PK__Notices__3213E83F37B1732C | primary=true | unique=true | column=id | order=1
+dbo.TermCalendars | PK__TermCale__3213E83FEF2E9433 | primary=true | unique=true | column=id | order=1
+dbo.Users | IX_Users_email | primary=false | unique=true | column=email | order=1
+dbo.Users | IX_Users_firebase_uid | primary=false | unique=false | column=firebase_uid | order=1
+dbo.Users | PK__Users__3213E83F99ABF5C7 | primary=true | unique=true | column=id | order=1
+
+FOREIGN KEYS
+
+VIEWS, PROCEDURES, FUNCTIONS AND TRIGGERS

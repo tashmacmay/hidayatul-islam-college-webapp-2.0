@@ -1,16 +1,96 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { requireAdmin } from "@/lib/auth";
+
+function handleError(error, operation) {
+  console.error(`Learning Resources ${operation} error:`, error);
+
+  if (error?.statusCode === 401 || error?.status === 401) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (
+    error?.statusCode === 403 ||
+    error?.status === 403 ||
+    error?.message === "Admin access required" ||
+    error?.message === "Forbidden"
+  ) {
+    return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+  }
+
+  return NextResponse.json(
+    { error: `Failed to ${operation.toLowerCase()} learning resource(s).` },
+    { status: 500 }
+  );
+}
+
+function validateResource(body) {
+  const {
+    title,
+    caption,
+    category,
+    grade,
+    resource_type,
+    youtube_url,
+    file_url,
+  } = body;
+
+  if (
+    typeof title !== "string" || !title.trim() ||
+    typeof caption !== "string" || !caption.trim() ||
+    typeof category !== "string" || !category.trim() ||
+    typeof grade !== "string" || !grade.trim() ||
+    typeof resource_type !== "string" || !resource_type.trim()
+  ) {
+    return "Title, caption, topic, grade and resource type are required.";
+  }
+
+  if (resource_type.trim() === "Video" && !youtube_url?.trim()) {
+    return "A YouTube URL is required for video resources.";
+  }
+
+  if (
+    resource_type.trim() !== "Video" &&
+    !youtube_url?.trim() &&
+    !file_url?.trim()
+  ) {
+    return "Please provide a YouTube URL or upload a document/image for this resource.";
+  }
+
+  return null;
+}
+
+function resourceValues(body) {
+  return [
+    body.title.trim(),
+    body.caption.trim(),
+    typeof body.description === "string" && body.description.trim()
+      ? body.description.trim()
+      : null,
+    body.category.trim(),
+    body.grade.trim(),
+    body.resource_type.trim(),
+    typeof body.youtube_url === "string" && body.youtube_url.trim()
+      ? body.youtube_url.trim()
+      : null,
+    typeof body.file_url === "string" && body.file_url.trim()
+      ? body.file_url.trim()
+      : null,
+    typeof body.thumbnail_url === "string" && body.thumbnail_url.trim()
+      ? body.thumbnail_url.trim()
+      : null,
+    body.is_published === true,
+  ];
+}
 
 // GET all learning resources
 export async function GET(req) {
   try {
     await requireAdmin(req);
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         lr.id,
         lr.title,
@@ -27,22 +107,15 @@ export async function GET(req) {
         lr.created_at,
         lr.updated_at,
         u.display_name AS created_by_name
-      FROM LearningResources AS lr
-      LEFT JOIN Users AS u
+      FROM "dbo"."LearningResources" AS lr
+      LEFT JOIN "dbo"."Users" AS u
         ON lr.created_by = u.id
       ORDER BY lr.created_at DESC
     `);
 
-    return NextResponse.json({
-      resources: result.recordset,
-    });
+    return NextResponse.json({ resources: result.rows });
   } catch (error) {
-    console.error("Learning Resources GET error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to fetch learning resources." },
-      { status: 500 }
-    );
+    return handleError(error, "GET");
   }
 }
 
@@ -50,105 +123,23 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const user = await requireAdmin(req);
-
     const body = await req.json();
 
-    const {
-      title,
-      caption,
-      description,
-      category,
-      grade,
-      resource_type,
-      youtube_url,
-      file_url,
-      thumbnail_url,
-      is_published,
-    } = body;
+    const validationError = validateResource(body);
 
-    // Basic required fields
-    if (
-      !title ||
-      !caption ||
-      !category ||
-      !grade ||
-      !resource_type
-    ) {
+    if (validationError) {
       return NextResponse.json(
-        {
-          error:
-            "Title, caption, topic, grade and resource type are required.",
-        },
+        { error: validationError },
         { status: 400 }
       );
     }
 
-    // Video resources must have a YouTube URL.
-    if (resource_type === "Video" && !youtube_url) {
-      return NextResponse.json(
-        {
-          error: "A YouTube URL is required for video resources.",
-        },
-        { status: 400 }
-      );
-    }
+    const pool = getPostgresConnection();
+    const values = resourceValues(body);
 
-    // Non-video resources must have either a YouTube URL or a file.
-    if (
-      resource_type !== "Video" &&
-      !youtube_url &&
-      !file_url
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Please provide a YouTube URL or upload a document/image for this resource.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const pool = await getConnection();
-
-    const result = await pool
-      .request()
-      .input("title", sql.NVarChar(200), title.trim())
-      .input("caption", sql.NVarChar(500), caption.trim())
-      .input(
-        "description",
-        sql.NVarChar(1000),
-        description?.trim() || null
-      )
-      .input("category", sql.NVarChar(100), category.trim())
-      .input("grade", sql.NVarChar(20), grade.trim())
-      .input(
-        "resource_type",
-        sql.NVarChar(50),
-        resource_type.trim()
-      )
-      .input(
-        "youtube_url",
-        sql.NVarChar(1000),
-        youtube_url?.trim() || null
-      )
-      .input(
-        "file_url",
-        sql.NVarChar(1000),
-        file_url?.trim() || null
-      )
-      .input(
-  "thumbnail_url",
-  sql.NVarChar(1000),
-  thumbnail_url?.trim() || null
-)
-      .input(
-        "is_published",
-        sql.Bit,
-        is_published === true
-      )
-      .input("created_by", sql.Int, user.id)
-      .query(`
-        INSERT INTO LearningResources (
+    const result = await pool.query(
+      `
+        INSERT INTO "dbo"."LearningResources" (
           title,
           caption,
           description,
@@ -159,168 +150,80 @@ export async function POST(req) {
           file_url,
           thumbnail_url,
           is_published,
-          created_by
+          created_by,
+          created_at,
+          updated_at
         )
-        OUTPUT INSERTED.*
         VALUES (
-          @title,
-          @caption,
-          @description,
-          @category,
-          @grade,
-          @resource_type,
-          @youtube_url,
-          @file_url,
-          @thumbnail_url,
-          @is_published,
-          @created_by
+          $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11,
+          CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
         )
-      `);
+        RETURNING *
+      `,
+      [...values, user.id]
+    );
 
     return NextResponse.json(
       {
         message: "Learning resource created successfully.",
-        resource: result.recordset[0],
+        resource: result.rows[0],
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("Learning Resources POST error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to create learning resource." },
-      { status: 500 }
-    );
+    return handleError(error, "POST");
   }
 }
 
-// PUT / Edit an existing learning resource
+// PUT / edit an existing learning resource
 export async function PUT(req) {
   try {
     await requireAdmin(req);
-
     const body = await req.json();
 
-    const {
-      id,
-      title,
-      caption,
-      description,
-      category,
-      grade,
-      resource_type,
-      youtube_url,
-      file_url,
-        thumbnail_url,
-      is_published,
-    } = body;
+    const id = Number.parseInt(body.id, 10);
 
-    if (!id) {
+    if (!Number.isInteger(id) || id <= 0) {
       return NextResponse.json(
-        { error: "Resource ID is required." },
+        { error: "A valid resource ID is required." },
         { status: 400 }
       );
     }
 
-    if (
-      !title ||
-      !caption ||
-      !category ||
-      !grade ||
-      !resource_type
-    ) {
+    const validationError = validateResource(body);
+
+    if (validationError) {
       return NextResponse.json(
-        {
-          error:
-            "Title, caption, topic, grade and resource type are required.",
-        },
+        { error: validationError },
         { status: 400 }
       );
     }
 
-    // Video resources must have a YouTube URL.
-    if (resource_type === "Video" && !youtube_url) {
-      return NextResponse.json(
-        {
-          error: "A YouTube URL is required for video resources.",
-        },
-        { status: 400 }
-      );
-    }
+    const pool = getPostgresConnection();
+    const values = resourceValues(body);
 
-    // Non-video resources must have either a YouTube URL or a file.
-    if (
-      resource_type !== "Video" &&
-      !youtube_url &&
-      !file_url
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Please provide a YouTube URL or upload a document/image for this resource.",
-        },
-        { status: 400 }
-      );
-    }
-
-    const pool = await getConnection();
-
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .input("title", sql.NVarChar(200), title.trim())
-      .input("caption", sql.NVarChar(500), caption.trim())
-      .input(
-        "description",
-        sql.NVarChar(1000),
-        description?.trim() || null
-      )
-      .input("category", sql.NVarChar(100), category.trim())
-      .input("grade", sql.NVarChar(20), grade.trim())
-      .input(
-        "resource_type",
-        sql.NVarChar(50),
-        resource_type.trim()
-      )
-      .input(
-        "youtube_url",
-        sql.NVarChar(1000),
-        youtube_url?.trim() || null
-      )
-      .input(
-        "file_url",
-        sql.NVarChar(1000),
-        file_url?.trim() || null
-      )
-      .input(
-  "thumbnail_url",
-  sql.NVarChar(1000),
-  thumbnail_url?.trim() || null
-)
-      .input(
-        "is_published",
-        sql.Bit,
-        is_published === true
-      )
-      .query(`
-        UPDATE LearningResources
+    const result = await pool.query(
+      `
+        UPDATE "dbo"."LearningResources"
         SET
-          title = @title,
-          caption = @caption,
-          description = @description,
-          category = @category,
-          grade = @grade,
-          resource_type = @resource_type,
-          youtube_url = @youtube_url,
-          file_url = @file_url,
-          thumbnail_url = @thumbnail_url,
-          is_published = @is_published,
-          updated_at = GETDATE()
-        OUTPUT INSERTED.*
-        WHERE id = @id
-      `);
+          title = $1,
+          caption = $2,
+          description = $3,
+          category = $4,
+          grade = $5,
+          resource_type = $6,
+          youtube_url = $7,
+          file_url = $8,
+          thumbnail_url = $9,
+          is_published = $10,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = $11
+        RETURNING *
+      `,
+      [...values, id]
+    );
 
-    if (result.recordset.length === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Learning resource not found." },
         { status: 404 }
@@ -329,15 +232,10 @@ export async function PUT(req) {
 
     return NextResponse.json({
       message: "Learning resource updated successfully.",
-      resource: result.recordset[0],
+      resource: result.rows[0],
     });
   } catch (error) {
-    console.error("Learning Resources PUT error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to update learning resource." },
-      { status: 500 }
-    );
+    return handleError(error, "PUT");
   }
 }
 
@@ -347,26 +245,28 @@ export async function DELETE(req) {
     await requireAdmin(req);
 
     const { searchParams } = new URL(req.url);
-    const id = searchParams.get("id");
+    const rawId = searchParams.get("id");
+    const id = Number.parseInt(rawId, 10);
 
-    if (!id) {
+    if (!rawId || !Number.isInteger(id) || id <= 0) {
       return NextResponse.json(
-        { error: "Resource ID is required." },
+        { error: "A valid resource ID is required." },
         { status: 400 }
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("id", sql.Int, parseInt(id))
-      .query(`
-        DELETE FROM LearningResources
-        WHERE id = @id
-      `);
+    const result = await pool.query(
+      `
+        DELETE FROM "dbo"."LearningResources"
+        WHERE id = $1
+        RETURNING id
+      `,
+      [id]
+    );
 
-    if (result.rowsAffected[0] === 0) {
+    if (result.rows.length === 0) {
       return NextResponse.json(
         { error: "Learning resource not found." },
         { status: 404 }
@@ -377,11 +277,6 @@ export async function DELETE(req) {
       message: "Learning resource deleted successfully.",
     });
   } catch (error) {
-    console.error("Learning Resources DELETE error:", error);
-
-    return NextResponse.json(
-      { error: "Failed to delete learning resource." },
-      { status: 500 }
-    );
+    return handleError(error, "DELETE");
   }
 }
