@@ -69,7 +69,7 @@ export async function GET(req) {
     }
 
     query += `
-      ORDER BY published_at DESC NULLS LAST, created_at DESC
+      ORDER BY updated_at DESC NULLS LAST, created_at DESC
     `;
 
     const result = await pool.query(query, values);
