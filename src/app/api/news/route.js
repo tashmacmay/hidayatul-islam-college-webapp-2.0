@@ -1,14 +1,13 @@
-// app/api/news/route.js
 import { NextResponse } from 'next/server';
-import { getConnection } from '@/lib/db';
+import { getPostgresConnection } from '@/lib/db-postgres';
 
 export async function GET() {
   console.log('🔍 GET /api/news called');
 
   try {
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         id,
         title,
@@ -20,26 +19,26 @@ export async function GET() {
         published_at,
         created_at,
         updated_at
-      FROM NewsAnnouncements
-      WHERE published = 1
-        AND (image_contains_learners = 0 OR consent_confirmed = 1)
+      FROM "dbo"."NewsAnnouncements"
+      WHERE published = TRUE
+        AND (
+          image_contains_learners = FALSE
+          OR consent_confirmed = TRUE
+        )
       ORDER BY published_at DESC
     `);
 
-    console.log(`✅ Found ${result.recordset.length} news items`);
-    return NextResponse.json({ news: result.recordset });
+    console.log(`✅ Found ${result.rows.length} news items`);
+    return NextResponse.json({ news: result.rows });
   } catch (err) {
-    console.error('❌ NEWS GET ERROR:', err);
+    console.error('❌ NEWS GET ERROR:', err.message);
 
-    const status = err.statusCode || 500;
     return NextResponse.json(
       {
         error: 'Failed to load news',
-        statusCode: status,
-        code: err.code,
-        message: err.message,
+        message: 'Unable to retrieve news at this time.',
       },
-      { status }
+      { status: 500 }
     );
   }
 }
