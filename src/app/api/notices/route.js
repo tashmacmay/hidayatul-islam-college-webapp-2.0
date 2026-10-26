@@ -1,9 +1,8 @@
 // app/api/notices/route.js
 
 import { NextResponse } from "next/server";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
-import sql from "mssql";
 
 export const runtime = "nodejs";
 
@@ -42,7 +41,7 @@ export async function GET(req) {
     // Connect to database
     // ---------------------------------------------------------
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
     // ---------------------------------------------------------
     // Publish scheduled notices whose time has arrived
@@ -57,15 +56,15 @@ export async function GET(req) {
     // The notice becomes Published.
     // ---------------------------------------------------------
 
-    await pool.request().query(`
-      UPDATE dbo.Notices
+    await pool.query(`
+      UPDATE "dbo"."Notices"
       SET
         status = 'Published',
-        updated_at = GETDATE()
+        updated_at = CURRENT_TIMESTAMP
       WHERE
         status = 'Scheduled'
         AND scheduled_for IS NOT NULL
-        AND scheduled_for <= GETDATE()
+        AND scheduled_for <= CURRENT_TIMESTAMP
     `);
 
     // ---------------------------------------------------------
@@ -83,11 +82,11 @@ export async function GET(req) {
         scheduled_for,
         created_at,
         updated_at
-      FROM dbo.Notices
+      FROM "dbo"."Notices"
       WHERE status = 'Published'
     `;
 
-    const request = pool.request();
+    const values = [];
 
     // ---------------------------------------------------------
     // Status filter
@@ -99,13 +98,8 @@ export async function GET(req) {
     // ---------------------------------------------------------
 
     if (status && status !== "All") {
-      query += ` AND status = @status`;
-
-      request.input(
-        "status",
-        sql.NVarChar(20),
-        status
-      );
+      values.push(status);
+      query += ` AND status = $${values.length}`;
     }
 
     // ---------------------------------------------------------
@@ -113,18 +107,13 @@ export async function GET(req) {
     // ---------------------------------------------------------
 
     if (grade && grade !== "All") {
+      values.push(grade);
       query += `
         AND (
-          grade = @grade
+          grade = $${values.length}
           OR grade = 'All Grades'
         )
       `;
-
-      request.input(
-        "grade",
-        sql.NVarChar(50),
-        grade
-      );
     }
 
     // ---------------------------------------------------------
@@ -132,20 +121,15 @@ export async function GET(req) {
     // ---------------------------------------------------------
 
     if (search?.trim()) {
+      values.push(`%${search.trim()}%`);
       query += `
         AND (
-          title LIKE @search
-          OR content LIKE @search
-          OR type LIKE @search
-          OR grade LIKE @search
+          title ILIKE $${values.length}
+          OR content ILIKE $${values.length}
+          OR type ILIKE $${values.length}
+          OR grade ILIKE $${values.length}
         )
       `;
-
-      request.input(
-        "search",
-        sql.NVarChar(255),
-        `%${search.trim()}%`
-      );
     }
 
     // ---------------------------------------------------------
@@ -160,13 +144,13 @@ export async function GET(req) {
     // Execute query
     // ---------------------------------------------------------
 
-    const result = await request.query(query);
+    const result = await pool.query(query, values);
 
     console.log(
-      `✅ Found ${result.recordset.length} published notices`
+      `✅ Found ${result.rows.length} published notices`
     );
 
-    return NextResponse.json(result.recordset);
+    return NextResponse.json(result.rows);
   } catch (err) {
     console.error("❌ GET /api/notices error:", err);
 
