@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export async function GET() {
   try {
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         id,
         image_url,
@@ -18,17 +18,17 @@ export async function GET() {
         published,
         created_at,
         updated_at
-      FROM GalleryImages
-      WHERE published = 1
+      FROM "dbo"."GalleryImages"
+      WHERE published = TRUE
         AND (
           photo_type <> 'learners'
-          OR consent_confirmed = 1
+          OR consent_confirmed = TRUE
         )
       ORDER BY created_at DESC
     `);
 
     return NextResponse.json({
-      gallery: result.recordset,
+      gallery: result.rows,
     });
   } catch (error) {
     console.error("Public Gallery GET error:", error);
