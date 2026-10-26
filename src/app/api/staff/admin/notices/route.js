@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import sql from "mssql";
 import { requireAdmin } from "@/lib/auth";
-import { getConnection } from "@/lib/db";
+import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
@@ -16,9 +15,9 @@ const type = searchParams.get("type");
 const grade = searchParams.get("grade");
 const search = searchParams.get("search");
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool.request().query(`
+    const result = await pool.query(`
       SELECT
         id,
         title,
@@ -30,11 +29,11 @@ const search = searchParams.get("search");
         created_by_uid,
         created_at,
         updated_at
-      FROM dbo.Notices
+      FROM "dbo"."Notices"
       ORDER BY created_at DESC
     `);
 
-    let notices = result.recordset;
+    let notices = result.rows;
 
     if (status) {
       notices = notices.filter(
@@ -140,23 +139,11 @@ if (!grade?.trim())
       );
     }
 
-    const pool = await getConnection();
+    const pool = getPostgresConnection();
 
-    const result = await pool
-      .request()
-      .input("title", sql.NVarChar(255), title.trim())
-      .input("type", sql.NVarChar(50), type.trim())
-      .input("content", sql.NVarChar(sql.MAX), content.trim())
-      .input("grade", sql.NVarChar(100), grade.trim())
-      .input("status", sql.NVarChar(20), status)
-      .input(   
-        "scheduled_for",
-        sql.DateTime,
-        scheduled_for ? new Date(scheduled_for) : null
-      )
-      .input("created_by_uid", sql.NVarChar(128), user.uid)
-      .query(`
-        INSERT INTO dbo.Notices (
+    const result = await pool.query(
+      `
+        INSERT INTO "dbo"."Notices" (
           title,
           type,
           content,
@@ -167,34 +154,44 @@ if (!grade?.trim())
           created_at,
           updated_at
         )
-        OUTPUT
-          INSERTED.id,
-          INSERTED.title,
-          INSERTED.type,
-          INSERTED.content,
-          INSERTED.grade,
-          INSERTED.status,
-          INSERTED.scheduled_for,
-          INSERTED.created_by_uid,
-          INSERTED.created_at,
-          INSERTED.updated_at
         VALUES (
-          @title,
-          @type,
-          @content,
-          @grade,
-          @status,
-          @scheduled_for,
-          @created_by_uid,
-          GETDATE(),
-          GETDATE()
+          $1,
+          $2,
+          $3,
+          $4,
+          $5,
+          $6,
+          $7,
+          CURRENT_TIMESTAMP,
+          CURRENT_TIMESTAMP
         )
-      `);
+        RETURNING
+          id,
+          title,
+          type,
+          content,
+          grade,
+          status,
+          scheduled_for,
+          created_by_uid,
+          created_at,
+          updated_at
+      `,
+      [
+        title.trim(),
+        type.trim(),
+        content.trim(),
+        grade.trim(),
+        status,
+        scheduled_for ? new Date(scheduled_for) : null,
+        user.uid,
+      ]
+    );
 
     return NextResponse.json(
       {
         message: "Notice created successfully",
-        notice: result.recordset[0],
+        notice: result.rows[0],
       },
       { status: 201 }
     );
