@@ -4,15 +4,17 @@ import { getPostgresConnection } from "@/lib/db-postgres";
 
 export const runtime = "nodejs";
 
-
 // GET /api/staff/admin/notices/[id]
 export async function GET(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
     const id = Number(params.id);
-
-    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
+      if (
+        !/^\d+$/.test(String(params.id)) ||
+        !Number.isSafeInteger(id) ||
+        id < 1
+      ) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -26,11 +28,11 @@ export async function GET(req, { params }) {
         SELECT
           id,
           title,
-          category,
+          type,
           content,
-          recipients,
+          grade,
           status,
-          scheduled_for,
+          TO_CHAR(scheduled_for, 'YYYY-MM-DD HH24:MI:SS') AS scheduled_for,
           created_by_uid,
           created_at,
           updated_at
@@ -47,9 +49,7 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({
-      notice: result.rows[0],
-    });
+    return NextResponse.json({ notice: result.rows[0] });
   } catch (error) {
     console.error("GET notice error:", error);
 
@@ -60,15 +60,14 @@ export async function GET(req, { params }) {
   }
 }
 
-
 // PUT /api/staff/admin/notices/[id]
 export async function PUT(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
     const id = Number(params.id);
 
-    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
+    if (!Number.isInteger(id) || id <= 0) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }
@@ -76,15 +75,7 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json();
-
-    const {
-      title,
-      category,
-      content,
-      recipients,
-      status,
-      scheduled_for,
-    } = body;
+    const { title, type, content, grade, action } = body;
 
     if (!title?.trim()) {
       return NextResponse.json(
@@ -93,9 +84,9 @@ export async function PUT(req, { params }) {
       );
     }
 
-    if (!category?.trim()) {
+    if (!type?.trim()) {
       return NextResponse.json(
-        { error: "Category is required" },
+        { error: "Type is required" },
         { status: 400 }
       );
     }
@@ -107,26 +98,26 @@ export async function PUT(req, { params }) {
       );
     }
 
-    if (!recipients?.trim()) {
+    if (!grade?.trim()) {
       return NextResponse.json(
-        { error: "Recipients are required" },
+        { error: "Grade is required" },
         { status: 400 }
       );
     }
 
-    if (!["Published", "Scheduled", "Draft"].includes(status)) {
+    if (!["save", "publish", "draft"].includes(action)) {
       return NextResponse.json(
-        { error: "Invalid notice status" },
+        { error: "Invalid notice action" },
         { status: 400 }
       );
     }
 
-    if (status === "Scheduled" && !scheduled_for) {
-      return NextResponse.json(
-        { error: "Scheduled date and time are required" },
-        { status: 400 }
-      );
-    }
+    const updatedStatus =
+      action === "publish"
+        ? "Published"
+        : action === "draft"
+          ? "Draft"
+          : null;
 
     const pool = getPostgresConnection();
 
@@ -135,19 +126,21 @@ export async function PUT(req, { params }) {
         UPDATE "dbo"."Notices"
         SET
           title = $1,
-          category = $2,
+          type = $2,
           content = $3,
-          recipients = $4,
-          status = $5,
-          scheduled_for = $6,
+          grade = $4,
+          status = CASE
+            WHEN $5 = 'save' THEN status
+            ELSE $6
+          END,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $7
         RETURNING
           id,
           title,
-          category,
+          type,
           content,
-          recipients,
+          grade,
           status,
           scheduled_for,
           created_by_uid,
@@ -156,11 +149,11 @@ export async function PUT(req, { params }) {
       `,
       [
         title.trim(),
-        category.trim(),
+        type.trim(),
         content.trim(),
-        recipients.trim(),
-        status,
-        scheduled_for ? new Date(scheduled_for) : null,
+        grade.trim(),
+        action,
+        updatedStatus,
         id,
       ]
     );
@@ -186,15 +179,14 @@ export async function PUT(req, { params }) {
   }
 }
 
-
 // DELETE /api/staff/admin/notices/[id]
 export async function DELETE(req, { params }) {
   try {
-    const user = await requireAdmin(req);
+    await requireAdmin(req);
 
     const id = Number(params.id);
 
-    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
+    if (!Number.isInteger(id) || id <= 0) {
       return NextResponse.json(
         { error: "Invalid notice ID" },
         { status: 400 }

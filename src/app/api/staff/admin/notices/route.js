@@ -9,15 +9,14 @@ export async function GET(req) {
     await requireAdmin(req);
 
     const { searchParams } = new URL(req.url);
-
-const status = searchParams.get("status");
-const type = searchParams.get("type");
-const grade = searchParams.get("grade");
-const search = searchParams.get("search");
+    const status = searchParams.get("status");
+    const type = searchParams.get("type");
+    const grade = searchParams.get("grade");
+    const search = searchParams.get("search");
 
     const pool = getPostgresConnection();
 
-    const result = await pool.query(`
+    let query = `
       SELECT
         id,
         title,
@@ -25,55 +24,55 @@ const search = searchParams.get("search");
         content,
         grade,
         status,
-        scheduled_for,
+        TO_CHAR(scheduled_for, 'YYYY-MM-DD HH24:MI:SS') AS scheduled_for,
         created_by_uid,
         created_at,
         updated_at
       FROM "dbo"."Notices"
-      ORDER BY created_at DESC
-    `);
+      WHERE 1 = 1
+    `;
 
-    let notices = result.rows;
+    const values = [];
 
-    if (status) {
-      notices = notices.filter(
-        (n) => n.status === status
-      );
+    if (status && status !== "All") {
+      values.push(status);
+      query += ` AND status = $${values.length}`;
     }
 
-    if (type) {
-      notices = notices.filter(
-        (n) => n.type === type
-      );
+    if (type && type !== "All") {
+      values.push(type);
+      query += ` AND type = $${values.length}`;
     }
 
-    if (grade) {
-      notices = notices.filter(
-        (n) => n.grade === grade
-      );
+    if (grade && grade !== "All") {
+      values.push(grade);
+      query += ` AND grade = $${values.length}`;
     }
 
     if (search) {
-      const term = search.toLowerCase();
+      values.push(`%${search}%`);
+      const searchParameter = `$${values.length}`;
 
-      notices = notices.filter(
-        (n) =>
-          n.title?.toLowerCase().includes(term) ||
-          n.content?.toLowerCase().includes(term)
-      );
+      query += ` AND (
+        title ILIKE ${searchParameter}
+        OR content ILIKE ${searchParameter}
+        OR type ILIKE ${searchParameter}
+      )`;
     }
 
+    query += " ORDER BY created_at DESC";
+
+    const result = await pool.query(query, values);
+
     return NextResponse.json({
-      notices,
-      total: notices.length,
+      notices: result.rows,
+      total: result.rows.length,
     });
   } catch (error) {
     console.error("GET admin notices error:", error);
 
     return NextResponse.json(
-      {
-        error: "Failed to fetch notices",
-      },
+      { error: "Failed to fetch notices" },
       { status: 500 }
     );
   }
@@ -83,19 +82,10 @@ const search = searchParams.get("search");
 export async function POST(req) {
   try {
     const user = await requireAdmin(req);
-
     const body = await req.json();
 
-const {
-  title,
-  type,
-  content,
-  grade,
-  status,
-  scheduled_for,
-} = body;
+    const { title, type, content, grade, action } = body;
 
-    // Basic validation
     if (!title?.trim()) {
       return NextResponse.json(
         { error: "Title is required" },
@@ -103,8 +93,8 @@ const {
       );
     }
 
-if (!type?.trim())      
-    {return NextResponse.json(
+    if (!type?.trim()) {
+      return NextResponse.json(
         { error: "Type is required" },
         { status: 400 }
       );
@@ -117,28 +107,21 @@ if (!type?.trim())
       );
     }
 
-if (!grade?.trim())      
-    {
-        return NextResponse.json(
+    if (!grade?.trim()) {
+      return NextResponse.json(
         { error: "Grade is required" },
         { status: 400 }
       );
     }
 
-    if (!["Published", "Scheduled", "Draft"].includes(status)) {
+    if (!["publish", "draft"].includes(action)) {
       return NextResponse.json(
-        { error: "Invalid notice status" },
+        { error: "Invalid notice action" },
         { status: 400 }
       );
     }
 
-    if (status === "Scheduled" && !scheduled_for) {
-      return NextResponse.json(
-        { error: "Scheduled date and time are required" },
-        { status: 400 }
-      );
-    }
-
+    const createdStatus = action === "publish" ? "Published" : "Draft";
     const pool = getPostgresConnection();
 
     const result = await pool.query(
@@ -149,19 +132,12 @@ if (!grade?.trim())
           content,
           grade,
           status,
-          scheduled_for,
           created_by_uid,
           created_at,
           updated_at
         )
         VALUES (
-          $1,
-          $2,
-          $3,
-          $4,
-          $5,
-          $6,
-          $7,
+          $1, $2, $3, $4, $5, $6,
           CURRENT_TIMESTAMP,
           CURRENT_TIMESTAMP
         )
@@ -182,8 +158,7 @@ if (!grade?.trim())
         type.trim(),
         content.trim(),
         grade.trim(),
-        status,
-        scheduled_for ? new Date(scheduled_for) : null,
+        createdStatus,
         user.uid,
       ]
     );

@@ -44,30 +44,6 @@ export async function GET(req) {
     const pool = getPostgresConnection();
 
     // ---------------------------------------------------------
-    // Publish scheduled notices whose time has arrived
-    //
-    // Example:
-    //
-    // status = Scheduled
-    // scheduled_for = 2026-10-08 10:20
-    //
-    // Current time = 2026-10-08 10:26
-    //
-    // The notice becomes Published.
-    // ---------------------------------------------------------
-
-    await pool.query(`
-      UPDATE "dbo"."Notices"
-      SET
-        status = 'Published',
-        updated_at = CURRENT_TIMESTAMP
-      WHERE
-        status = 'Scheduled'
-        AND scheduled_for IS NOT NULL
-        AND scheduled_for <= CURRENT_TIMESTAMP
-    `);
-
-    // ---------------------------------------------------------
     // Build GET query
     // ---------------------------------------------------------
 
