@@ -16,7 +16,12 @@ import {
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
-export default function ParentSidebar() {
+export default function ParentSidebar({
+  collapsed = false,
+  mobileOpen = false,
+  onToggle,
+  onCloseMobile,
+}) {
   const router = useRouter();
 
   const [user, setUser] = useState(null);
@@ -91,6 +96,10 @@ export default function ParentSidebar() {
       user={user}
       loading={loading}
       onLogout={handleLogout}
+      collapsed={collapsed}
+      mobileOpen={mobileOpen}
+      onToggle={onToggle}
+      onCloseMobile={onCloseMobile}
     />
   );
 }

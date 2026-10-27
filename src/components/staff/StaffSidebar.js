@@ -16,7 +16,12 @@ import {
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
-export default function StaffSidebar() {
+export default function StaffSidebar({
+  collapsed = false,
+  mobileOpen = false,
+  onToggle,
+  onCloseMobile,
+}) {
   const router = useRouter();
   const {
     isAdmin,
@@ -124,6 +129,10 @@ export default function StaffSidebar() {
       user={user}
       loading={roleLoading || userLoading}
       onLogout={handleLogout}
+      collapsed={collapsed}
+      mobileOpen={mobileOpen}
+      onToggle={onToggle}
+      onCloseMobile={onCloseMobile}
     />
   );
 }
