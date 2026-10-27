@@ -105,39 +105,48 @@ export default function LoginPage() {
   return (
     <>
       <Navbar />
+
       <main className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-off-white px-4 py-12">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10">
             {/* Header */}
             <div className="text-center">
               <h1 className="text-3xl font-bold text-navy">Welcome Back</h1>
+
               <p className="mt-2 text-text-muted">
                 Sign in to your account to continue
               </p>
+
               <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gold" />
             </div>
 
+            {/* Error message */}
             {error && (
               <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">
                 {error}
               </div>
             )}
 
+            {/* Email/password form */}
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+              {/* Email */}
               <div>
                 <label htmlFor="email" className="form-label">
                   Email Address
                 </label>
+
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-muted">
                     <Mail className="h-5 w-5" />
                   </div>
+
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
+                    autoComplete="email"
                     className="form-input pl-10"
                     placeholder="you@example.com"
                     disabled={loading}
@@ -145,28 +154,36 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Password */}
               <div>
                 <label htmlFor="password" className="form-label">
                   Password
                 </label>
+
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-text-muted">
                     <Lock className="h-5 w-5" />
                   </div>
+
                   <input
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    autoComplete="current-password"
                     className="form-input pl-10 pr-10"
                     placeholder="••••••••"
                     disabled={loading}
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-navy"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-5 w-5" />
@@ -177,6 +194,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
+              {/* Remember me / Forgot password */}
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
                   <input
@@ -188,6 +206,7 @@ export default function LoginPage() {
                   />
                   Remember me
                 </label>
+
                 <a
                   href="/forgot-password"
                   className="text-sm font-medium text-gold hover:text-gold-light transition"
@@ -196,6 +215,7 @@ export default function LoginPage() {
                 </a>
               </div>
 
+              {/* Sign in */}
               <button
                 type="submit"
                 disabled={loading}
@@ -205,15 +225,18 @@ export default function LoginPage() {
               </button>
             </form>
 
+            {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
+
               <div className="relative flex justify-center text-sm">
                 <span className="bg-white px-4 text-text-muted">or</span>
               </div>
             </div>
 
+            {/* Google sign in */}
             <button
               onClick={handleGoogleSignIn}
               disabled={loading}
@@ -237,18 +260,27 @@ export default function LoginPage() {
                   fill="#EA4335"
                 />
               </svg>
+
               Sign in with Google
             </button>
 
-            <p className="mt-6 text-center text-sm text-text-muted">
-              Don&apos;t have an account?{" "}
-              <a href="/register" className="font-semibold text-gold hover:underline">
-                Create one now
+            {/* Invitation / account activation */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-text-muted">
+                Have you been invited but have not created your password yet?
+              </p>
+
+              <a
+                href="/activate-account"
+                className="inline-block mt-2 font-semibold text-gold hover:underline"
+              >
+                Activate your account
               </a>
-            </p>
+            </div>
           </div>
         </div>
       </main>
+
       <Footer />
     </>
   );
