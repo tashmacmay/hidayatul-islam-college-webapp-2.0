@@ -54,9 +54,8 @@ const phaseSubjects = {
     "Mathematics",
     "Natural Science and Technology",
     "Social Science",
-    "Personal and Social Well-being (including Physical Education, Life Skills and Creative Arts)",
+    "Life Skills",
     "Islamic Studies",
-    "Art",
   ],
   grade7: [
     "English Home Language",
