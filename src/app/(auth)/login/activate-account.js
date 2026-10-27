@@ -7,8 +7,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/public/navbar";
+import Footer from "@/components/public/footer";
 import { Mail, Lock, Eye, EyeOff, UserPlus } from "lucide-react";
 
 export default function ActivateAccountPage() {

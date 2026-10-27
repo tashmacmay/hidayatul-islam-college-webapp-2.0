@@ -1,4 +1,4 @@
-
+// src/lib/verifyToken.js
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 const PROJECT_ID = 'hidayatul-islam-college-webapp';

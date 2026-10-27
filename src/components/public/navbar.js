@@ -1,3 +1,4 @@
+// src/components/public/navbar.js
 "use client";
 
 import Link from "next/link";
