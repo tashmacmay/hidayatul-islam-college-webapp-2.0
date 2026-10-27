@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import crypto from "crypto";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { requireAdmin } from "@/lib/auth";
-//import { createCanvas } from "canvas";
-//TEMPORARY VERCEL BUILD FIX:
-//PDF thumbnail generation is temporarily disabled because pdfjs-dist
-//requires the unavailable "canvas" module in the Vercel build.
-//Revisit PDF thumbnail generation once a Vercel-compatible solution is chosen.
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
+
+// TEMPORARY VERCEL BUILD FIX:
+// PDF thumbnail generation is disabled because the previous pdfjs-dist
+// implementation required the unavailable "canvas" module.
+// Revisit this once a Vercel-compatible renderer is chosen.
 
 export const runtime = "nodejs";
 
@@ -51,78 +51,24 @@ export async function POST(req) {
     }
 
     const extension = ALLOWED_TYPES[file.type];
-    const fileId = crypto.randomUUID();
-    const filename = `${fileId}${extension}`;
-
-    const uploadDirectory = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "resources"
-    );
-
-    await mkdir(uploadDirectory, { recursive: true });
-
-    const filePath = path.join(uploadDirectory, filename);
+    const filename = `${crypto.randomUUID()}${extension}`;
+    const objectKey = `resources/${filename}`;
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    await writeFile(filePath, fileBuffer);
+    await getS3Client().send(
+      new PutObjectCommand({
+        Bucket: STORAGE_BUCKET,
+        Key: objectKey,
+        Body: fileBuffer,
+        ContentType: file.type,
+      })
+    );
 
-    const fileUrl = `/uploads/resources/${filename}`;
+    // Stable application URL; a server route will resolve private objects.
+    const fileUrl = `/api/storage/${objectKey}`;
 
-    let thumbnailUrl = fileUrl;
-
-    // Generate a thumbnail from the first page of a PDF
-// if (file.type === "application/pdf") {
-// const pdfjs = await import("pdfjs-dist/legacy/build/pdf.js");
-
-// pdfjs.GlobalWorkerOptions.workerSrc = path.join(
-//   process.cwd(),
-//   "public",
-//   "pdf.worker.js"
-// );
-
-// const pdf = await pdfjs.getDocument({
-//   data: new Uint8Array(fileBuffer),
-// }).promise;
-
-//   const page = await pdf.getPage(1);
-
-//   const viewport = page.getViewport({
-//     scale: 1.2,
-//   });
-
-//   const canvas = createCanvas(
-//     Math.ceil(viewport.width),
-//     Math.ceil(viewport.height)
-//   );
-
-//   const context = canvas.getContext("2d");
-
-//   await page.render({
-//     canvasContext: context,
-//     viewport,
-//   }).promise;
-
-//   const thumbnailFilename = `${fileId}-thumb.png`;
-
-//   const thumbnailPath = path.join(
-//     uploadDirectory,
-//     thumbnailFilename
-//   );
-
-//   const thumbnailBuffer = canvas.toBuffer("image/png");
-
-//   await writeFile(
-//     thumbnailPath,
-//     thumbnailBuffer
-//   );
-
-//   thumbnailUrl = `/uploads/resources/${thumbnailFilename}`;
-// }
-// TEMPORARY VERCEL BUILD FIX:
-// Skip PDF thumbnail generation. The original PDF remains the resource URL.
-// Re-enable this functionality once a Vercel-compatible renderer is implemented.
+    // PDF thumbnail generation remains disabled.
+    const thumbnailUrl = fileUrl;
 
     return NextResponse.json({
       success: true,
@@ -130,15 +76,10 @@ export async function POST(req) {
       thumbnail_url: thumbnailUrl,
     });
   } catch (error) {
-    console.error(
-      "Learning Resource file upload error:",
-      error
-    );
+    console.error("Learning Resource file upload error:", error);
 
     return NextResponse.json(
-      {
-        error: "Failed to upload file.",
-      },
+      { error: "Failed to upload file." },
       { status: 500 }
     );
   }

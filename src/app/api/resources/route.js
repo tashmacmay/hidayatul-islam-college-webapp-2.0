@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { getPostgresConnection } from "@/lib/db-postgres";
+import { verifyUser } from "@/lib/auth";
 
-export async function GET() {
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+export async function GET(req) {
   try {
+    await verifyUser(req);
+
     const pool = getPostgresConnection();
 
     const result = await pool.query(`
@@ -29,7 +35,20 @@ export async function GET() {
       resources: result.rows,
     });
   } catch (error) {
-    console.error("Public Resources GET error:", error);
+    if (
+      error?.code === "MISSING_AUTH_HEADER" ||
+      error?.code === "EMPTY_TOKEN" ||
+      error?.code === "INVALID_TOKEN" ||
+      error?.code === "NO_UID_IN_TOKEN" ||
+      error?.code === "USER_NOT_FOUND"
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized." },
+        { status: 401 }
+      );
+    }
+
+    console.error("Resources GET error:", error);
 
     return NextResponse.json(
       { error: "Failed to fetch learning resources." },
