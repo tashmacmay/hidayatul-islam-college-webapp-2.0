@@ -1,9 +1,37 @@
-import { NextResponse } from 'next/server';
-import { getPostgresConnection } from '@/lib/db-postgres';
+import { NextResponse } from "next/server";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getPostgresConnection } from "@/lib/db-postgres";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
+
+export const runtime = "nodejs";
+
+const isNewsObjectKey = (value) =>
+  typeof value === "string" &&
+  /^news\/[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(value);
+
+async function addSignedImageUrl(article) {
+  if (!isNewsObjectKey(article.featured_image_url)) {
+    // Preserve existing URLs while legacy images are reviewed.
+    return article;
+  }
+
+  const imageUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: article.featured_image_url,
+    }),
+    { expiresIn: 300 }
+  );
+
+  return {
+    ...article,
+    featured_image_url: imageUrl,
+  };
+}
 
 export async function GET() {
-  console.log('🔍 GET /api/news called');
-
   try {
     const pool = getPostgresConnection();
 
@@ -28,15 +56,18 @@ export async function GET() {
       ORDER BY published_at DESC
     `);
 
-    console.log(`✅ Found ${result.rows.length} news items`);
-    return NextResponse.json({ news: result.rows });
+    const news = await Promise.all(
+      result.rows.map(addSignedImageUrl)
+    );
+
+    return NextResponse.json({ news });
   } catch (err) {
-    console.error('❌ NEWS GET ERROR:', err.message);
+    console.error("NEWS GET ERROR:", err.message);
 
     return NextResponse.json(
       {
-        error: 'Failed to load news',
-        message: 'Unable to retrieve news at this time.',
+        error: "Failed to load news",
+        message: "Unable to retrieve news at this time.",
       },
       { status: 500 }
     );

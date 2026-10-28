@@ -3,25 +3,25 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
-import {
-  getS3Client,
-  STORAGE_BUCKET,
-} from "@/lib/object-storage";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req, context) {
   try {
-    const user = await verifyUser(req);
     const { key } = await context.params;
 
-    // Only allow resource objects uploaded under this prefix.
+    // Allow only files directly inside approved resource folders.
+    const allowedPrefixes = ["resources", "resource-thumbnails"];
+
     if (
       !Array.isArray(key) ||
       key.length !== 2 ||
-      key[0] !== "resources" ||
-      !/^[a-f0-9-]+\.(pdf|png|jpg)$/i.test(key[1])
+      !allowedPrefixes.includes(key[0]) ||
+      !/^[a-f0-9-]+\.(?:pdf|png|jpg|jpeg)$/i.test(key[1]) ||
+      (key[0] === "resource-thumbnails" &&
+        !/\.(?:png|jpg|jpeg)$/i.test(key[1]))
     ) {
       return NextResponse.json(
         { error: "Resource not found." },
@@ -33,8 +33,7 @@ export async function GET(req, context) {
     const fileUrl = `/api/storage/${objectKey}`;
     const pool = getPostgresConnection();
 
-    // A published resource may be opened by an authenticated user.
-    // Draft resources are restricted to staff administrators.
+    // Only serve files linked to a resource in the database.
     const result = await pool.query(
       `
         SELECT id, is_published
@@ -54,7 +53,10 @@ export async function GET(req, context) {
 
     const resource = result.rows[0];
 
+    // Published resources are public. Drafts require an admin.
     if (!resource.is_published) {
+      const user = await verifyUser(req);
+
       if (user.role !== "staff" || !user.isAdmin) {
         return NextResponse.json(
           { error: "Forbidden." },
@@ -69,17 +71,19 @@ export async function GET(req, context) {
         Bucket: STORAGE_BUCKET,
         Key: objectKey,
       }),
-      { expiresIn: 60 }
+      { expiresIn: 300 }
     );
 
     return NextResponse.redirect(signedUrl);
   } catch (error) {
     if (
-      error?.code === "MISSING_AUTH_HEADER" ||
-      error?.code === "EMPTY_TOKEN" ||
-      error?.code === "INVALID_TOKEN" ||
-      error?.code === "NO_UID_IN_TOKEN" ||
-      error?.code === "USER_NOT_FOUND"
+      [
+        "MISSING_AUTH_HEADER",
+        "EMPTY_TOKEN",
+        "INVALID_TOKEN",
+        "NO_UID_IN_TOKEN",
+        "USER_NOT_FOUND",
+      ].includes(error?.code)
     ) {
       return NextResponse.json(
         { error: "Unauthorized." },
@@ -94,7 +98,7 @@ export async function GET(req, context) {
       );
     }
 
-    console.error("Private resource delivery error:", error);
+    console.error("Resource delivery error:", error);
 
     return NextResponse.json(
       { error: "Unable to open this resource." },

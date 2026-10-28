@@ -738,7 +738,7 @@ const handleUploadPhoto = async (event) => {
 
     setNewsImageFile(null);
     setNewsImagePreview(
-      article.featured_image_url || ""
+      article.preview_url || ""
     );
 
     setShowNewsForm(true);
@@ -1171,18 +1171,18 @@ return (
                     Category <span className="text-red-500">*</span>
                   </label>
 
-<select
-  name="category"
-  value={newsForm.category}
-  onChange={handleNewsFormChange}
-  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
->
-  <option value="News">News</option>
-  <option value="Announcements">Announcements</option>
-  <option value="Events">Events</option>
-  <option value="Achievements">Achievements</option>
-  <option value="Islamic Life">Islamic Life</option>
-</select>
+                  <select
+                    name="category"
+                    value={newsForm.category}
+                    onChange={handleNewsFormChange}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#0d2260] focus:ring-2 focus:ring-[#0d2260]/10"
+                  >
+                    <option value="News">News</option>
+                    <option value="Announcements">Announcements</option>
+                    <option value="Events">Events</option>
+                    <option value="Achievements">Achievements</option>
+                    <option value="Islamic Life">Islamic Life</option>
+                  </select>
                 </div>
 
                 {/* EXCERPT */}
@@ -1920,7 +1920,7 @@ return (
                       </div>
                     </div>
 
-                    {viewItem.featured_image_url && (
+                    {viewItem.preview_url && (
                       <div>
 
                         <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
@@ -1929,7 +1929,7 @@ return (
 
                         <div className="mt-2 overflow-hidden rounded-xl bg-gray-100">
                           <img
-                            src={viewItem.featured_image_url}
+                            src={viewItem.preview_url}
                             alt={viewItem.title || ""}
                             className="max-h-96 w-full object-contain"
                           />
@@ -1973,7 +1973,7 @@ return (
 
                     <div className="overflow-hidden rounded-xl bg-gray-100">
                       <img
-                        src={viewItem.image_url}
+                        src={viewItem.preview_url}
                         alt={viewItem.alt_text || ""}
                         className="max-h-[500px] w-full object-contain"
                       />
@@ -2582,9 +2582,9 @@ return (
                       <div className="flex min-w-0 flex-1 gap-3">
 
                         <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-gray-100">
-                          {image.image_url ? (
+                          {image.preview_url ? (
                             <img
-                              src={image.image_url}
+                              src={image.preview_url}
                               alt={
                                 image.alt_text ||
                                 image.title ||
@@ -2685,7 +2685,7 @@ return (
                         <button
                           type="button"
                           onClick={() =>
-                            handleDeleteGalleryPhoto(image)
+                            handleDeleteGallery(image)
                           }
                           disabled={deletingId === image.id}
                           className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-2.5 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"

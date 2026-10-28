@@ -476,14 +476,14 @@ return (
           <div className="min-h-0 flex-1 overflow-auto bg-slate-100 p-5">
             {viewingCalendar.file_type === "PDF" ? (
               <iframe
-                src={viewingCalendar.file_url}
+                src={viewingCalendar.preview_url}
                 title={viewingCalendar.file_name}
                 className="h-[60vh] w-full rounded-xl border border-slate-100 bg-white"
               />
             ) : (
               <div className="flex min-h-[50vh] items-center justify-center">
                 <img
-                  src={viewingCalendar.file_url}
+                  src={viewingCalendar.preview_url}
                   alt={viewingCalendar.file_name}
                   className="max-h-[65vh] max-w-full rounded-xl border border-slate-100 bg-white object-contain shadow-sm"
                 />

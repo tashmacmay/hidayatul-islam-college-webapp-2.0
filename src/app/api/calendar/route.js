@@ -1,8 +1,39 @@
 import { NextResponse } from "next/server";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyUser } from "@/lib/auth";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const isCalendarObjectKey = (value) =>
+  typeof value === "string" &&
+  /^calendar\/[a-f0-9-]+\.(?:pdf|png)$/i.test(value);
+
+async function addPreviewUrl(calendar) {
+  if (!isCalendarObjectKey(calendar.file_url)) {
+    return {
+      ...calendar,
+      preview_url: null,
+    };
+  }
+
+  const previewUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: calendar.file_url,
+    }),
+    { expiresIn: 300 }
+  );
+
+  return {
+    ...calendar,
+    preview_url: previewUrl,
+  };
+}
 
 // ==========================================================
 // GET - Parent Calendar
@@ -10,18 +41,12 @@ export const runtime = "nodejs";
 
 export async function GET(req) {
   try {
-    // ------------------------------------------------------
-    // Verify logged-in parent
-    // ------------------------------------------------------
-
+    // Verify the logged-in user.
     await verifyUser(req);
 
     const pool = getPostgresConnection();
 
-    // ------------------------------------------------------
-    // Get all calendars
-    // ------------------------------------------------------
-
+    // Retrieve calendars in the existing order.
     const result = await pool.query(`
       SELECT
         id,
@@ -42,9 +67,14 @@ export async function GET(req) {
         grade ASC
     `);
 
+    // Generate short-lived preview links for private stored files.
+    const calendars = await Promise.all(
+      result.rows.map(addPreviewUrl)
+    );
+
     return NextResponse.json({
       success: true,
-      calendars: result.rows,
+      calendars,
     });
   } catch (error) {
     console.error("Parent calendar GET error:", error);
@@ -54,18 +84,14 @@ export async function GET(req) {
       error.message?.toLowerCase().includes("authentication")
     ) {
       return NextResponse.json(
-        {
-          error: "Unauthorized.",
-        },
+        { error: "Unauthorized." },
         { status: 401 }
       );
     }
 
     return NextResponse.json(
       {
-        error:
-          error.message ||
-          "Failed to load calendars.",
+        error: "Failed to load calendars.",
       },
       { status: 500 }
     );

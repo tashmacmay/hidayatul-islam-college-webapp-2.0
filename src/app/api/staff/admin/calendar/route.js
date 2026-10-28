@@ -1,8 +1,33 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { getPostgresConnection } from "@/lib/db-postgres";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const isCalendarObjectKey = (value) =>
+  typeof value === "string" &&
+  /^calendar\/[a-f0-9-]+\.(?:pdf|png)$/i.test(value);
+
+async function addPreviewUrl(calendar) {
+  if (!isCalendarObjectKey(calendar.file_url)) {
+    return { ...calendar, preview_url: null };
+  }
+
+  const previewUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: calendar.file_url,
+    }),
+    { expiresIn: 300 }
+  );
+
+  return { ...calendar, preview_url: previewUrl };
+}
 
 // GET /api/staff/admin/calendar
 // Optional filters: ?term=1 and/or ?grade=Grade%204
@@ -60,9 +85,13 @@ export async function GET(req) {
       values
     );
 
+    const calendars = await Promise.all(
+      result.rows.map(addPreviewUrl)
+    );
+
     return NextResponse.json({
-      calendars: result.rows,
-      total: result.rows.length,
+      calendars,
+      total: calendars.length,
     });
   } catch (error) {
     console.error("GET admin calendar error:", error);
@@ -80,7 +109,7 @@ export async function GET(req) {
 }
 
 // POST /api/staff/admin/calendar
-// The file is uploaded separately through /api/upload.
+// The file is uploaded separately through the calendar upload route.
 export async function POST(req) {
   try {
     await requireAdmin(req);
@@ -96,9 +125,7 @@ export async function POST(req) {
     const normalizedFileUrl =
       typeof file_url === "string" ? file_url.trim() : "";
     const normalizedFileType =
-      typeof file_type === "string"
-        ? file_type.toUpperCase()
-        : "";
+      typeof file_type === "string" ? file_type.toUpperCase() : "";
 
     if (![1, 2, 3, 4].includes(termNumber)) {
       return NextResponse.json(
@@ -121,9 +148,9 @@ export async function POST(req) {
       );
     }
 
-    if (!normalizedFileUrl) {
+    if (!isCalendarObjectKey(normalizedFileUrl)) {
       return NextResponse.json(
-        { error: "File URL is required" },
+        { error: "Invalid calendar storage key. Please upload the file again." },
         { status: 400 }
       );
     }
