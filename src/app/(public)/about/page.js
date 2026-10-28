@@ -7,6 +7,7 @@ import {
   Star,
   Users,
 } from "lucide-react";
+import AboutGalleryPreview from "@/components/public/AboutGalleryPreview";
 
 const schoolHistory = [
   {
@@ -176,21 +177,17 @@ export default function About() {
       </section>
 
       <section className="section-shell section-shell--navy">
-        <div className="mx-auto max-w-6xl">
-          <div className="text-center">
-            <div className="text-center">
-              <p className="section-label">Life At HIC</p>
-              <h2 className="mt-3 text-xl font-bold leading-tight text-white md:text-2xl">
-                Our School In Pictures
-              </h2>
-              <div className="section-header-divider" />
-            </div>
-          </div>
+        <div className="mx-auto max-w-6xl text-center">
+          <p className="section-label text-gold">Life At HIC</p>
 
-          <div className="mt-12 grid gap-3 md:grid-cols-3 md:grid-rows-2">
-            {schoolImages.map((image, index) => (
-              <img key={`${image.src}-${index}`} src={image.src} alt={image.alt} className={image.className} />
-            ))}
+          <h2 className="mt-3 text-2xl font-bold leading-tight text-white md:text-3xl">
+            Our School In Pictures
+          </h2>
+
+          <div className="section-header-divider mx-auto" />
+
+          <div className="mt-10">
+            <AboutGalleryPreview />
           </div>
         </div>
       </section>
