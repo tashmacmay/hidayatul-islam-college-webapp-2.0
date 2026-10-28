@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPostgresConnection } from "@/lib/db-postgres";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 import { requireAdmin } from "@/lib/auth";
 
 const NEWS_CATEGORIES = [
@@ -9,6 +15,49 @@ const NEWS_CATEGORIES = [
   "Notices",
   "Islamic",
 ];
+
+const SIGNED_URL_EXPIRY_SECONDS = 300;
+
+function isNewsObjectKey(value) {
+  return (
+    typeof value === "string" &&
+    /^news\/[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(value)
+  );
+}
+
+async function addPreviewUrl(article) {
+  if (!article || !isNewsObjectKey(article.featured_image_url)) {
+    return {
+      ...article,
+      preview_url: null,
+    };
+  }
+
+  const previewUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: article.featured_image_url,
+    }),
+    { expiresIn: SIGNED_URL_EXPIRY_SECONDS }
+  );
+
+  return {
+    ...article,
+    preview_url: previewUrl,
+  };
+}
+
+async function deleteNewsObject(objectKey) {
+  if (!isNewsObjectKey(objectKey)) return;
+
+  await getS3Client().send(
+    new DeleteObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: objectKey,
+    })
+  );
+}
 
 function errorResponse(error, operation) {
   console.error(`${operation} error:`, error);
@@ -89,7 +138,9 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ news: result.rows[0] });
+    return NextResponse.json({
+      news: await addPreviewUrl(result.rows[0]),
+    });
   } catch (error) {
     return errorResponse(error, "GET news article");
   }
@@ -147,9 +198,20 @@ export async function PUT(req, { params }) {
       typeof featured_image_url === "string" &&
       Boolean(featured_image_url.trim());
 
+    const newImageKey = hasImage ? featured_image_url.trim() : null;
     const containsLearners = image_contains_learners === true;
     const consentConfirmed = consent_confirmed === true;
     const isPublished = published === true;
+
+    if (hasImage && !isNewsObjectKey(newImageKey)) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid news image reference. Please upload the image again.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (containsLearners && !hasImage) {
       return NextResponse.json(
@@ -180,7 +242,7 @@ export async function PUT(req, { params }) {
 
     const existing = await pool.query(
       `
-        SELECT id, published_at
+        SELECT id, published_at, featured_image_url
         FROM "dbo"."NewsAnnouncements"
         WHERE slug = $1
         LIMIT 1
@@ -197,6 +259,7 @@ export async function PUT(req, { params }) {
 
     const existingArticle = existing.rows[0];
     const id = existingArticle.id;
+    const oldImageKey = existingArticle.featured_image_url;
     const newSlug = slug.trim();
 
     const duplicateSlug = await pool.query(
@@ -247,7 +310,7 @@ export async function PUT(req, { params }) {
           ? excerpt.trim()
           : null,
         content.trim(),
-        hasImage ? featured_image_url.trim() : null,
+        newImageKey,
         containsLearners,
         consentConfirmed,
         isPublished,
@@ -262,9 +325,27 @@ export async function PUT(req, { params }) {
       );
     }
 
+    // Remove the old object only after the database update succeeds.
+    // Never delete an object if the article still references that same key.
+    if (
+      isNewsObjectKey(oldImageKey) &&
+      oldImageKey !== newImageKey
+    ) {
+      try {
+        await deleteNewsObject(oldImageKey);
+      } catch (storageError) {
+        console.error(
+          "Failed to delete replaced news image:",
+          storageError
+        );
+        // The article update has succeeded. Log the orphaned object
+        // for later cleanup rather than reporting the update as failed.
+      }
+    }
+
     return NextResponse.json({
       message: "News article updated successfully.",
-      news: result.rows[0],
+      news: await addPreviewUrl(result.rows[0]),
     });
   } catch (error) {
     return errorResponse(error, "PUT news article");
@@ -279,13 +360,39 @@ export async function DELETE(req, { params }) {
     const slug = await getSlug(params);
     const pool = getPostgresConnection();
 
+    const existing = await pool.query(
+      `
+        SELECT id, featured_image_url
+        FROM "dbo"."NewsAnnouncements"
+        WHERE slug = $1
+        LIMIT 1
+      `,
+      [slug]
+    );
+
+    if (existing.rows.length === 0) {
+      return NextResponse.json(
+        { error: "News article not found." },
+        { status: 404 }
+      );
+    }
+
+    const article = existing.rows[0];
+    const imageKey = article.featured_image_url;
+
+    // Delete a valid private-storage object before removing the DB row.
+    // If storage deletion fails, keep the article record intact.
+    if (isNewsObjectKey(imageKey)) {
+      await deleteNewsObject(imageKey);
+    }
+
     const result = await pool.query(
       `
         DELETE FROM "dbo"."NewsAnnouncements"
-        WHERE slug = $1
+        WHERE id = $1
         RETURNING id
       `,
-      [slug]
+      [article.id]
     );
 
     if (result.rows.length === 0) {

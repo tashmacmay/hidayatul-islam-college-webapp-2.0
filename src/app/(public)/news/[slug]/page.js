@@ -187,14 +187,21 @@ export default function NewsArticlePage() {
           FEATURED IMAGE
       ======================================================== */}
 
-      {article.featured_image_url && (
+      {(article.preview_url || article.featured_image_url) && (
         <section className="bg-white">
           <div className="mx-auto max-w-5xl px-6 md:px-8">
             <div className="overflow-hidden rounded-2xl">
               <img
-                src={article.featured_image_url}
+                src={article.preview_url || article.featured_image_url}
                 alt={article.title}
-                className="h-auto max-h-[600px] w-full object-cover"
+                className="block h-auto max-h-[600px] w-full object-contain"
+                onError={(event) => {
+                  console.error(
+                    "Failed to load news featured image:",
+                    event.currentTarget.src
+                  );
+                  event.currentTarget.style.display = "none";
+                }}
               />
             </div>
           </div>

@@ -1,5 +1,18 @@
 import { NextResponse } from "next/server";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getPostgresConnection } from "@/lib/db-postgres";
+import {
+  getS3Client,
+  STORAGE_BUCKET,
+} from "@/lib/object-storage";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const isNewsObjectKey = (value) =>
+  typeof value === "string" &&
+  /^news\/[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(value);
 
 export async function GET(request, { params }) {
   try {
@@ -46,8 +59,37 @@ export async function GET(request, { params }) {
       );
     }
 
+    const news = result.rows[0];
+    let previewUrl = null;
+
+    if (isNewsObjectKey(news.featured_image_url)) {
+      previewUrl = await getSignedUrl(
+        getS3Client(),
+        new GetObjectCommand({
+          Bucket: STORAGE_BUCKET,
+          Key: news.featured_image_url,
+        }),
+        { expiresIn: 300 }
+      );
+    } else if (
+      typeof news.featured_image_url === "string" &&
+      /^https?:\/\//i.test(news.featured_image_url)
+    ) {
+      // Preserve existing externally hosted images.
+      previewUrl = news.featured_image_url;
+    } else if (
+      typeof news.featured_image_url === "string" &&
+      news.featured_image_url.startsWith("/uploads/news/")
+    ) {
+      // Preserve legacy local image paths.
+      previewUrl = news.featured_image_url;
+    }
+
     return NextResponse.json({
-      news: result.rows[0],
+      news: {
+        ...news,
+        preview_url: previewUrl,
+      },
     });
   } catch (error) {
     console.error("PUBLIC NEWS SLUG ERROR:", error);
@@ -55,7 +97,6 @@ export async function GET(request, { params }) {
     return NextResponse.json(
       {
         error: "Failed to fetch news article.",
-        details: error.message,
       },
       { status: 500 }
     );

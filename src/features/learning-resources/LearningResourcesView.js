@@ -5,7 +5,6 @@ import {
   BookOpen,
   FileText,
   Play,
-  BookMarked,
   School,
   ExternalLink,
   Filter,
@@ -39,90 +38,209 @@ const GRADES = [
   "Grade 7",
 ];
 
-function getYouTubeEmbedUrl(url) {
+function getYouTubeVideoId(url) {
   if (!url) return "";
 
   try {
     const parsedUrl = new URL(url);
     const hostname = parsedUrl.hostname.toLowerCase();
-
     let videoId = "";
 
     if (
       hostname === "youtu.be" ||
       hostname === "www.youtu.be"
     ) {
-      videoId = parsedUrl.pathname
-        .replace(/^\/+/, "")
-        .split("/")[0];
-    }
-
-    if (
-      hostname === "youtube.com" ||
-      hostname === "www.youtube.com" ||
-      hostname === "m.youtube.com"
-    ) {
       videoId =
-        parsedUrl.searchParams.get("v") || "";
+        parsedUrl.pathname.split("/").filter(Boolean)[0] || "";
+    } else if (
+      [
+        "youtube.com",
+        "www.youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+      ].includes(hostname)
+    ) {
+      videoId = parsedUrl.searchParams.get("v") || "";
 
-      if (parsedUrl.pathname.startsWith("/embed/")) {
-        videoId = parsedUrl.pathname
-          .split("/embed/")[1]
-          .split("/")[0];
-      }
+      const match = parsedUrl.pathname.match(
+        /^\/(?:embed|shorts|live)\/([^/?]+)/
+      );
 
-      if (parsedUrl.pathname.startsWith("/shorts/")) {
-        videoId = parsedUrl.pathname
-          .split("/shorts/")[1]
-          .split("/")[0];
+      if (!videoId && match) {
+        videoId = match[1];
       }
     }
 
-    if (!videoId) return "";
-
-    return `https://www.youtube.com/embed/${videoId}`;
+    return /^[A-Za-z0-9_-]{11}$/.test(videoId)
+      ? videoId
+      : "";
   } catch {
     return "";
   }
 }
 
-function ResourceCard({ resource }) {
-  const embedUrl = getYouTubeEmbedUrl(
+function getYouTubeThumbnail(url) {
+  const videoId = getYouTubeVideoId(url);
+
+  return videoId
+    ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+    : "";
+}
+
+async function openProtectedResource(resourceId) {
+  const newTab = window.open("about:blank", "_blank");
+
+  if (!newTab) {
+    alert("Please allow pop-ups to open this document.");
+    return;
+  }
+
+  newTab.opener = null;
+  newTab.document.title = "Opening resource...";
+
+  try {
+    const user = getAuth(app).currentUser;
+
+    if (!user) {
+      throw new Error(
+        "Please sign in again to open this document."
+      );
+    }
+
+    const token = await user.getIdToken();
+
+    const response = await fetch("/api/storage/sign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ resourceId }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.url) {
+      throw new Error(
+        data.error || "Unable to open this document."
+      );
+    }
+
+    newTab.location.replace(data.url);
+  } catch (error) {
+    newTab.close();
+    alert(
+      error.message || "Unable to open this document."
+    );
+  }
+}
+
+function ResourcePreview({ resource }) {
+  const videoId = getYouTubeVideoId(resource.youtube_url);
+  const videoThumbnail = getYouTubeThumbnail(
     resource.youtube_url
   );
 
+  const storedThumbnail =
+    typeof resource.thumbnail_url === "string" &&
+    (
+      /^https?:\/\//i.test(resource.thumbnail_url) ||
+      (
+        resource.thumbnail_url.startsWith("/") &&
+        !resource.thumbnail_url.startsWith("//")
+      )
+    )
+      ? resource.thumbnail_url
+      : "";
+
+  // Prefer a YouTube thumbnail for videos; otherwise use the
+  // thumbnail stored with the resource.
+  const imageUrl = videoThumbnail || storedThumbnail;
+  const isPdf = /\.pdf(?:[?#]|$)/i.test(
+    resource.file_url || ""
+  );
+
+  const [imageFailed, setImageFailed] = useState(false);
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageUrl]);
+
+  // Do not reserve a large preview area when no image exists.
+  if (!imageUrl || imageFailed) {
+    if (!videoId) return null;
+
+    return (
+      <div className="flex h-16 w-full items-center justify-center bg-navy">
+        <Play size={24} className="text-gold" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`relative w-full overflow-hidden bg-slate-100 ${
+        isPdf ? "h-56" : "aspect-video"
+      }`}
+    >
+      <img
+        src={imageUrl}
+        alt={
+          videoId
+            ? `Video thumbnail: ${resource.title}`
+            : `Preview of ${resource.title}`
+        }
+        loading="lazy"
+        className={`h-full w-full ${
+          isPdf
+            ? "object-contain object-top"
+            : "object-cover"
+        }`}
+        onError={() => setImageFailed(true)}
+      />
+
+      {videoId && (
+        <a
+          href={resource.youtube_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Watch ${resource.title} on YouTube`}
+          className="absolute inset-0 flex items-center justify-center bg-black/10 transition hover:bg-black/25"
+        >
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-lg">
+            <Play
+              size={25}
+              className="ml-1 text-red-600"
+              fill="currentColor"
+            />
+          </span>
+        </a>
+      )}
+    </div>
+  );
+}
+
+function ResourceCard({ resource }) {
+  const videoId = getYouTubeVideoId(resource.youtube_url);
+  const isVideo = Boolean(videoId);
+
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      {/* Preview */}
-      {embedUrl ? (
-        <div className="aspect-video w-full bg-navy">
-          <iframe
-            src={embedUrl}
-            title={resource.title}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowFullScreen
-          />
-        </div>
-      ) : (
-        <div className="flex aspect-video w-full items-center justify-center bg-navy">
-          <BookOpen
-            size={40}
-            className="text-gold"
-          />
-        </div>
-      )}
+      <ResourcePreview resource={resource} />
 
-      {/* Information */}
       <div className="p-5">
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-gold/10 px-3 py-1 text-[10px] font-semibold text-navy">
-            {resource.grade}
-          </span>
+          {resource.grade && (
+            <span className="rounded-full bg-gold/10 px-3 py-1 text-[10px] font-semibold text-navy">
+              {resource.grade}
+            </span>
+          )}
 
-          <span className="rounded-full bg-navy/5 px-3 py-1 text-[10px] font-semibold text-navy">
-            {resource.category}
-          </span>
+          {resource.category && (
+            <span className="rounded-full bg-navy/5 px-3 py-1 text-[10px] font-semibold text-navy">
+              {resource.category}
+            </span>
+          )}
         </div>
 
         <h3 className="mt-4 text-lg font-bold text-navy">
@@ -142,24 +260,35 @@ function ResourceCard({ resource }) {
         )}
 
         <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold">
-          {embedUrl ? (
+          {isVideo ? (
             <Play size={14} />
           ) : (
             <FileText size={14} />
           )}
-
           {resource.resource_type}
         </div>
 
         {resource.file_url && (
-          <a
-            href={resource.file_url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => openProtectedResource(resource.id)}
             className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-xs font-semibold text-navy transition hover:opacity-90"
           >
             <FileText size={16} />
             Open Resource
+            <ExternalLink size={14} />
+          </button>
+        )}
+
+        {isVideo && (
+          <a
+            href={resource.youtube_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-xs font-semibold text-navy transition hover:opacity-90"
+          >
+            <Play size={16} />
+            Watch Video
             <ExternalLink size={14} />
           </a>
         )}
@@ -169,81 +298,84 @@ function ResourceCard({ resource }) {
 }
 
 function FormPolicyCard({ resource }) {
+  const videoThumbnail = getYouTubeThumbnail(
+    resource.youtube_url
+  );
+
+  const hasStoredThumbnail =
+    typeof resource.thumbnail_url === "string" &&
+    (
+      /^https?:\/\//i.test(resource.thumbnail_url) ||
+      (
+        resource.thumbnail_url.startsWith("/") &&
+        !resource.thumbnail_url.startsWith("//")
+      )
+    );
+
+  const hasPreview = Boolean(
+    videoThumbnail || hasStoredThumbnail
+  );
+
   return (
-    <article className="flex flex-col rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      {/* Thumbnail */}
-      {resource.thumbnail_url ? (
-        <div className="overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
-          <img
-            src={resource.thumbnail_url}
-            alt={`First page of ${resource.title}`}
-            className="h-56 w-full object-cover object-top"
-          />
-        </div>
-      ) : (
-        <div className="flex h-56 items-center justify-center rounded-xl bg-slate-50">
-          <FileText
-            size={48}
-            className="text-slate-300"
-          />
+    <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+      {hasPreview && (
+        <div className="overflow-hidden border-b border-slate-100 bg-slate-50">
+          <ResourcePreview resource={resource} />
         </div>
       )}
 
-      {/* Information */}
-      <div className="mt-5 flex items-start gap-4">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold/10">
-          <FileText
-            size={20}
-            className="text-gold"
-          />
-        </div>
-
-        <div className="min-w-0">
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-navy/5 px-3 py-1 text-[10px] font-semibold text-navy">
-              {resource.resource_type}
-            </span>
-
-            <span className="rounded-full bg-gold/10 px-3 py-1 text-[10px] font-semibold text-navy">
-              {resource.grade}
-            </span>
+      <div className="flex flex-col p-5">
+        <div className="flex items-start gap-4">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold/10">
+            <FileText size={20} className="text-gold" />
           </div>
 
-          <h3 className="mt-3 text-lg font-bold text-navy">
-            {resource.title}
-          </h3>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap gap-2">
+              {resource.resource_type && (
+                <span className="rounded-full bg-navy/5 px-3 py-1 text-[10px] font-semibold text-navy">
+                  {resource.resource_type}
+                </span>
+              )}
 
-          {resource.caption && (
-            <p className="mt-2 text-sm font-medium text-text-muted">
-              {resource.caption}
-            </p>
-          )}
+              {resource.grade && (
+                <span className="rounded-full bg-gold/10 px-3 py-1 text-[10px] font-semibold text-navy">
+                  {resource.grade}
+                </span>
+              )}
+            </div>
 
-          {resource.description && (
-            <p className="mt-3 text-sm leading-6 text-text-muted">
-              {resource.description}
-            </p>
-          )}
+            <h3 className="mt-3 text-lg font-bold text-navy">
+              {resource.title}
+            </h3>
+
+            {resource.caption && (
+              <p className="mt-2 text-sm font-medium text-text-muted">
+                {resource.caption}
+              </p>
+            )}
+
+            {resource.description && (
+              <p className="mt-3 text-sm leading-6 text-text-muted">
+                {resource.description}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Open document */}
-      {resource.file_url && (
-        <a
-          href={resource.file_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-xs font-semibold text-navy transition hover:opacity-90"
-        >
-          <FileText size={16} />
-          Open Document
-          <ExternalLink size={14} />
-        </a>
-      )}
+        {resource.file_url && (
+          <button
+            type="button"
+            onClick={() => openProtectedResource(resource.id)}
+            className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-xs font-semibold text-navy transition hover:opacity-90"
+          >
+            <FileText size={16} />
+            Open Document
+            <ExternalLink size={14} />
+          </button>
+        )}
 
-      {/* YouTube resource */}
-      {resource.youtube_url &&
-        !resource.file_url && (
+        {resource.youtube_url && !resource.file_url && (
           <a
             href={resource.youtube_url}
             target="_blank"
@@ -251,10 +383,11 @@ function FormPolicyCard({ resource }) {
             className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-gold px-4 py-2.5 text-xs font-semibold text-navy transition hover:opacity-90"
           >
             <Play size={16} />
-            Open Resource
+            Watch Video
             <ExternalLink size={14} />
           </a>
         )}
+      </div>
     </article>
   );
 }
@@ -270,69 +403,66 @@ export default function LearningResourcesView({ role }) {
   const [selectedGrade, setSelectedGrade] =
     useState("All Grades");
 
-  // ==========================================================
-  // Load resources
-  // ==========================================================
-
   useEffect(() => {
-    loadResources();
-  }, []);
+    let cancelled = false;
 
-  async function loadResources() {
-    try {
-      setLoading(true);
-      setError("");
+    async function loadResources() {
+      try {
+        setLoading(true);
+        setError("");
 
-      const auth = getAuth(app);
-      const user = auth.currentUser;
+        const auth = getAuth(app);
+        const user = auth.currentUser;
 
-      if (!user) {
-        setError(
-          "You must be logged in to view learning resources."
-        );
-        return;
-      }
+        if (!user) {
+          throw new Error(
+            "You must be logged in to view learning resources."
+          );
+        }
 
-      const token = await user.getIdToken();
+        const token = await user.getIdToken();
 
-      const response = await fetch(
-        "/api/resources",
-        {
+        const response = await fetch("/api/resources", {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Failed to load learning resources."
+          );
         }
-      );
 
-      const data = await response.json();
+        if (!cancelled) {
+          setResources(data.resources || []);
+        }
+      } catch (error) {
+        console.error("Resources loading error:", error);
 
-      if (!response.ok) {
-        throw new Error(
-          data.error ||
-            "Failed to load learning resources."
-        );
+        if (!cancelled) {
+          setError(
+            error.message ||
+              "Failed to load learning resources."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
-      setResources(data.resources || []);
-    } catch (error) {
-      console.error(
-        "Resources loading error:",
-        error
-      );
-
-      setError(
-        error.message ||
-          "Failed to load learning resources."
-      );
-    } finally {
-      setLoading(false);
     }
-  }
 
-  // ==========================================================
-  // Filter normal learning resources
-  // ==========================================================
+    loadResources();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredResources = useMemo(() => {
     return resources.filter((resource) => {
@@ -340,9 +470,7 @@ export default function LearningResourcesView({ role }) {
         resource.resource_type === "Form" ||
         resource.resource_type === "Policy";
 
-      if (isFormOrPolicy) {
-        return false;
-      }
+      if (isFormOrPolicy) return false;
 
       const matchesCategory =
         selectedCategory === "All Resources" ||
@@ -353,20 +481,9 @@ export default function LearningResourcesView({ role }) {
         resource.grade === selectedGrade ||
         resource.grade === "General";
 
-      return (
-        matchesCategory &&
-        matchesGrade
-      );
+      return matchesCategory && matchesGrade;
     });
-  }, [
-    resources,
-    selectedCategory,
-    selectedGrade,
-  ]);
-
-  // ==========================================================
-  // Filter forms and policies
-  // ==========================================================
+  }, [resources, selectedCategory, selectedGrade]);
 
   const formPolicyResources = useMemo(() => {
     return resources.filter((resource) => {
@@ -374,9 +491,7 @@ export default function LearningResourcesView({ role }) {
         resource.resource_type === "Form" ||
         resource.resource_type === "Policy";
 
-      if (!isFormOrPolicy) {
-        return false;
-      }
+      if (!isFormOrPolicy) return false;
 
       const matchesGrade =
         selectedGrade === "All Grades" ||
@@ -387,252 +502,194 @@ export default function LearningResourcesView({ role }) {
     });
   }, [resources, selectedGrade]);
 
-  // ==========================================================
-  // Render
-  // ==========================================================
-
   return (
     <ShellPage
       sidebar={(sidebarProps) =>
-        role === "parent"
-          ? <ParentSidebar {...sidebarProps} />
-          : <StaffSidebar {...sidebarProps} />
+        role === "parent" ? (
+          <ParentSidebar {...sidebarProps} />
+        ) : (
+          <StaffSidebar {...sidebarProps} />
+        )
       }
       spaceY=""
     >
-          {/* ================================================= */}
-          {/* Header */}
-          {/* ================================================= */}
+      {/* Header */}
+      <div className="mb-6">
+        <div className="mb-1 flex items-center gap-2">
+          <BookOpen size={21} className="text-gold" />
 
-          <div className="mb-6">
-            <div className="mb-1 flex items-center gap-2">
-              <BookOpen
-                size={21}
-                className="text-gold"
-              />
+          <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
+            {role === "parent" ? "Parent Portal" : "Staff Portal"}
+          </span>
+        </div>
 
-              <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
-                {role === "parent" ? "Parent Portal" : "Staff Portal"}
-              </span>
-            </div>
+        <h1 className="text-2xl font-bold text-navy md:text-3xl">
+          Learning Resources
+        </h1>
 
-            <h1 className="text-2xl font-bold text-navy md:text-3xl">
-              Learning Resources
-            </h1>
+        <p className="mt-1 text-sm text-text-muted">
+          Access educational materials, videos, guides and school
+          documents for your learner.
+        </p>
+      </div>
 
-            <p className="mt-1 text-sm text-text-muted">
-              Access educational materials, videos,
-              guides and school documents for your learner.
-            </p>
+      {/* Filters */}
+      <div className="mb-6 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center gap-2">
+          <Filter size={17} className="text-gold" />
+
+          <h2 className="text-sm font-bold text-navy">
+            Filter Resources
+          </h2>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-navy">
+              Category
+            </label>
+
+            <select
+              value={selectedCategory}
+              onChange={(e) =>
+                setSelectedCategory(e.target.value)
+              }
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+            >
+              {RESOURCE_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* ================================================= */}
-          {/* Filters */}
-          {/* ================================================= */}
+          <div>
+            <label className="mb-2 block text-sm font-semibold text-navy">
+              Grade
+            </label>
 
-          <div className="mb-6 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-            <div className="mb-4 flex items-center gap-2">
-              <Filter
-                size={17}
-                className="text-gold"
-              />
-
-              <h2 className="text-sm font-bold text-navy">
-                Filter Resources
-              </h2>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-
-              {/* Category */}
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-navy">
-                  Category
-                </label>
-
-                <select
-                  value={selectedCategory}
-                  onChange={(e) =>
-                    setSelectedCategory(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                >
-                  {RESOURCE_CATEGORIES.map(
-                    (category) => (
-                      <option
-                        key={category}
-                        value={category}
-                      >
-                        {category}
-                      </option>
-                    )
-                  )}
-                </select>
-              </div>
-
-              {/* Grade */}
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold text-navy">
-                  Grade
-                </label>
-
-                <select
-                  value={selectedGrade}
-                  onChange={(e) =>
-                    setSelectedGrade(
-                      e.target.value
-                    )
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
-                >
-                  {GRADES.map((grade) => (
-                    <option
-                      key={grade}
-                      value={grade}
-                    >
-                      {grade}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <select
+              value={selectedGrade}
+              onChange={(e) =>
+                setSelectedGrade(e.target.value)
+              }
+              className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
+            >
+              {GRADES.map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
+      </div>
 
-          {/* ================================================= */}
-          {/* Error */}
-          {/* ================================================= */}
+      {/* Error */}
+      {error && (
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
-          {error && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
+      {/* Resource lists */}
+      {loading ? (
+        <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
+          <LoadingState label="Loading learning resources..." />
+        </div>
+      ) : (
+        <>
+          {/* Learning Materials */}
+          <section>
+            <div className="mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen size={18} className="text-gold" />
+
+                <h2 className="text-lg font-bold text-navy">
+                  Learning Materials
+                </h2>
+              </div>
+
+              <p className="mt-1 text-sm text-text-muted">
+                Educational resources relevant to your selected grade
+                and category.
+              </p>
             </div>
-          )}
 
-          {/* ================================================= */}
-          {/* Loading */}
-          {/* ================================================= */}
-
-          {loading ? (
-            <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-              <LoadingState label="Loading learning resources..." />
-            </div>
-          ) : (
-            <>
-              {/* ================================================= */}
-              {/* Learning Resources */}
-              {/* ================================================= */}
-
-              <section>
-                <div className="mb-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen
-                      size={18}
-                      className="text-gold"
-                    />
-
-                    <h2 className="text-lg font-bold text-navy">
-                      Learning Materials
-                    </h2>
-                  </div>
-
-                  <p className="mt-1 text-sm text-text-muted">
-                    Educational resources relevant to your
-                    selected grade and category.
-                  </p>
+            {filteredResources.length === 0 ? (
+              <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-navy">
+                  <BookOpen size={22} className="text-gold" />
                 </div>
 
-                {filteredResources.length === 0 ? (
-                  <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-navy">
-                      <BookOpen
-                        size={22}
-                        className="text-gold"
-                      />
-                    </div>
+                <h2 className="mt-4 text-base font-bold text-navy">
+                  No resources found
+                </h2>
 
-                    <h2 className="mt-4 text-base font-bold text-navy">
-                      No resources found
-                    </h2>
+                <p className="mx-auto mt-1 max-w-md text-sm text-text-muted">
+                  There are currently no published learning resources
+                  matching your selected filters.
+                </p>
+              </div>
+            ) : (
+              <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {filteredResources.map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    resource={resource}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
 
-                    <p className="mx-auto mt-1 max-w-md text-sm text-text-muted">
-                      There are currently no published
-                      learning resources matching your
-                      selected filters.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredResources.map(
-                      (resource) => (
-                        <ResourceCard
-                          key={resource.id}
-                          resource={resource}
-                        />
-                      )
-                    )}
-                  </div>
-                )}
-              </section>
+          {/* Forms & Policies */}
+          <section className="mt-12">
+            <div className="mb-4">
+              <div className="flex items-center gap-2">
+                <School size={18} className="text-gold" />
 
-              {/* ================================================= */}
-              {/* Forms & Policies */}
-              {/* ================================================= */}
+                <h2 className="text-lg font-bold text-navy">
+                  Forms & Policies
+                </h2>
+              </div>
 
-              <section className="mt-12">
-                <div className="mb-4">
-                  <div className="flex items-center gap-2">
-                    <School
-                      size={18}
-                      className="text-gold"
-                    />
+              <p className="mt-1 text-sm text-text-muted">
+                Official school forms, policies and documents available
+                to parents.
+              </p>
+            </div>
 
-                    <h2 className="text-lg font-bold text-navy">
-                      Forms & Policies
-                    </h2>
-                  </div>
+            {formPolicyResources.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
+                <FileText
+                  size={25}
+                  className="mx-auto mb-2 text-slate-300"
+                />
 
-                  <p className="mt-1 text-sm text-text-muted">
-                    Official school forms, policies and
-                    documents available to parents.
-                  </p>
-                </div>
+                <p className="text-sm font-semibold text-text-muted">
+                  No forms or policies available
+                </p>
 
-                {formPolicyResources.length === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-8 text-center">
-                    <FileText
-                      size={25}
-                      className="mx-auto mb-2 text-slate-300"
-                    />
-
-                    <p className="text-sm font-semibold text-text-muted">
-                      No forms or policies available
-                    </p>
-
-                    <p className="mt-1 text-xs text-text-muted">
-                      School forms, policies and official
-                      documents will appear here when
-                      available.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {formPolicyResources.map(
-                      (resource) => (
-                        <FormPolicyCard
-                          key={resource.id}
-                          resource={resource}
-                        />
-                      )
-                    )}
-                  </div>
-                )}
-              </section>
-            </>
-          )}
+                <p className="mt-1 text-xs text-text-muted">
+                  School forms, policies and official documents will
+                  appear here when available.
+                </p>
+              </div>
+            ) : (
+              <div className="grid items-start gap-6 md:grid-cols-2">
+                {formPolicyResources.map((resource) => (
+                  <FormPolicyCard
+                    key={resource.id}
+                    resource={resource}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
     </ShellPage>
   );
 }

@@ -1,10 +1,40 @@
 import { NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
+import {
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { requireAdmin } from "@/lib/auth";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const isCalendarObjectKey = (value) =>
+  typeof value === "string" &&
+  /^calendar\/[a-f0-9-]+\.(?:pdf|png)$/i.test(value);
+
+async function deleteStoredCalendar(fileUrl) {
+  // Never send legacy local paths or arbitrary values to Object Storage.
+  if (!isCalendarObjectKey(fileUrl)) {
+    return;
+  }
+
+  await getS3Client().send(
+    new DeleteObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: fileUrl,
+    })
+  );
+}
+
+function validateId(id) {
+  return Boolean(
+    id &&
+      /^\d+$/.test(String(id)) &&
+      Number.isSafeInteger(Number(id)) &&
+      Number(id) > 0
+  );
+}
 
 // DELETE calendar
 export async function DELETE(req, { params }) {
@@ -13,7 +43,7 @@ export async function DELETE(req, { params }) {
 
     const { id } = await params;
 
-    if (!id || !/^\d+$/.test(String(id)) || Number(id) <= 0) {
+    if (!validateId(id)) {
       return NextResponse.json(
         { error: "Invalid calendar ID." },
         { status: 400 }
@@ -48,24 +78,14 @@ export async function DELETE(req, { params }) {
       [Number(id)]
     );
 
-    // Preserve the existing local-file cleanup behaviour.
-    if (calendar.file_url) {
-      try {
-        const relativePath = calendar.file_url.replace(/^\/+/, "");
-        const filePath = path.join(
-          process.cwd(),
-          "public",
-          relativePath
-        );
-
-        await unlink(filePath);
-        console.log("Calendar file deleted:", filePath);
-      } catch (fileError) {
-        console.warn(
-          "Could not delete calendar file:",
-          fileError.message
-        );
-      }
+    // The database row is deleted. Clean up the private object if applicable.
+    try {
+      await deleteStoredCalendar(calendar.file_url);
+    } catch (storageError) {
+      console.error(
+        "Calendar row deleted, but Object Storage cleanup failed:",
+        storageError
+      );
     }
 
     return NextResponse.json({
@@ -89,7 +109,7 @@ export async function PUT(req, { params }) {
 
     const { id } = await params;
 
-    if (!id || !/^\d+$/.test(String(id)) || Number(id) <= 0) {
+    if (!validateId(id)) {
       return NextResponse.json(
         { error: "Invalid calendar ID." },
         { status: 400 }
@@ -133,7 +153,34 @@ export async function PUT(req, { params }) {
       );
     }
 
+    // New uploads must use a valid private Object Storage key.
+    if (!isCalendarObjectKey(file_url)) {
+      return NextResponse.json(
+        { error: "Invalid calendar storage key. Please upload the file again." },
+        { status: 400 }
+      );
+    }
+
     const pool = getPostgresConnection();
+
+    // Read the existing key so we can clean it up after a successful update.
+    const existingResult = await pool.query(
+      `
+        SELECT id, file_url
+        FROM "dbo"."TermCalendars"
+        WHERE id = $1
+      `,
+      [Number(id)]
+    );
+
+    if (existingResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Calendar not found." },
+        { status: 404 }
+      );
+    }
+
+    const oldFileUrl = existingResult.rows[0].file_url;
 
     const result = await pool.query(
       `
@@ -171,6 +218,22 @@ export async function PUT(req, { params }) {
         { error: "Calendar not found." },
         { status: 404 }
       );
+    }
+
+    // Only remove the old object after the database update succeeds.
+    if (
+      oldFileUrl &&
+      oldFileUrl !== file_url &&
+      isCalendarObjectKey(oldFileUrl)
+    ) {
+      try {
+        await deleteStoredCalendar(oldFileUrl);
+      } catch (storageError) {
+        console.error(
+          "Calendar updated, but previous Object Storage cleanup failed:",
+          storageError
+        );
+      }
     }
 
     return NextResponse.json({

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getPostgresConnection } from "@/lib/db-postgres";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const pool = getPostgresConnection();
@@ -29,7 +32,7 @@ export async function GET() {
       resources: result.rows,
     });
   } catch (error) {
-    console.error("Public Resources GET error:", error);
+    console.error("Public resources GET error:", error);
 
     return NextResponse.json(
       { error: "Failed to fetch learning resources." },

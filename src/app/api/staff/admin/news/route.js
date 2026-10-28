@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPostgresConnection } from "@/lib/db-postgres";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 import { requireAdmin } from "@/lib/auth";
 
 const NEWS_CATEGORIES = [
@@ -9,6 +12,38 @@ const NEWS_CATEGORIES = [
   "Achievements",
   "Islamic Life",
 ];
+
+const SIGNED_URL_EXPIRY_SECONDS = 300;
+
+function isNewsObjectKey(value) {
+  return (
+    typeof value === "string" &&
+    /^news\/[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(value)
+  );
+}
+
+async function addPreviewUrl(article) {
+  if (!article || !isNewsObjectKey(article.featured_image_url)) {
+    return {
+      ...article,
+      preview_url: null,
+    };
+  }
+
+  const previewUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: article.featured_image_url,
+    }),
+    { expiresIn: SIGNED_URL_EXPIRY_SECONDS }
+  );
+
+  return {
+    ...article,
+    preview_url: previewUrl,
+  };
+}
 
 // GET /api/staff/admin/news
 // Returns all news articles, including drafts.
@@ -38,7 +73,11 @@ export async function GET(req) {
       ORDER BY created_at DESC
     `);
 
-    return NextResponse.json(result.rows);
+    const articles = await Promise.all(
+      result.rows.map(addPreviewUrl)
+    );
+
+    return NextResponse.json(articles);
   } catch (error) {
     console.error("GET /api/staff/admin/news error:", error);
 
@@ -118,6 +157,19 @@ export async function POST(req) {
     const containsLearners = image_contains_learners === true;
     const consentConfirmed = consent_confirmed === true;
     const isPublished = published === true;
+
+    if (
+      hasImage &&
+      !isNewsObjectKey(featured_image_url.trim())
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid news image reference. Please upload the image again.",
+        },
+        { status: 400 }
+      );
+    }
 
     if (containsLearners && !hasImage) {
       return NextResponse.json(
@@ -200,17 +252,18 @@ export async function POST(req) {
       ]
     );
 
+    const article = await addPreviewUrl(result.rows[0]);
+
     return NextResponse.json(
       {
         success: true,
-        article: result.rows[0],
+        article,
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("POST /api/staff/admin/news error:", error);
 
-    // Handle a concurrent create attempt if the slug has a unique constraint.
     if (error.code === "23505") {
       return NextResponse.json(
         { error: "A news article with this slug already exists" },

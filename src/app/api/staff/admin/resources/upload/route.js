@@ -1,23 +1,62 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import crypto from "crypto";
+import { createCanvas } from "@napi-rs/canvas";
+import { getDocument } from "pdfjs-dist/legacy/build/pdf.js";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { requireAdmin } from "@/lib/auth";
-//import { createCanvas } from "canvas";
-//TEMPORARY VERCEL BUILD FIX:
-//PDF thumbnail generation is temporarily disabled because pdfjs-dist
-//requires the unavailable "canvas" module in the Vercel build.
-//Revisit PDF thumbnail generation once a Vercel-compatible solution is chosen.
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_THUMBNAIL_WIDTH = 600;
 
 const ALLOWED_TYPES = {
   "application/pdf": ".pdf",
   "image/png": ".png",
   "image/jpeg": ".jpg",
 };
+
+async function generatePdfThumbnail(pdfBuffer) {
+  const loadingTask = getDocument({
+    data: new Uint8Array(pdfBuffer),
+    isEvalSupported: false,
+    useSystemFonts: true,
+  });
+
+  let pdf;
+
+  try {
+    pdf = await loadingTask.promise;
+    const page = await pdf.getPage(1);
+
+    const initialViewport = page.getViewport({ scale: 1 });
+    const scale = Math.min(
+      MAX_THUMBNAIL_WIDTH / initialViewport.width,
+      1
+    );
+    const viewport = page.getViewport({ scale });
+
+    const width = Math.max(1, Math.ceil(viewport.width));
+    const height = Math.max(1, Math.ceil(viewport.height));
+    const canvas = createCanvas(width, height);
+    const context = canvas.getContext("2d");
+
+    await page.render({
+      canvasContext: context,
+      viewport,
+    }).promise;
+
+    return Buffer.from(await canvas.encode("png"));
+  } finally {
+    if (pdf) {
+      await pdf.destroy();
+    } else {
+      await loadingTask.destroy();
+    }
+  }
+}
 
 export async function POST(req) {
   try {
@@ -43,86 +82,66 @@ export async function POST(req) {
       );
     }
 
-    if (file.size > MAX_FILE_SIZE) {
+    if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        { error: "File size cannot exceed 10 MB." },
+        {
+          error:
+            "File size must be greater than 0 and cannot exceed 10 MB.",
+        },
         { status: 400 }
       );
     }
 
     const extension = ALLOWED_TYPES[file.type];
-    const fileId = crypto.randomUUID();
-    const filename = `${fileId}${extension}`;
+    const filename = `${crypto.randomUUID()}${extension}`;
+    const objectKey = `resources/${filename}`;
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    const s3 = getS3Client();
 
-    const uploadDirectory = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "resources"
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: STORAGE_BUCKET,
+        Key: objectKey,
+        Body: fileBuffer,
+        ContentLength: fileBuffer.length,
+        ContentType: file.type,
+      })
     );
 
-    await mkdir(uploadDirectory, { recursive: true });
+    const fileUrl = `/api/storage/${objectKey}`;
+    let thumbnailUrl = null;
 
-    const filePath = path.join(uploadDirectory, filename);
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    if (file.type.startsWith("image/")) {
+      thumbnailUrl = fileUrl;
+    } else {
+      const thumbnailFilename =
+        `${crypto.randomUUID()}.png`;
+      const thumbnailKey =
+        `resource-thumbnails/${thumbnailFilename}`;
 
-    await writeFile(filePath, fileBuffer);
+      try {
+        const thumbnailBuffer =
+          await generatePdfThumbnail(fileBuffer);
 
-    const fileUrl = `/uploads/resources/${filename}`;
+        await s3.send(
+          new PutObjectCommand({
+            Bucket: STORAGE_BUCKET,
+            Key: thumbnailKey,
+            Body: thumbnailBuffer,
+            ContentLength: thumbnailBuffer.length,
+            ContentType: "image/png",
+          })
+        );
 
-    let thumbnailUrl = fileUrl;
-
-    // Generate a thumbnail from the first page of a PDF
-// if (file.type === "application/pdf") {
-// const pdfjs = await import("pdfjs-dist/legacy/build/pdf.js");
-
-// pdfjs.GlobalWorkerOptions.workerSrc = path.join(
-//   process.cwd(),
-//   "public",
-//   "pdf.worker.js"
-// );
-
-// const pdf = await pdfjs.getDocument({
-//   data: new Uint8Array(fileBuffer),
-// }).promise;
-
-//   const page = await pdf.getPage(1);
-
-//   const viewport = page.getViewport({
-//     scale: 1.2,
-//   });
-
-//   const canvas = createCanvas(
-//     Math.ceil(viewport.width),
-//     Math.ceil(viewport.height)
-//   );
-
-//   const context = canvas.getContext("2d");
-
-//   await page.render({
-//     canvasContext: context,
-//     viewport,
-//   }).promise;
-
-//   const thumbnailFilename = `${fileId}-thumb.png`;
-
-//   const thumbnailPath = path.join(
-//     uploadDirectory,
-//     thumbnailFilename
-//   );
-
-//   const thumbnailBuffer = canvas.toBuffer("image/png");
-
-//   await writeFile(
-//     thumbnailPath,
-//     thumbnailBuffer
-//   );
-
-//   thumbnailUrl = `/uploads/resources/${thumbnailFilename}`;
-// }
-// TEMPORARY VERCEL BUILD FIX:
-// Skip PDF thumbnail generation. The original PDF remains the resource URL.
-// Re-enable this functionality once a Vercel-compatible renderer is implemented.
+        thumbnailUrl = `/api/storage/${thumbnailKey}`;
+      } catch (thumbnailError) {
+        console.error(
+          "PDF thumbnail generation failed:",
+          thumbnailError
+        );
+        // Keep the PDF upload successful if preview generation fails.
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -130,15 +149,25 @@ export async function POST(req) {
       thumbnail_url: thumbnailUrl,
     });
   } catch (error) {
-    console.error(
-      "Learning Resource file upload error:",
-      error
-    );
+    console.error("Learning Resource file upload error:", error);
+
+    if (
+      [
+        "MISSING_AUTH_HEADER",
+        "EMPTY_TOKEN",
+        "INVALID_TOKEN",
+        "NO_UID_IN_TOKEN",
+        "USER_NOT_FOUND",
+      ].includes(error?.code)
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized." },
+        { status: 401 }
+      );
+    }
 
     return NextResponse.json(
-      {
-        error: "Failed to upload file.",
-      },
+      { error: "Failed to upload file." },
       { status: 500 }
     );
   }

@@ -1,8 +1,38 @@
 import { NextResponse } from "next/server";
+import { GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { requireAdmin } from "@/lib/auth";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 
-// GET all gallery images
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const GALLERY_KEY_PATTERN =
+  /^gallery\/[a-f0-9-]+\.(?:png|jpg|webp)$/i;
+
+async function signGalleryImage(item) {
+  const key = item.image_url || "";
+
+  if (!GALLERY_KEY_PATTERN.test(key)) {
+    return { ...item, preview_url: null };
+  }
+
+  const previewUrl = await getSignedUrl(
+    getS3Client(),
+    new GetObjectCommand({
+      Bucket: STORAGE_BUCKET,
+      Key: key,
+    }),
+    { expiresIn: 300 }
+  );
+
+  // Keep image_url as the persistent object key.
+  // preview_url is temporary and only returned by the admin API.
+  return { ...item, preview_url: previewUrl };
+}
+
+// GET all gallery images (admin only)
 export async function GET(req) {
   try {
     await requireAdmin(req);
@@ -30,7 +60,11 @@ export async function GET(req) {
       ORDER BY g.created_at DESC
     `);
 
-    return NextResponse.json({ gallery: result.rows });
+    const gallery = await Promise.all(
+      result.rows.map((item) => signGalleryImage(item))
+    );
+
+    return NextResponse.json({ gallery });
   } catch (error) {
     console.error("Admin Gallery GET error:", error);
 
@@ -58,14 +92,17 @@ export async function POST(req) {
       published,
     } = body;
 
-    if (!image_url?.trim()) {
+    if (
+      typeof image_url !== "string" ||
+      !GALLERY_KEY_PATTERN.test(image_url.trim())
+    ) {
       return NextResponse.json(
-        { error: "An image is required." },
+        { error: "A valid gallery image is required." },
         { status: 400 }
       );
     }
 
-    if (!alt_text?.trim()) {
+    if (typeof alt_text !== "string" || !alt_text.trim()) {
       return NextResponse.json(
         { error: "Alt text is required." },
         { status: 400 }
@@ -121,10 +158,12 @@ export async function POST(req) {
       ]
     );
 
+    const galleryImage = await signGalleryImage(result.rows[0]);
+
     return NextResponse.json(
       {
         message: "Gallery image uploaded successfully.",
-        gallery: result.rows[0],
+        gallery: galleryImage,
       },
       { status: 201 }
     );
@@ -156,21 +195,24 @@ export async function PUT(req) {
       published,
     } = body;
 
-    if (!id || !Number.isInteger(Number(id)) || Number(id) <= 0) {
+    if (!id || !Number.isSafeInteger(Number(id)) || Number(id) <= 0) {
       return NextResponse.json(
         { error: "A valid gallery image ID is required." },
         { status: 400 }
       );
     }
 
-    if (!image_url?.trim()) {
+    if (
+      typeof image_url !== "string" ||
+      !GALLERY_KEY_PATTERN.test(image_url.trim())
+    ) {
       return NextResponse.json(
-        { error: "An image is required." },
+        { error: "A valid gallery image is required." },
         { status: 400 }
       );
     }
 
-    if (!alt_text?.trim()) {
+    if (typeof alt_text !== "string" || !alt_text.trim()) {
       return NextResponse.json(
         { error: "Alt text is required." },
         { status: 400 }
@@ -233,9 +275,11 @@ export async function PUT(req) {
       );
     }
 
+    const galleryImage = await signGalleryImage(result.rows[0]);
+
     return NextResponse.json({
       message: "Gallery image updated successfully.",
-      gallery: result.rows[0],
+      gallery: galleryImage,
     });
   } catch (error) {
     console.error("Admin Gallery PUT error:", error);
@@ -247,7 +291,7 @@ export async function PUT(req) {
   }
 }
 
-// DELETE gallery image
+// DELETE gallery image and its private object
 export async function DELETE(req) {
   try {
     await requireAdmin(req);
@@ -266,9 +310,10 @@ export async function DELETE(req) {
 
     const result = await pool.query(
       `
-        DELETE FROM "dbo"."GalleryImages"
+        SELECT image_url
+        FROM "dbo"."GalleryImages"
         WHERE id = $1
-        RETURNING id
+        LIMIT 1
       `,
       [Number(id)]
     );
@@ -279,6 +324,26 @@ export async function DELETE(req) {
         { status: 404 }
       );
     }
+
+    const key = result.rows[0].image_url;
+
+    // Delete only validated keys within the gallery folder.
+    if (typeof key === "string" && GALLERY_KEY_PATTERN.test(key)) {
+      await getS3Client().send(
+        new DeleteObjectCommand({
+          Bucket: STORAGE_BUCKET,
+          Key: key,
+        })
+      );
+    }
+
+    await pool.query(
+      `
+        DELETE FROM "dbo"."GalleryImages"
+        WHERE id = $1
+      `,
+      [Number(id)]
+    );
 
     return NextResponse.json({
       message: "Gallery image deleted successfully.",

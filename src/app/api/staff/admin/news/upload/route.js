@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { mkdir, writeFile } from "fs/promises";
-import path from "path";
 import crypto from "crypto";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { getS3Client, STORAGE_BUCKET } from "@/lib/object-storage";
 import { requireAdmin } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -40,37 +40,29 @@ export async function POST(req) {
 
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json(
-        {
-          error: "File size cannot exceed 10 MB.",
-        },
+        { error: "File size cannot exceed 10 MB." },
         { status: 400 }
       );
     }
 
     const extension = ALLOWED_TYPES[file.type];
-    const fileId = crypto.randomUUID();
-    const filename = `${fileId}${extension}`;
-
-    const uploadDirectory = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "news"
-    );
-
-    await mkdir(uploadDirectory, { recursive: true });
-
-    const filePath = path.join(uploadDirectory, filename);
+    const filename = `${crypto.randomUUID()}${extension}`;
+    const objectKey = `news/${filename}`;
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
 
-    await writeFile(filePath, fileBuffer);
-
-    const fileUrl = `/uploads/news/${filename}`;
+    await getS3Client().send(
+      new PutObjectCommand({
+        Bucket: STORAGE_BUCKET,
+        Key: objectKey,
+        Body: fileBuffer,
+        ContentType: file.type,
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      file_url: fileUrl,
+      file_url: objectKey,
     });
   } catch (error) {
     console.error("News image upload error:", error);
