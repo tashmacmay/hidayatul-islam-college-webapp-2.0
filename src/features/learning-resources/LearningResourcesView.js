@@ -46,8 +46,12 @@ function getYouTubeVideoId(url) {
     const hostname = parsedUrl.hostname.toLowerCase();
     let videoId = "";
 
-    if (hostname === "youtu.be" || hostname === "www.youtu.be") {
-      videoId = parsedUrl.pathname.split("/").filter(Boolean)[0] || "";
+    if (
+      hostname === "youtu.be" ||
+      hostname === "www.youtu.be"
+    ) {
+      videoId =
+        parsedUrl.pathname.split("/").filter(Boolean)[0] || "";
     } else if (
       [
         "youtube.com",
@@ -67,7 +71,9 @@ function getYouTubeVideoId(url) {
       }
     }
 
-    return /^[A-Za-z0-9_-]{11}$/.test(videoId) ? videoId : "";
+    return /^[A-Za-z0-9_-]{11}$/.test(videoId)
+      ? videoId
+      : "";
   } catch {
     return "";
   }
@@ -96,7 +102,9 @@ async function openProtectedResource(resourceId) {
     const user = getAuth(app).currentUser;
 
     if (!user) {
-      throw new Error("Please sign in again to open this document.");
+      throw new Error(
+        "Please sign in again to open this document."
+      );
     }
 
     const token = await user.getIdToken();
@@ -113,81 +121,100 @@ async function openProtectedResource(resourceId) {
     const data = await response.json();
 
     if (!response.ok || !data.url) {
-      throw new Error(data.error || "Unable to open this document.");
+      throw new Error(
+        data.error || "Unable to open this document."
+      );
     }
 
     newTab.location.replace(data.url);
   } catch (error) {
     newTab.close();
-    alert(error.message || "Unable to open this document.");
+    alert(
+      error.message || "Unable to open this document."
+    );
   }
 }
 
 function ResourcePreview({ resource }) {
   const videoId = getYouTubeVideoId(resource.youtube_url);
-  const videoThumbnail = getYouTubeThumbnail(resource.youtube_url);
+  const videoThumbnail = getYouTubeThumbnail(
+    resource.youtube_url
+  );
 
-    // Support absolute image URLs and same-site storage API paths.
-    // Do not allow protocol-relative URLs such as //example.com/image.png.
-    const storedThumbnail =
-      typeof resource.thumbnail_url === "string" &&
-      (/^https?:\/\//i.test(resource.thumbnail_url) ||
-        (resource.thumbnail_url.startsWith("/") &&
-          !resource.thumbnail_url.startsWith("//")))
-        ? resource.thumbnail_url
-        : "";
+  const storedThumbnail =
+    typeof resource.thumbnail_url === "string" &&
+    (
+      /^https?:\/\//i.test(resource.thumbnail_url) ||
+      (
+        resource.thumbnail_url.startsWith("/") &&
+        !resource.thumbnail_url.startsWith("//")
+      )
+    )
+      ? resource.thumbnail_url
+      : "";
+
+  // Prefer a YouTube thumbnail for videos; otherwise use the
+  // thumbnail stored with the resource.
+  const imageUrl = videoThumbnail || storedThumbnail;
+  const isPdf = /\.pdf(?:[?#]|$)/i.test(
+    resource.file_url || ""
+  );
 
   const [imageFailed, setImageFailed] = useState(false);
 
-  const imageUrl = videoThumbnail || storedThumbnail;
-
-  // Reset the fallback state if this card's image changes.
   useEffect(() => {
     setImageFailed(false);
   }, [imageUrl]);
 
-  if (imageUrl && !imageFailed) {
-    return (
-      <div className="relative h-56 w-full overflow-hidden bg-slate-100">
-        <img
-          src={imageUrl}
-          alt={
-            videoId
-              ? `Video thumbnail: ${resource.title}`
-              : `Preview of ${resource.title}`
-          }
-          loading="lazy"
-          className="h-full w-full object-cover object-top"
-          onError={() => setImageFailed(true)}
-        />
+  // Do not reserve a large preview area when no image exists.
+  if (!imageUrl || imageFailed) {
+    if (!videoId) return null;
 
-        {videoId && (
-          <a
-            href={resource.youtube_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Watch ${resource.title} on YouTube`}
-            className="absolute inset-0 flex items-center justify-center bg-black/10 transition hover:bg-black/25"
-          >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-lg">
-              <Play
-                size={25}
-                className="ml-1 text-red-600"
-                fill="currentColor"
-              />
-            </span>
-          </a>
-        )}
+    return (
+      <div className="flex h-16 w-full items-center justify-center bg-navy">
+        <Play size={24} className="text-gold" />
       </div>
     );
   }
 
   return (
-    <div className="flex h-56 w-full items-center justify-center bg-navy">
-      {videoId ? (
-        <Play size={42} className="text-gold" />
-      ) : (
-        <FileText size={42} className="text-gold" />
+    <div
+      className={`relative w-full overflow-hidden bg-slate-100 ${
+        isPdf ? "h-56" : "aspect-video"
+      }`}
+    >
+      <img
+        src={imageUrl}
+        alt={
+          videoId
+            ? `Video thumbnail: ${resource.title}`
+            : `Preview of ${resource.title}`
+        }
+        loading="lazy"
+        className={`h-full w-full ${
+          isPdf
+            ? "object-contain object-top"
+            : "object-cover"
+        }`}
+        onError={() => setImageFailed(true)}
+      />
+
+      {videoId && (
+        <a
+          href={resource.youtube_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Watch ${resource.title} on YouTube`}
+          className="absolute inset-0 flex items-center justify-center bg-black/10 transition hover:bg-black/25"
+        >
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-lg">
+            <Play
+              size={25}
+              className="ml-1 text-red-600"
+              fill="currentColor"
+            />
+          </span>
+        </a>
       )}
     </div>
   );
@@ -199,10 +226,8 @@ function ResourceCard({ resource }) {
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      {/* Visual preview */}
       <ResourcePreview resource={resource} />
 
-      {/* Information */}
       <div className="p-5">
         <div className="flex flex-wrap gap-2">
           {resource.grade && (
@@ -235,7 +260,11 @@ function ResourceCard({ resource }) {
         )}
 
         <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-gold">
-          {isVideo ? <Play size={14} /> : <FileText size={14} />}
+          {isVideo ? (
+            <Play size={14} />
+          ) : (
+            <FileText size={14} />
+          )}
           {resource.resource_type}
         </div>
 
@@ -269,15 +298,33 @@ function ResourceCard({ resource }) {
 }
 
 function FormPolicyCard({ resource }) {
+  const videoThumbnail = getYouTubeThumbnail(
+    resource.youtube_url
+  );
+
+  const hasStoredThumbnail =
+    typeof resource.thumbnail_url === "string" &&
+    (
+      /^https?:\/\//i.test(resource.thumbnail_url) ||
+      (
+        resource.thumbnail_url.startsWith("/") &&
+        !resource.thumbnail_url.startsWith("//")
+      )
+    );
+
+  const hasPreview = Boolean(
+    videoThumbnail || hasStoredThumbnail
+  );
+
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-      {/* Thumbnail */}
-      <div className="overflow-hidden border-b border-slate-100 bg-slate-50">
-        <ResourcePreview resource={resource} />
-      </div>
+      {hasPreview && (
+        <div className="overflow-hidden border-b border-slate-100 bg-slate-50">
+          <ResourcePreview resource={resource} />
+        </div>
+      )}
 
-      {/* Information */}
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-col p-5">
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold/10">
             <FileText size={20} className="text-gold" />
@@ -386,7 +433,8 @@ export default function LearningResourcesView({ role }) {
 
         if (!response.ok) {
           throw new Error(
-            data.error || "Failed to load learning resources."
+            data.error ||
+              "Failed to load learning resources."
           );
         }
 
@@ -398,7 +446,8 @@ export default function LearningResourcesView({ role }) {
 
         if (!cancelled) {
           setError(
-            error.message || "Failed to load learning resources."
+            error.message ||
+              "Failed to load learning resources."
           );
         }
       } finally {
@@ -502,7 +551,9 @@ export default function LearningResourcesView({ role }) {
 
             <select
               value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              onChange={(e) =>
+                setSelectedCategory(e.target.value)
+              }
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
             >
               {RESOURCE_CATEGORIES.map((category) => (
@@ -520,7 +571,9 @@ export default function LearningResourcesView({ role }) {
 
             <select
               value={selectedGrade}
-              onChange={(e) => setSelectedGrade(e.target.value)}
+              onChange={(e) =>
+                setSelectedGrade(e.target.value)
+              }
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
             >
               {GRADES.map((grade) => (
@@ -547,6 +600,7 @@ export default function LearningResourcesView({ role }) {
         </div>
       ) : (
         <>
+          {/* Learning Materials */}
           <section>
             <div className="mb-4">
               <div className="flex items-center gap-2">
@@ -579,14 +633,18 @@ export default function LearningResourcesView({ role }) {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid items-start gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {filteredResources.map((resource) => (
-                  <ResourceCard key={resource.id} resource={resource} />
+                  <ResourceCard
+                    key={resource.id}
+                    resource={resource}
+                  />
                 ))}
               </div>
             )}
           </section>
 
+          {/* Forms & Policies */}
           <section className="mt-12">
             <div className="mb-4">
               <div className="flex items-center gap-2">
@@ -620,7 +678,7 @@ export default function LearningResourcesView({ role }) {
                 </p>
               </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2">
+              <div className="grid items-start gap-6 md:grid-cols-2">
                 {formPolicyResources.map((resource) => (
                   <FormPolicyCard
                     key={resource.id}
