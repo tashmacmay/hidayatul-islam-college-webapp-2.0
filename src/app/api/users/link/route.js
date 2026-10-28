@@ -35,20 +35,30 @@ export async function POST(request) {
   const uid = decoded.sub;
   const email = decoded.email?.trim().toLowerCase();
 
+  if (decoded.email_verified !== true) {
+    return NextResponse.json(
+      {
+        error:
+          "Please verify your email address before activating your Hidayatul account.",
+      },
+      { status: 403 }
+    );
+  }
+
   if (!uid || !email) {
     return NextResponse.json(
-      { error: "Firebase account is missing required identity details." },
+      {
+        error:
+          "Firebase account is missing required identity details.",
+      },
       { status: 400 }
     );
   }
 
-  // Keep your existing email-verification policy consistent with
-  // the activation flow before deploying this endpoint.
-
   try {
     const pool = getPostgresConnection();
 
-    // Is this Firebase account already linked?
+    // Check whether this Firebase UID is already linked.
     const existingUid = await pool.query(
       `
         SELECT id, email, display_name, role, is_admin
@@ -67,7 +77,7 @@ export async function POST(request) {
       });
     }
 
-    // Find the administrator-created invitation by normalized email.
+    // Locate the administrator-created invitation by email.
     const invitedResult = await pool.query(
       `
         SELECT
@@ -97,7 +107,10 @@ export async function POST(request) {
     const invitedUser = invitedResult.rows[0];
 
     // Never replace a different Firebase identity.
-    if (invitedUser.firebase_uid && invitedUser.firebase_uid !== uid) {
+    if (
+      invitedUser.firebase_uid &&
+      invitedUser.firebase_uid !== uid
+    ) {
       return NextResponse.json(
         {
           error:
@@ -107,7 +120,8 @@ export async function POST(request) {
       );
     }
 
-    // Update only if the UID is still unclaimed or already matches.
+    // Link only if the invitation is still unclaimed
+    // or already linked to this same UID.
     const updateResult = await pool.query(
       `
         UPDATE "dbo"."Users"
