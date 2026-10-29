@@ -164,11 +164,10 @@ export default function Academics() {
         <div className="mx-auto max-w-6xl">
           <SectionHeader
             label="Faith & Learning"
-            title={
-              <span className="text-white">Islamic Syllabus Topics</span>
-            }
+            title={<span className="text-white">Islamic Syllabus Topics</span>}
             description="Islamic learning supports spiritual development, good character and understanding of faith."
             variant="centered--tight"
+            className="[&>p]:text-white"
           />
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-6">
@@ -232,7 +231,7 @@ export default function Academics() {
             variant="centered--tight"
           />
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
+          <div className="mx-auto mt-6 grid w-full max-w-5xl justify-center gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
             {languageCards.map(({ icon: Icon, ...item }) => (
               <IconCard
                 key={item.title}
@@ -262,13 +261,20 @@ export default function Academics() {
             variant="centered--tight"
           />
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
-            {learnerSupport.map(({ icon: Icon, title, description }) => (
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-6">
+            {learnerSupport.map(({ icon: Icon, title, description }, index) => (
               <IconCard
                 key={title}
                 icon={<Icon className="h-5 w-5 text-gold" />}
                 title={title}
                 variant="light"
+                className={`${
+                  index < 3
+                    ? "lg:col-span-2"
+                    : index === 3
+                      ? "sm:col-span-2 sm:mx-auto sm:w-full sm:max-w-xl lg:col-span-2 lg:col-start-2"
+                      : "sm:col-span-2 sm:mx-auto sm:w-full sm:max-w-xl lg:col-span-2 lg:col-start-4"
+                }`}
               >
                 <p className="mt-3 text-sm leading-7 text-gray-600">
                   {description}
