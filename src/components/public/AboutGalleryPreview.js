@@ -20,6 +20,7 @@ export default function AboutGalleryPreview() {
     .slice(0, 5);
 
   const singleImage = images.length === 1;
+  const threeImageLayout = images.length === 3;
   const featureLayout = images.length >= 4;
 
   return (
@@ -47,36 +48,63 @@ export default function AboutGalleryPreview() {
           className={
             singleImage
               ? "mx-auto max-w-2xl"
-              : featureLayout
-                ? "grid gap-3 md:grid-cols-3 md:grid-rows-2"
-                : "grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
+              : threeImageLayout
+                ? "grid grid-cols-2 gap-3 lg:grid-cols-2 lg:grid-rows-[auto_auto]"
+                : featureLayout
+                  ? "grid grid-cols-2 gap-3 lg:grid-cols-3 lg:grid-rows-2"
+                  : "grid grid-cols-2 gap-3"
           }
         >
-          {images.map((image, index) => (
-            <figure
-              key={image.id}
-              className={
-                singleImage
-                  ? "overflow-hidden rounded-2xl shadow-xl"
-                  : featureLayout && index === 0
-                    ? "overflow-hidden rounded-2xl shadow-xl md:row-span-2"
-                    : "overflow-hidden rounded-2xl shadow-xl"
+          {images.map((image, index) => {
+            let figureClassName;
+            let imageClassName;
+
+            if (singleImage) {
+              figureClassName = "overflow-hidden rounded-2xl shadow-xl";
+              imageClassName =
+                "max-h-80 w-full object-contain md:max-h-96";
+            } else if (threeImageLayout) {
+              if (index === 0) {
+                // Latest image: landscape on mobile, full-height on desktop left.
+                figureClassName =
+                  "col-span-2 aspect-[16/9] overflow-hidden rounded-2xl shadow-xl lg:col-span-1 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:aspect-auto lg:self-stretch";
+              } else if (index === 1) {
+                // Second-newest: portrait on mobile, landscape at desktop top-right.
+                figureClassName =
+                  "aspect-[3/4] overflow-hidden rounded-2xl shadow-xl lg:col-start-2 lg:row-start-1 lg:aspect-[16/9]";
+              } else {
+                // Oldest of the three: portrait on mobile, landscape at desktop bottom-right.
+                figureClassName =
+                  "aspect-[3/4] overflow-hidden rounded-2xl shadow-xl lg:col-start-2 lg:row-start-2 lg:aspect-[16/9]";
               }
-            >
-              <img
-                src={image.image_url}
-                alt={image.alt_text || image.title || "Hidayatul Islam College"}
-                loading="lazy"
-                className={
-                  singleImage
-                    ? "max-h-80 w-full object-contain md:max-h-96"
-                    : featureLayout && index === 0
-                      ? "h-72 w-full object-cover md:h-[520px]"
-                      : "h-40 w-full object-cover md:h-[250px]"
-                }
-              />
-            </figure>
-          ))}
+
+              imageClassName = "h-full w-full object-cover";
+            } else if (featureLayout && index === 0) {
+              figureClassName =
+                "col-span-2 overflow-hidden rounded-2xl shadow-xl lg:col-span-1 lg:row-span-2";
+              imageClassName =
+                "h-64 w-full object-contain sm:h-80 lg:h-[520px] lg:object-cover";
+            } else {
+              figureClassName = "overflow-hidden rounded-2xl shadow-xl";
+              imageClassName =
+                "h-36 w-full object-cover sm:h-48 lg:h-[250px]";
+            }
+
+            return (
+              <figure key={image.id} className={figureClassName}>
+                <img
+                  src={image.image_url}
+                  alt={
+                    image.alt_text ||
+                    image.title ||
+                    "Hidayatul Islam College"
+                  }
+                  loading="lazy"
+                  className={imageClassName}
+                />
+              </figure>
+            );
+          })}
         </div>
       )}
 
