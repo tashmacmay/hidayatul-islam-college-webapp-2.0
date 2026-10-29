@@ -19,25 +19,14 @@ const schoolHistory = [
   {
     year: "2005",
     title: "Grades R–7",
-    description: "As the learners progressed and grades were added, the school became a fully fledged primary school offering Grades R to 7.",
+    description:
+      "As the learners progressed and grades were added, the school became a fully fledged primary school offering Grades R to 7.",
     side: "right",
   },
 ];
 
-const schoolImages = [
-  { src: "/images/HIC-kids.jpg", alt: "Students", className: "h-72 w-full rounded-2xl object-cover shadow-xl md:row-span-2 md:h-[520px]" },
-  { src: "/images/HIC-image2.jpg", alt: "School", className: "h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]" },
-  { src: "/images/HIC-kids.jpg", alt: "Students", className: "h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]" },
-  { src: "/images/HIC-image2.jpg", alt: "School", className: "h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]" },
-  { src: "/images/HIC-kids.jpg", alt: "Students", className: "h-36 w-full rounded-2xl object-cover shadow-xl md:h-[250px]" },
-];
-
 const leadership = [
-  {
-    initials: "JA",
-    name: "Mr J. Alexander",
-    role: "Principal",
-  },
+  { initials: "JA", name: "Mr J. Alexander", role: "Principal" },
   {
     initials: "AF",
     name: "Mrs A. Fridie",
@@ -65,10 +54,29 @@ const schoolStats = [
 ];
 
 const communityHighlights = [
-  { icon: BookOpen, title: "Integrated Curriculum", description: "A coeducational school following the CAPS curriculum with an integrated Islamic syllabus." },
-  { icon: Users, title: "Parent Partnership", description: "The booklet emphasizes cooperation between parents and teachers and parent involvement in school activities." },
-  { icon: Star, title: "Holistic Development", description: "The school's aims include learners' academic, economic, social, religious, cultural and sporting development." },
-  { icon: MapPin, title: "Kensington Location", description: "Corner of 10th Street and 2nd Avenue, Kensington." },
+  {
+    icon: BookOpen,
+    title: "Integrated Curriculum",
+    description:
+      "A coeducational school following the CAPS curriculum with an integrated Islamic syllabus.",
+  },
+  {
+    icon: Users,
+    title: "Parent Partnership",
+    description:
+      "The booklet emphasizes cooperation between parents and teachers and parent involvement in school activities.",
+  },
+  {
+    icon: Star,
+    title: "Holistic Development",
+    description:
+      "The school's aims include learners' academic, economic, social, religious, cultural and sporting development.",
+  },
+  {
+    icon: MapPin,
+    title: "Kensington Location",
+    description: "Corner of 10th Street and 2nd Avenue, Kensington.",
+  },
 ];
 
 export default function About() {
@@ -79,7 +87,11 @@ export default function About() {
         image="/images/HIC-image2.jpg"
         imageAlt="Hidayatul Islam College"
         breadcrumb="About Us"
-        title={<>About <span className="text-gold">Our School</span></>}
+        title={
+          <>
+            About <span className="text-gold">Our School</span>
+          </>
+        }
         description="A faith-based, coeducational primary school in Kensington, offering Grades R–7 and registered with the Western Cape Education Department."
       />
 
@@ -88,26 +100,41 @@ export default function About() {
           <div>
             <SectionHeader
               label="Who We Are"
-              title={<>Rooted in Faith,{" "}<span className="block text-gold">Built for Excellence</span></>}
+              title={
+                <>
+                  Rooted in Faith,{" "}
+                  <span className="block text-gold">Built for Excellence</span>
+                </>
+              }
               className="text-left"
               variant="left"
             />
 
             <p className="mt-8 body-copy">
-              Hidayatul Islam College is an independent, faith-based community institution registered with the Western Cape Education Department as an Independent Entity. The school is located on the corner of 10th Street and 2nd Avenue in Kensington.
+              Hidayatul Islam College is an independent, faith-based community
+              institution registered with the Western Cape Education Department
+              as an Independent Entity. The school is located on the corner of
+              10th Street and 2nd Avenue in Kensington.
             </p>
             <p className="mt-6 body-copy">
-              The coeducational primary school offers Grades R to 7 and follows the CAPS curriculum with an integrated Islamic syllabus.
+              The coeducational primary school offers Grades R to 7 and follows
+              the CAPS curriculum with an integrated Islamic syllabus.
             </p>
             <p className="mt-6 body-copy">
-              Foundational learning focuses on reading, writing and arithmetic, alongside Islamic studies and the development of learners&apos; character.
+              Foundational learning focuses on reading, writing and arithmetic,
+              alongside Islamic studies and the development of learners&apos;
+              character.
             </p>
           </div>
 
           <div className="card-navy p-10 text-center">
             <p className="text-2xl text-gold">علم نور</p>
-            <h3 className="mt-6 text-lg font-semibold">“Knowledge is Light”</h3>
-            <p className="mt-4 text-blue-200">Foundational Learning · Character · Faith</p>
+            <h3 className="mt-6 text-lg font-semibold">
+              “Knowledge is Light”
+            </h3>
+            <p className="mt-4 text-blue-200">
+              Foundational Learning · Character · Faith
+            </p>
           </div>
         </div>
       </section>
@@ -124,25 +151,37 @@ export default function About() {
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="rounded-2xl border border-navy/10 bg-navy p-8 text-white shadow-md">
               <BookOpen className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold">Holistic Development</h3>
+              <h3 className="mt-5 text-base font-semibold">
+                Holistic Development
+              </h3>
               <p className="mt-4 text-sm leading-7 text-blue-100">
-                The school aims to develop holistic people rooted in Godliness, with positive interpersonal relationships and a positive approach to life’s challenges.
+                The school aims to develop holistic people rooted in Godliness,
+                with positive interpersonal relationships and a positive
+                approach to life’s challenges.
               </p>
             </div>
 
             <div className="rounded-2xl border border-gold/30 bg-gold-pale p-8 shadow-md">
               <HeartHandshake className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold text-navy">Developing Learner Potential</h3>
+              <h3 className="mt-5 text-base font-semibold text-navy">
+                Developing Learner Potential
+              </h3>
               <p className="mt-4 text-sm leading-7 text-gray-600">
-                The school aims to develop learners’ full potential academically, economically, socially, religiously, culturally and on the sports field.
+                The school aims to develop learners’ full potential
+                academically, economically, socially, religiously, culturally
+                and on the sports field.
               </p>
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 shadow-md">
               <Star className="h-6 w-6 text-gold" />
-              <h3 className="mt-5 text-base font-semibold text-navy">Values & Character</h3>
+              <h3 className="mt-5 text-base font-semibold text-navy">
+                Values & Character
+              </h3>
               <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-600">
-                {schoolValues.map((value) => <li key={value}>{value}</li>)}
+                {schoolValues.map((value) => (
+                  <li key={value}>{value}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -160,15 +199,48 @@ export default function About() {
             variant="centered--roomy"
           />
 
-          <div className="relative mt-16">
+          <div className="relative mt-12 md:mt-16">
+            {/* Central stem on desktop; left-side stem on mobile */}
             <div className="absolute bottom-0 left-4 top-0 w-px bg-gold/60 md:left-1/2" />
+
             <div className="space-y-8">
               {schoolHistory.map((item) => (
-                <div key={item.year} className={`card-timeline ${item.side === "right" ? "ml-auto" : ""}`}>
-                  <span className={`absolute -left-[25px] top-8 h-3 w-3 rounded-full bg-gold ring-4 ring-off-white ${item.side === "right" ? "md:-left-[25px]" : "md:-right-[25px] md:left-auto"}`} />
+                <div
+                  key={item.year}
+                  className={`card-timeline relative ml-9 w-[calc(100%-2.25rem)] ${
+                    item.side === "right"
+                      ? "md:ml-auto"
+                      : "md:ml-0"
+                  } md:w-[calc(50%-2rem)]`}
+                >
+                  {/* Short connector and dot */}
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-8 z-10 h-3 w-3 rounded-full border-2 border-off-white bg-gold ${
+                      item.side === "right"
+                        ? "left-[-18px] md:left-[-26px]"
+                        : "left-[-18px] md:left-auto md:right-[-26px]"
+                    }`}
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-[37px] hidden h-px bg-gold/60 md:block ${
+                      item.side === "right"
+                        ? "left-[-2rem] w-2rem"
+                        : "right-[-2rem] w-2rem"
+                    }`}
+                  />
+
                   <p className="font-semibold text-gold">{item.year}</p>
-                  <h3 className="mt-2 text-lg font-semibold text-navy">{item.title}</h3>
-                  <p className="mt-4 leading-7 text-gray-600">{item.description}</p>
+
+                  <h3 className="mt-2 text-lg font-semibold text-navy">
+                    {item.title}
+                  </h3>
+
+                  <p className="mt-4 leading-7 text-gray-600">
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -179,21 +251,18 @@ export default function About() {
       <section className="section-shell section-shell--navy">
         <div className="mx-auto max-w-6xl text-center">
           <p className="section-label text-gold">Life At HIC</p>
-
           <h2 className="mt-3 text-2xl font-bold leading-tight text-white md:text-3xl">
             Our School In Pictures
           </h2>
-
           <div className="section-header-divider mx-auto" />
-
           <div className="mt-10">
             <AboutGalleryPreview />
           </div>
         </div>
       </section>
 
-      <section className="section-shell section-shell--white">
-        <div className="mx-auto max-w-5xl">
+      <section className="section-shell section-shell--white !pb-8 md:!pb-10">
+        <div className="mx-auto max-w-3xl">
           <SectionHeader
             label="Our People"
             title="School Leadership"
@@ -201,90 +270,89 @@ export default function About() {
             variant="centered"
           />
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
+          <div className="mx-auto mt-10 grid w-full grid-cols-2 items-start gap-3 sm:mt-12 sm:gap-6">
             {leadership.map((person) => (
-              <div key={person.initials} className="card-person">
-                <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-navy text-3xl font-bold text-gold">{person.initials}</div>
-                <h3 className="mt-5 text-base font-semibold text-navy">{person.name}</h3>
-                <p className="mt-2 font-medium text-gold">{person.role}</p>
+              <div
+                key={person.initials}
+                className="card-person min-w-0 p-3 text-center sm:p-6"
+              >
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-navy text-2xl font-bold text-gold sm:h-24 sm:w-24 sm:text-3xl">
+                  {person.initials}
+                </div>
+                <h3 className="mt-4 break-words text-sm font-semibold leading-snug text-navy sm:mt-5 sm:text-base">
+                  {person.name}
+                </h3>
+                <p className="mt-2 break-words text-xs font-medium leading-snug text-gold sm:text-sm">
+                  {person.role}
+                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-{/* Community & Culture */}
+      {/* Community & Culture */}
+      <section className="section-shell section-shell--white">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-2 lg:items-start">
+          <div>
+            <SectionHeader
+              label="Community & Culture"
+              title={
+                <>
+                  More than a school —{" "}
+                  <span className="block text-gold">a community</span>
+                </>
+              }
+              className="text-left"
+              variant="left"
+            />
 
-<section className="section-shell section-shell--white">
-
-  <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-2 lg:items-start">
-
-    <div>
-
-        <SectionHeader
-          label="Community & Culture"
-          title={<>More than a school —{" "}<span className="block text-gold">a community</span></>}
-          className="text-left"
-          variant="left"
-        />
-
-      <p className="mt-8 leading-8 text-gray-600">
-        Hidayatul Islam College is a faith-based community institution that encourages cooperation between parents and teachers and parent involvement in school activities.
-      </p>
-
-      <p className="mt-6 leading-8 text-gray-600">
-        The school’s aims include developing positive relationships, a constructive role in communities, and each learner’s full potential.
-      </p>
-
-    </div>
-
-    <div className="space-y-3">
-
-      {communityHighlights.map(({ icon: Icon, title, description }) => (
-        <div key={title} className="card-community">
-          <div className="flex items-center gap-3">
-            <Icon className="h-5 w-5 text-gold" />
-            <h3 className="font-bold text-navy">{title}</h3>
+            <p className="mt-8 leading-8 text-gray-600">
+              Hidayatul Islam College is a faith-based community institution
+              that encourages cooperation between parents and teachers and
+              parent involvement in school activities.
+            </p>
+            <p className="mt-6 leading-8 text-gray-600">
+              The school’s aims include developing positive relationships, a
+              constructive role in communities, and each learner’s full
+              potential.
+            </p>
           </div>
-          <p className="mt-2 text-sm text-gray-600">{description}</p>
+
+          <div className="space-y-3">
+            {communityHighlights.map(({ icon: Icon, title, description }) => (
+              <div key={title} className="card-community">
+                <div className="flex items-center gap-3">
+                  <Icon className="h-5 w-5 shrink-0 text-gold" />
+                  <h3 className="font-bold text-navy">{title}</h3>
+                </div>
+                <p className="mt-2 text-sm text-gray-600">{description}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+      </section>
 
-    </div>
-
-  </div>
-
-</section>
-
-{/* Registration */}
-
-<section className="section-shell section-shell--gold-pale">
-
-  <div className="mx-auto max-w-5xl text-center">
-
-    <SectionHeader
-      label="Registration"
-      title="Independent School Registered with WCED"
-      className="text-center"
-    />
-
-    <p className="mx-auto mt-6 max-w-3xl leading-8 text-gray-600">
-      Hidayatul Islam College is registered with the Western Cape Education
-      Department as an Independent Entity.
-    </p>
-
-    <div className="mt-10 flex flex-wrap justify-center gap-3">
-
-      <div className="badge-outline">
-        <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
-        Western Cape Education Department
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
- </>
+      {/* Registration */}
+      <section className="section-shell section-shell--gold-pale">
+        <div className="mx-auto max-w-5xl text-center">
+          <SectionHeader
+            label="Registration"
+            title="Independent School Registered with WCED"
+            className="text-center"
+          />
+          <p className="mx-auto mt-6 max-w-3xl leading-8 text-gray-600">
+            Hidayatul Islam College is registered with the Western Cape
+            Education Department as an Independent Entity.
+          </p>
+          <div className="mt-10 flex flex-wrap justify-center gap-3">
+            <div className="badge-outline">
+              <ShieldCheck className="mr-2 inline-block h-4 w-4 text-gold" />
+              Western Cape Education Department
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
