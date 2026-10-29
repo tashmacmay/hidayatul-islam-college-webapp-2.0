@@ -80,13 +80,22 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-2xl bg-gray-100 shadow-lg">
-              <div className="flex min-h-[420px] flex-col items-center justify-center p-8 text-center md:p-10">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy text-2xl text-gold">⌖</div>
-                <p className="mt-6 text-sm font-semibold uppercase tracking-[3px] text-gold">Find Us</p>
-                <h3 className="mt-3 text-base font-semibold text-navy">Hidayatul Islam College</h3>
-                <p className="mt-3 max-w-sm text-sm leading-6 text-gray-600">Find our campus and get directions using Google Maps.</p>
-                <a href="https://www.google.com/maps/search/?api=1&query=Corner+of+Second+Avenue+and+Tenth+Street%2C+Kensington%2C+Cape+Town" target="_blank" rel="noopener noreferrer" className="mt-7 rounded-xl bg-gold px-6 py-3 text-sm font-semibold text-navy transition hover:opacity-90">Open in Google Maps</a>
+            <div className="overflow-hidden rounded-2xl border border-navy/15 border-t-4 border-t-gold bg-white shadow-lg">
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-navy px-5 py-4 text-white md:px-6">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[3px] text-gold">Find Us</p>
+                  <h3 className="mt-1 text-base font-semibold">Hidayatul Islam College</h3>
+                </div>
+                <span aria-hidden="true" className="text-2xl text-gold">⌖</span>
+              </div>
+              <div className="h-[480px] w-full bg-gray-100 sm:h-[560px] lg:h-[640px]">
+                <iframe
+                  title="Google Maps search for Hidayatul Islam College near Second Avenue and Tenth Street, Kensington, Cape Town"
+                  src="https://maps.google.com/maps?q=Corner%20of%20Second%20Avenue%20and%20Tenth%20Street%2C%20Kensington%2C%20Cape%20Town&output=embed"
+                  loading="lazy"
+                  className="h-full w-full border-0"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
               </div>
             </div>
           </div>
