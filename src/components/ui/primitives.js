@@ -143,7 +143,7 @@ const iconCardVariants = {
   },
   language: {
     card: "card-academic-light text-center",
-    icon: "text-2xl",
+    icon: "flex justify-center text-gold",
     title: "mt-4 text-base font-semibold text-navy",
     description: "mt-4 text-sm leading-7 text-gray-600",
   },

@@ -79,11 +79,24 @@ const phaseNames = {
 };
 
 function subjectIcon(subject) {
-  const className = "h-5 w-5 text-gold";
-  if (/English|Afrikaans|Literacy/.test(subject)) return <Languages className={className} />;
-  if (/Mathematics|Numeracy/.test(subject)) return <Calculator className={className} />;
-  if (/Life Skills|Well-being/.test(subject)) return <HeartHandshake className={className} />;
-  if (/Islamic Studies|Art/.test(subject)) return <BookOpen className={className} />;
+  const className = "h-5 w-5 shrink-0 text-gold";
+
+  if (/English|Afrikaans|Literacy/.test(subject)) {
+    return <Languages className={className} />;
+  }
+
+  if (/Mathematics|Numeracy/.test(subject)) {
+    return <Calculator className={className} />;
+  }
+
+  if (/Life Skills|Well-being/.test(subject)) {
+    return <HeartHandshake className={className} />;
+  }
+
+  if (/Islamic Studies|Art/.test(subject)) {
+    return <BookOpen className={className} />;
+  }
+
   return <ScrollText className={className} />;
 }
 
@@ -91,14 +104,14 @@ export default function GradeExplorer() {
   const [selectedGrade, setSelectedGrade] = useState("Grade 1");
 
   return (
-    <section className="bg-gray-50 px-10 py-24">
+    <section className="section-shell bg-gray-50">
       <div className="mx-auto max-w-7xl">
         <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[3px] text-gold">
+          <p className="text-xs font-semibold uppercase tracking-widest text-gold">
             Explore By Grade
           </p>
 
-          <h2 className="mt-3 text-5xl font-bold text-navy">
+          <h2 className="mt-2 text-xl font-bold text-navy md:text-2xl">
             From Grade R to Grade 7
           </h2>
 
@@ -109,72 +122,65 @@ export default function GradeExplorer() {
           </p>
         </div>
 
-        {/* Grade Filters */}
-
-        <div className="mt-12 flex flex-wrap justify-center gap-3">
+        {/* Grade filters */}
+        <div
+          className="relative z-10 mt-10 flex flex-wrap justify-center gap-2 sm:mt-12 sm:gap-3">
           {Object.keys(gradePhases).map((grade) => (
             <button
               key={grade}
+              type="button"
               onClick={() => setSelectedGrade(grade)}
-              className={`rounded-full px-5 py-3 text-sm font-semibold transition-all duration-300
-                ${
-                  selectedGrade === grade
-                    ? "bg-navy text-white shadow-lg"
-                    : "bg-white text-navy shadow hover:bg-gold hover:text-navy"
-                }`}
+              aria-pressed={selectedGrade === grade}
+              className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:px-5 sm:py-3 ${
+                selectedGrade === grade
+                  ? "bg-navy text-white shadow-lg"
+                  : "bg-white text-navy shadow hover:bg-gold hover:text-navy"
+              }`}
             >
               {grade}
             </button>
           ))}
         </div>
 
-        {/* Grade Content */}
-
-        <div className="mt-14 grid gap-8 lg:grid-cols-2">
-          <div className="rounded-3xl bg-navy p-10 text-white shadow-xl">
-            <span className="rounded-full bg-gold px-4 py-2 text-xs font-bold text-navy">
+        {/* Selected grade and subjects */}
+        <div className="mt-10 grid gap-6 lg:mt-12 lg:grid-cols-2 lg:gap-8">
+          <div className="rounded-3xl bg-navy p-6 text-white shadow-xl sm:p-8 md:p-10">
+            <span className="inline-block rounded-full bg-gold px-4 py-2 text-xs font-bold text-navy">
               {phaseNames[gradePhases[selectedGrade]]}
             </span>
 
-            <h3 className="mt-6 text-4xl font-bold">
+            <h3 className="mt-6 text-3xl font-bold sm:text-4xl">
               {selectedGrade}
             </h3>
 
-            <p className="mt-8 leading-8 text-blue-100">
+            <p className="mt-6 leading-8 text-blue-100 sm:mt-8">
               {gradeDescriptions[selectedGrade]}
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-3">
-              <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Reading
-              </span>
-
-              <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Writing
-              </span>
-
-              <span className="rounded-full bg-white/10 px-4 py-2 text-sm">
-                Arithmetic
-              </span>
+            <div className="mt-8 flex flex-wrap gap-2 sm:mt-10 sm:gap-3">
+              {["Reading", "Writing", "Arithmetic"].map((skill) => (
+                <span
+                  key={skill}
+                  className="rounded-full bg-white/10 px-4 py-2 text-sm"
+                >
+                  {skill}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Subjects */}
+          <div className="rounded-3xl bg-white p-6 shadow-xl sm:p-8 md:p-10">
+            <h3 className="text-2xl font-bold text-navy">Subjects</h3>
 
-          <div className="rounded-3xl bg-white p-10 shadow-xl">
-            <h3 className="text-2xl font-bold text-navy">
-              Subjects
-            </h3>
-
-            <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4">
               {phaseSubjects[gradePhases[selectedGrade]].map((subject) => (
                 <div
                   key={subject}
-                  className="flex items-center gap-3 rounded-xl bg-gray-50 p-4 transition hover:bg-gold/10"
+                  className="flex min-w-0 items-center gap-3 rounded-xl bg-gray-50 p-3 transition hover:bg-gold/10 sm:p-4"
                 >
                   {subjectIcon(subject)}
 
-                  <span className="font-medium text-navy">
+                  <span className="text-sm font-medium leading-6 text-navy sm:text-base">
                     {subject}
                   </span>
                 </div>
