@@ -1,4 +1,4 @@
-import { PageHero } from "@/components/ui/primitives";
+import { PageHero, PopiaNote } from "@/components/ui/primitives";
 import { Section, Container } from "@/components/ui/layout";
 import NewsList from "@/components/public/NewsList";
 
@@ -20,6 +20,10 @@ export default function News() {
 
       <Section tone="white">
         <Container>
+          <PopiaNote className="mb-10">
+            News articles featuring learners will only be published once the appropriate consent has been obtained, in accordance with the Protection of Personal Information Act (POPIA).
+          </PopiaNote>
+
           <NewsList />
         </Container>
       </Section>
