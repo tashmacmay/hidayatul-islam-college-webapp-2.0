@@ -31,7 +31,7 @@ export default function Home() {
       <Section tone="white">
         <Container className="text-center">
           <SectionHeader label="Quick Access" title="Everything you need, in one place" variant="centered--tight" />
-          <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
             {quickLinks.map((item) => (
               <Card key={item.href} href={item.href} className="text-center group">
                 <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-navy text-gold [&>svg]:h-7 [&>svg]:w-7 transition group-hover:bg-gold group-hover:text-navy">

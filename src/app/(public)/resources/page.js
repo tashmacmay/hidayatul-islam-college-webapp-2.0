@@ -6,6 +6,11 @@ import FilterButtons from "@/components/public/FilterButtons";
 import ResourceList from "@/components/public/ResourceList";
 import { Section, Container } from "@/components/ui/layout";
 
+export const metadata = {
+  title: "Learning Resources | Hidayatul Islam College",
+  description: "Access free educational materials, worksheets, and videos provided openly to our community.",
+};
+
 const grades = ["All Grades", "Grade R", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
 export default function Resources() {
