@@ -1,5 +1,6 @@
 import { PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
 import GalleryGrid from "@/components/public/GalleryGrid";
+import { Section, Container } from "@/components/ui/layout";
 
 export default function Gallery() {
   return (
@@ -12,8 +13,8 @@ export default function Gallery() {
         description="A window into life at Hidayatul Islam College — events, learning, sport, and community moments captured throughout the year."
       />
 
-      <section className="section-shell section-shell--white">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white">
+        <Container>
           <SectionHeader
             label="Our Moments"
             title="School Life in Pictures"
@@ -28,8 +29,8 @@ export default function Gallery() {
           <div className="mt-10">
             <GalleryGrid />
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
     </>
   );

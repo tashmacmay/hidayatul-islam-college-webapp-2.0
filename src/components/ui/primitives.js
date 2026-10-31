@@ -18,6 +18,7 @@
 
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
+import { Section, Container } from "./layout";
 
 const pageHeroVariants = {
   standard: {
@@ -174,7 +175,6 @@ export function IconCard({
     </div>
   );
 }
-
 export function EmptyState({
   icon,
   title,
@@ -213,21 +213,27 @@ export function SubjectList({ items }) {
   );
 }
 
-export function StatStrip({ items, variant = "home" }) {
-  if (variant === "about") {
-    return (
-      <section className="bg-gold py-10">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-6 text-center md:grid-cols-4 md:px-10">
-          {items.map(({ title, text }) => (
-            <div key={title} className="text-navy">
-              <h3 className="text-lg font-bold">{title}</h3>
-              <p className="mt-1 text-sm">{text}</p>
-            </div>
-          ))}
+export function CtaBanner({ eyebrow, title, description, actions = [] }) {
+  return (
+    <Section tone="navy">
+      <Container size="narrow" className="text-center">
+        <SectionHeader label={eyebrow} title={title} description={description} variant="onNavy" />
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          {actions.map(({ label, href, variant = "primary" }) => {
+            const className = variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`;
+            return href?.includes(":") ? (
+              <a key={label} href={href} className={className}>{label}</a>
+            ) : (
+              <Link key={label} href={href} className={className}>{label}</Link>
+            );
+          })}
         </div>
-      </section>
-    );
-  }
+      </Container>
+    </Section>
+  );
+}
+
+export function StatStrip({ items }) {
   return (
     <section className="grid bg-gold text-navy md:grid-cols-4">
       {items.map(({ icon, title, text }) => (
@@ -242,26 +248,6 @@ export function StatStrip({ items, variant = "home" }) {
           </div>
         </div>
       ))}
-    </section>
-  );
-}
-
-export function CtaBanner({ eyebrow, title, description, actions = [] }) {
-  return (
-    <section className="section-shell section-shell--navy">
-      <div className="mx-auto max-w-4xl text-center">
-        <SectionHeader label={eyebrow} title={title} description={description} variant="onNavy" />
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          {actions.map(({ label, href, variant = "primary" }) => {
-            const className = variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`;
-            return href?.includes(":") ? (
-              <a key={label} href={href} className={className}>{label}</a>
-            ) : (
-              <Link key={label} href={href} className={className}>{label}</Link>
-            );
-          })}
-        </div>
-      </div>
     </section>
   );
 }

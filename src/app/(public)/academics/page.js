@@ -13,6 +13,7 @@ import {
   Users,
 } from "lucide-react";
 import GradeExplorer from "@/components/public/GradeExplorer";
+import { Section, Container } from "@/components/ui/layout";
 
 const foundationalLearning = ["Reading", "Writing", "Arithmetic"];
 
@@ -127,8 +128,8 @@ export default function Academics() {
       />
 
       {/* Curriculum */}
-      <section className="section-shell section-shell--white !py-14 md:!py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-6 lg:grid-cols-2 lg:gap-10">
+      <Section tone="white" space="sm">
+        <Container className="grid items-center gap-6 lg:grid-cols-2 lg:gap-10">
           <div>
             <SectionHeader
               label="Our Curriculum"
@@ -153,21 +154,20 @@ export default function Academics() {
               <SubjectList items={foundationalLearning} />
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Grade Explorer */}
       <GradeExplorer />
 
       {/* Islamic Syllabus */}
-      <section className="section-shell section-shell--navy !py-14 md:!py-20">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="navy" space="sm">
+        <Container>
           <SectionHeader
             label="Faith & Learning"
-            title={<span className="text-white">Islamic Syllabus Topics</span>}
+            title="Islamic Syllabus Topics"
             description="Islamic learning supports spiritual development, good character and understanding of faith."
-            variant="centered--tight"
-            className="[&>p]:text-white"
+            variant="onNavy"
           />
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-6">
@@ -191,12 +191,12 @@ export default function Academics() {
               />
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Educational Aims */}
-      <section className="section-shell section-shell--white !py-14 md:!py-20">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white" space="sm">
+        <Container>
           <SectionHeader
             label="Our Approach"
             title="Educational Aims"
@@ -218,12 +218,12 @@ export default function Academics() {
               </IconCard>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Literacy and Languages */}
-      <section className="section-shell section-shell--off-white !py-14 md:!py-20">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="cream" space="sm">
+        <Container>
           <SectionHeader
             label="Language Development"
             title="Literacy and Languages"
@@ -248,12 +248,12 @@ export default function Academics() {
               </IconCard>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Learner Support */}
-      <section className="section-shell section-shell--white !py-14 md:!py-20">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white" space="sm">
+        <Container>
           <SectionHeader
             label="Learner Well-being"
             title="Learner Support"
@@ -282,12 +282,12 @@ export default function Academics() {
               </IconCard>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       {/* Sport and Co-Curricular Activities */}
-      <section className="section-shell section-shell--off-white !py-14 md:!py-20">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="cream" space="sm">
+        <Container>
           <SectionHeader
             label="Beyond the Classroom"
             title="Sport & Co-Curricular Activities"
@@ -314,8 +314,8 @@ export default function Academics() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </>
   );
 }

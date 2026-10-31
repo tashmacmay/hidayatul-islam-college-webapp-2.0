@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CtaBanner, PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
 import FilterButtons from "@/components/public/FilterButtons";
 import ResourceList from "@/components/public/ResourceList";
+import { Section, Container } from "@/components/ui/layout";
 
 const grades = ["All Grades", "Grade R", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
@@ -20,8 +21,8 @@ export default function Resources() {
         description="The school makes learning materials freely available to everyone, including the wider community. No login or school registration is required."
       />
 
-      <section className="section-shell section-shell--off-white">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white">
+        <Container>
           <PopiaNote title="POPIA & Privacy Notice" variant="resources">
             Personal information must be handled in accordance with the Protection of Personal Information Act (POPIA).
           </PopiaNote>
@@ -70,8 +71,8 @@ export default function Resources() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       <CtaBanner
         eyebrow="Parent Portal"

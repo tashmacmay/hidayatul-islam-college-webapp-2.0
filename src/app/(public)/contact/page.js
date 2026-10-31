@@ -1,4 +1,5 @@
 import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/ui/primitives";
+import { Section, Container } from "@/components/ui/layout";
 
 const contactRows = [
   {
@@ -58,8 +59,8 @@ export default function Contact() {
         description="We would love to hear from you. Contact Hidayatul Islam College for enquiries, admissions and general information."
       />
 
-      <section className="section-shell section-shell--white">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white">
+        <Container>
           <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
             <div>
               <SectionHeader
@@ -99,11 +100,11 @@ export default function Contact() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="section-shell section-shell--off-white">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="cream">
+        <Container>
           <div className="text-center">
             <SectionHeader
               label="Other Ways to Reach Us"
@@ -125,8 +126,8 @@ export default function Contact() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
       <CtaBanner
         title="Ready to be part of the HIC family?"

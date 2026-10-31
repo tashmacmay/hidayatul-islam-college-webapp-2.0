@@ -84,7 +84,7 @@ function NewsCardContent({ item, showReadMore = false }) {
         <img
           src={item.featured_image_url}
           alt={item.title}
-          className="mb-4 h-48 w-full rounded-lg bg-off-white object-cover object-top"
+          className="mb-4 h-48 w-full rounded-lg bg-cream object-cover object-top"
           onError={(e) => {
             e.currentTarget.style.display = "none";
           }}

@@ -1,4 +1,4 @@
-import { PageHero, SectionHeader, StatStrip } from "@/components/ui/primitives";
+import { PageHero, SectionHeader } from "@/components/ui/primitives";
 import {
   BookOpen,
   HeartHandshake,
@@ -8,6 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import AboutGalleryPreview from "@/components/public/AboutGalleryPreview";
+import { Section, Container } from "@/components/ui/layout";
 
 const schoolHistory = [
   {
@@ -45,13 +46,6 @@ const schoolValues = [
   "Compassion",
   "Thankfulness and gratefulness",
   "Responsibility",
-];
-
-const schoolStats = [
-  { title: "Opened 1999", text: "Kensington" },
-  { title: "Grades R–7", text: "Primary School" },
-  { title: "Co-educational", text: "CAPS Curriculum" },
-  { title: "WCED-registered", text: "Independent Entity" },
 ];
 
 const communityHighlights = [
@@ -96,8 +90,9 @@ export default function About() {
         description="A faith-based, independent, coeducational primary school in Kensington, offering Grades R–7 and registered with the Western Cape Education Department."
       />
 
-      <section className="section-shell--white px-6 py-14 md:px-10 md:py-20">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 lg:grid-cols-2 lg:gap-12">
+      {/* MERGED: Who We Are + Aims & Values */}
+      <Section tone="white" space="sm">
+        <Container className="grid items-center gap-8 lg:grid-cols-2 lg:gap-12 mb-16 md:mb-24">
           <div>
             <SectionHeader
               label="Who We Are"
@@ -137,11 +132,9 @@ export default function About() {
               Foundational Learning · Character · Faith
             </p>
           </div>
-        </div>
-      </section>
+        </Container>
 
-      <section className="section-shell--white px-6 pb-12 md:px-10 md:pb-16">
-        <div className="mx-auto max-w-7xl">
+        <Container size="wide">
           <SectionHeader
             label="Our Foundation"
             title="Our Aims & Values"
@@ -162,7 +155,7 @@ export default function About() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-gold/30 bg-gold-pale p-6 shadow-md sm:p-7">
+            <div className="rounded-2xl border border-gold/30 bg-cream p-6 shadow-md sm:p-7">
               <HeartHandshake className="h-6 w-6 text-gold" />
               <h3 className="mt-4 text-base font-semibold text-navy">
                 Developing Learner Potential
@@ -186,14 +179,12 @@ export default function About() {
               </ul>
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <StatStrip items={schoolStats} variant="about" />
-
-      {/* School history: vertical stem and floating dots only */}
-      <section className="section-shell section-shell--off-white">
-        <div className="mx-auto max-w-5xl">
+      {/* School history */}
+      <Section tone="cream">
+        <Container size="narrow">
           <SectionHeader
             label="Our Story"
             title="School History"
@@ -217,7 +208,7 @@ export default function About() {
                 >
                   <span
                     aria-hidden="true"
-                    className={`absolute top-7 z-10 h-3 w-3 rounded-full border-2 border-off-white bg-gold ${
+                    className={`absolute top-7 z-10 h-3 w-3 rounded-full border-2 border-cream bg-gold ${
                       item.side === "right"
                         ? "left-[-18px] md:left-[-26px]"
                         : "left-[-18px] md:left-auto md:right-[-26px]"
@@ -235,11 +226,12 @@ export default function About() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="section-shell section-shell--navy">
-        <div className="mx-auto max-w-6xl text-center">
+      {/* Gallery preview */}
+      <Section tone="navy">
+        <Container className="text-center">
           <p className="section-label text-gold">Life At HIC</p>
           <h2 className="mt-3 text-2xl font-bold leading-tight text-white md:text-3xl">
             Our School In Pictures
@@ -248,11 +240,12 @@ export default function About() {
           <div className="mt-7 md:mt-9">
             <AboutGalleryPreview />
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="section-shell section-shell--white !pb-8 md:!pb-10">
-        <div className="mx-auto max-w-3xl">
+      {/* Leadership */}
+      <Section tone="white" space="sm">
+        <Container size="narrow">
           <SectionHeader
             label="Our People"
             title="School Leadership"
@@ -278,11 +271,12 @@ export default function About() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="section-shell section-shell--white">
-        <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
+      {/* Community */}
+      <Section tone="white" space="sm">
+        <Container className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
           <div>
             <SectionHeader
               label="Community & Culture"
@@ -321,11 +315,12 @@ export default function About() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
 
-      <section className="section-shell section-shell--gold-pale">
-        <div className="mx-auto max-w-5xl text-center">
+      {/* Registration */}
+      <Section tone="cream" space="sm">
+        <Container className="text-center">
           <SectionHeader
             label="Registration"
             title="Independent School Registered with WCED"
@@ -341,8 +336,8 @@ export default function About() {
               Western Cape Education Department
             </div>
           </div>
-        </div>
-      </section>
+        </Container>
+      </Section>
     </>
   );
 }

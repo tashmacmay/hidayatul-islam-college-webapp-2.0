@@ -12,7 +12,7 @@
   --gold-light: #f0d080;
   --gold-pale: #fdf6e3;
   --white: #ffffff;
-  --off-white: #f7f8fc;
+  --cream: #f9f5ae;
   --text: #1a2540;
   --text-muted: #5a6a82;
   --border: rgba(13, 34, 96, 0.15);
@@ -60,30 +60,6 @@ select {
 }
 
 @layer components {
-  .section-shell {
-    @apply px-6 py-20 md:px-10 md:py-24;
-  }
-
-  .section-shell--white {
-    @apply bg-white;
-  }
-
-  .section-shell--off-white {
-    @apply bg-off-white;
-  }
-
-  .section-shell--navy {
-    @apply bg-navy text-white;
-  }
-
-  .section-shell--gold-pale {
-    @apply bg-gold-pale;
-  }
-
-  .section-shell--gold {
-    @apply bg-gold;
-  }
-
   .section-header-divider {
     @apply gold-divider mx-auto;
   }
@@ -227,7 +203,7 @@ select {
   }
 
   .card-soft {
-    @apply rounded-2xl border border-gold/20 bg-off-white p-7 shadow-sm;
+    @apply rounded-2xl border border-gold/20 bg-cream p-7 shadow-sm;
   }
 
   .card-navy {
