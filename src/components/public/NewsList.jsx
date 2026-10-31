@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import FilterButtons from "@/components/public/FilterButtons";
 import { EmptyState } from "@/components/ui/primitives";
 import LoadingState from "@/components/ui/LoadingState";
 import usePublicList from "@/hooks/usePublicList";
+import { Card } from "@/components/ui/card";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -17,7 +17,7 @@ function formatDate(iso) {
 }
 
 export default function NewsList() {
-  const { items, visible, filters, active, setActive, loading, error, isEmpty, hasFilters } =
+  const { visible, filters, active, setActive, loading, error, isEmpty, hasFilters } =
     usePublicList("/api/news", "news");
 
   return (
@@ -55,51 +55,35 @@ export default function NewsList() {
       )}
 
       {!loading && !error && visible.length > 0 && (
-        <ul className="columns-1 gap-6 sm:columns-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((item) => (
-            <li
+            <Card
               key={item.id}
-              className="mb-6 break-inside-avoid rounded-xl bg-white p-6 shadow-sm"
+              href={item.slug ? `/news/${item.slug}` : undefined}
+              media={
+                item.featured_image_url && (
+                  <img
+                    src={item.featured_image_url}
+                    alt={item.title}
+                    className="h-full w-full object-cover object-top transition duration-300 group-hover:scale-[1.02]"
+                  />
+                )
+              }
             >
-              {item.slug ? (
-                <Link href={`/news/${item.slug}`} className="block">
-                  <NewsCardContent item={item} showReadMore />
-                </Link>
-              ) : (
-                <NewsCardContent item={item} />
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
+                {item.category}
+              </p>
+              <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
+              <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
+              <p className="line-clamp-2 text-sm text-text-muted flex-1">
+                {item.excerpt || (item.content ?? "").slice(0, 160)}
+              </p>
+              {item.slug && (
+                <p className="mt-4 text-xs font-semibold text-gold">Read more →</p>
               )}
-            </li>
+            </Card>
           ))}
-        </ul>
-      )}
-    </>
-  );
-}
-
-function NewsCardContent({ item, showReadMore = false }) {
-  return (
-    <>
-      {item.featured_image_url && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={item.featured_image_url}
-          alt={item.title}
-          className="mb-4 h-48 w-full rounded-lg bg-cream object-cover object-top"
-          onError={(e) => {
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      )}
-      <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
-        {item.category}
-      </p>
-      <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
-      <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
-      <p className="line-clamp-2 min-h-[2.5rem] text-sm text-text-muted">
-        {item.excerpt || (item.content ?? "").slice(0, 160)}
-      </p>
-      {showReadMore && (
-        <p className="mt-3 text-xs font-semibold text-gold">Read more →</p>
+        </div>
       )}
     </>
   );
