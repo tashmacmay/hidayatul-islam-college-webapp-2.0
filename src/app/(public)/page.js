@@ -4,6 +4,11 @@ import { Card } from "@/components/ui/card";
 import HomeHeroSlider from "@/components/public/HomeHeroSlider";
 import { BookOpen, Megaphone, GraduationCap, ShieldCheck, Star, Landmark } from "lucide-react";
 
+export const metadata = {
+  title: "Home | Hidayatul Islam College",
+  description: "An independent, coeducational primary school in Kensington, Cape Town, offering Grades R-7 with an integrated Islamic syllabus.",
+};
+
 export default function Home() {
   const highlights = [
     { icon: <GraduationCap />, title: "Grade R-7", text: "Grades Offered" },

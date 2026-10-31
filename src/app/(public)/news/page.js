@@ -2,6 +2,11 @@ import { PageHero } from "@/components/ui/primitives";
 import { Section, Container } from "@/components/ui/layout";
 import NewsList from "@/components/public/NewsList";
 
+export const metadata = {
+  title: "News & Announcements | Hidayatul Islam College",
+  description: "Stay up to date with the latest news, events, and notices from Hidayatul Islam College.",
+};
+
 export default function News() {
   return (
     <>

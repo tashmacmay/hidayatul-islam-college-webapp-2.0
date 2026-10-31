@@ -2,6 +2,11 @@ import { PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
 import GalleryGrid from "@/components/public/GalleryGrid";
 import { Section, Container } from "@/components/ui/layout";
 
+export const metadata = {
+  title: "Gallery | Hidayatul Islam College",
+  description: "View photos of school life, events, sports, and learning at Hidayatul Islam College.",
+};
+
 export default function Gallery() {
   return (
     <>

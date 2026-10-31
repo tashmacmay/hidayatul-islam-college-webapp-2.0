@@ -5,6 +5,11 @@ import AboutGalleryPreview from "@/components/public/AboutGalleryPreview";
 import { Section, Container } from "@/components/ui/layout";
 import { Card } from "@/components/ui/card";
 
+export const metadata = {
+  title: "About Us | Hidayatul Islam College",
+  description: "Learn about our history, leadership, values, and our community focus in Kensington, Cape Town.",
+};
+
 const schoolHistory = [
   { year: "1999", title: "The School Opens", description: "Hidayatul Islam College officially opened with 14 Grade 1 learners.", side: "left" },
   { year: "2005", title: "Grades R–7", description: "As the learners progressed and grades were added, the school became a fully fledged primary school offering Grades R to 7.", side: "right" },
@@ -39,7 +44,6 @@ export default function About() {
   return (
     <>
       <PageHero
-        pattern="dots"
         image="/images/HIC-image2.jpg"
         imageAlt="Hidayatul Islam College"
         breadcrumb="About Us"

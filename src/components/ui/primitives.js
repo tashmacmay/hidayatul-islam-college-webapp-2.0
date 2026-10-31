@@ -1,18 +1,27 @@
 import Link from "next/link";
 import { ShieldCheck } from "lucide-react";
 import { Section, Container } from "./layout";
+import { Button } from "./button";
 
 const pageHeroVariants = {
   standard: { hero: "page-hero--standard", content: "page-hero-content--standard" },
 };
 
-export function PageHero({ image, imageAlt, breadcrumb, title, description, variant = "standard", pattern = "stripes", className = "" }) {
+export function PageHero({ 
+  image, 
+  imageAlt, 
+  breadcrumb, 
+  title, 
+  description, 
+  variant = "standard", 
+  className = "" 
+}) {
   const heroVariant = pageHeroVariants[variant] || pageHeroVariants.standard;
   return (
     <section className={`page-hero ${heroVariant.hero} ${className}`}>
       <img src={image} alt={imageAlt} className="page-hero-image" />
       <div className="page-hero-overlay" />
-      <div className={`page-hero-pattern page-hero-pattern--${pattern}`} />
+      {/* Pattern div removed in Stage 6 */}
       <div className={`page-hero-content ${heroVariant.content}`}>
         <p className="page-breadcrumb">
           <Link href="/" className="page-breadcrumb-link">Home</Link>
@@ -102,14 +111,11 @@ export function CtaBanner({ eyebrow, title, description, actions = [] }) {
       <Container size="narrow" className="text-center">
         <SectionHeader label={eyebrow} title={title} description={description} variant="onNavy" />
         <div className="mt-8 flex flex-wrap justify-center gap-4">
-          {actions.map(({ label, href, variant = "primary" }) => {
-            const className = variant === "secondary-dark" ? "button-secondary-dark" : `button-${variant}`;
-            return href?.includes(":") ? (
-              <a key={label} href={href} className={className}>{label}</a>
-            ) : (
-              <Link key={label} href={href} className={className}>{label}</Link>
-            );
-          })}
+          {actions.map(({ label, href, variant = "primary" }) => (
+            <Button key={label} href={href} variant={variant === "secondary-dark" ? "secondary" : variant}>
+              {label}
+            </Button>
+          ))}
         </div>
       </Container>
     </Section>

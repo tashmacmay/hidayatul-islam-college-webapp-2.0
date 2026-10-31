@@ -1,7 +1,3 @@
-// src/components/ui/layout.js
-// Server components — no "use client".
-// Two and only two components own page-level spacing.
-
 export function Section({
   tone = "white",       // white | cream | navy
   space = "md",         // sm | md | lg
@@ -40,6 +36,7 @@ export function Container({
     default: "max-w-6xl",
     wide:    "max-w-7xl",
   };
+  // Note the px-6 md:px-10 here — this is what prevents the bleed!
   return (
     <div className={`mx-auto ${sizes[size]} px-6 md:px-10 ${className}`.trim()}>
       {children}

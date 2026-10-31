@@ -1,7 +1,12 @@
 import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/ui/primitives";
 import { Section, Container } from "@/components/ui/layout";
 import { Card } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
+
+export const metadata = {
+  title: "Contact Us | Hidayatul Islam College",
+  description: "Get in touch with Hidayatul Islam College for admissions, enquiries, and location details.",
+};
 
 const contactRows = [
   {
@@ -37,17 +42,6 @@ const contactRows = [
       </div>
     ),
   },
-  {
-    icon: <Clock size={20} />,
-    title: "School Starting & Dismissal Times",
-    content: (
-      <div className="mt-1 text-sm leading-6 text-gray-600">
-        <p>Monday–Thursday: All grades start at 07:45.</p>
-        <p>Dismissal: Grade R 13:15; Grades 1–2 13:40; Grade 3 14:00; Grades 4–7 15:00.</p>
-        <p>Friday: All grades dismiss at 12:00.</p>
-      </div>
-    ),
-  },
 ];
 
 export default function Contact() {
@@ -66,7 +60,9 @@ export default function Contact() {
           <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
             <div>
               <SectionHeader label="Find Us" title="Contact Information" className="text-left" variant="left" />
-              <p className="mt-6 max-w-xl text-sm leading-7 text-gray-600">Whether you have a question about admissions, the curriculum, school activities or any other matter, our team is here to assist you.</p>
+              <p className="mt-6 max-w-xl text-sm leading-7 text-gray-600">
+                Whether you have a question about admissions, the curriculum, school activities or any other matter, our team is here to assist you.
+              </p>
               <div className="mt-8 space-y-4">
                 {contactRows.map((row) => (
                   <InfoRow key={row.title} icon={row.icon} title={row.title}>{row.content}</InfoRow>

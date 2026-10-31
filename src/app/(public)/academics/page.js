@@ -4,6 +4,11 @@ import GradeExplorer from "@/components/public/GradeExplorer";
 import { Section, Container } from "@/components/ui/layout";
 import { Card } from "@/components/ui/card";
 
+export const metadata = {
+  title: "Academics | Hidayatul Islam College",
+  description: "Explore our CAPS curriculum, Islamic studies, learner support, and co-curricular activities.",
+};
+
 const foundationalLearning = ["Reading", "Writing", "Arithmetic"];
 const islamicTopics = [
   { icon: BookOpen, title: "Fiqh" },
@@ -36,7 +41,6 @@ export default function Academics() {
   return (
     <>
       <PageHero
-        pattern="dots"
         image="/images/HIC-image2.jpg"
         imageAlt="Learners at Hidayatul Islam College"
         breadcrumb="Academics"
