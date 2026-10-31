@@ -41,7 +41,7 @@ export default function Academics() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_KidsArchitecture.jpg"
         imageAlt="Learners at Hidayatul Islam College"
         breadcrumb="Academics"
         title="Our Academics"

@@ -10,7 +10,7 @@ export default function Resources() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_Archery.jpg"
         imageAlt="Learning Resources"
         breadcrumb="Resources"
         title={<>Learning <span className="text-gold">Resources</span></>}

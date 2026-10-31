@@ -11,7 +11,7 @@ export default function News() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_GirlsDresses.jpg"
         imageAlt="News and announcements"
         breadcrumb="News & Announcements"
         title={<>News & <span className="text-gold">Announcements</span></>}

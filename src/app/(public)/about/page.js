@@ -1,5 +1,5 @@
 import { PageHero, SectionHeader } from "@/components/ui/primitives";
-import { BookOpen, HeartHandshake, Star, Users } from "lucide-react";
+import { BookOpen, HeartHandshake, Users, MoonStar, Sprout, Palmtree } from "lucide-react";
 import Link from "next/link";
 import AboutGalleryPreview from "@/components/public/AboutGalleryPreview";
 import { Section, Container } from "@/components/ui/layout";
@@ -44,7 +44,7 @@ export default function About() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_ClassPhoto.jpg"
         imageAlt="Hidayatul Islam College"
         breadcrumb="About Us"
         title={<>About <span className="text-gold">Our School</span></>}
@@ -69,18 +69,24 @@ export default function About() {
         <Container size="wide">
           <SectionHeader label="Our Foundation" title="Our Aims & Values" className="mb-7 text-center" variant="centered--tight" />
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            
+            {/* HOLISTIC DEVELOPMENT - MoonStar */}
             <Card variant="navy">
-              <BookOpen className="h-6 w-6 text-gold" />
+              <MoonStar className="h-6 w-6 text-gold" />
               <h3 className="mt-4 text-base font-semibold">Holistic Development</h3>
               <p className="mt-3 text-sm leading-7 text-blue-100">The school aims to develop holistic people rooted in Godliness, with positive interpersonal relationships and a positive approach to life’s challenges.</p>
             </Card>
+
+            {/* LEARNER POTENTIAL - Sprout */}
             <Card variant="pale">
-              <HeartHandshake className="h-6 w-6 text-gold" />
+              <Sprout className="h-6 w-6 text-gold" />
               <h3 className="mt-4 text-base font-semibold text-navy">Developing Learner Potential</h3>
               <p className="mt-3 text-sm leading-7 text-gray-600">The school aims to develop learners’ full potential academically, economically, socially, religiously, culturally and on the sports field.</p>
             </Card>
+
+            {/* CHARACTER - Palmtree */}
             <Card variant="light" className="md:col-span-2 lg:col-span-1">
-              <Star className="h-6 w-6 text-gold" />
+              <Palmtree className="h-6 w-6 text-gold" />
               <h3 className="mt-4 text-base font-semibold text-navy">Values & Character</h3>
               <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1.5 text-sm leading-6 text-gray-600 sm:grid-cols-2 lg:grid-cols-1">
                 {schoolValues.map((value) => <li key={value}>{value}</li>)}

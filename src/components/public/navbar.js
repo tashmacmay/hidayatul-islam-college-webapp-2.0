@@ -11,6 +11,8 @@ const links = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Academics", href: "/academics" },
+  { name: "Admissions", href: "/admissions" }, 
+  { name: "Fees", href: "/fees" },             
   { name: "News", href: "/news" },
   { name: "Resources", href: "/resources" },
   { name: "Gallery", href: "/gallery" },
@@ -21,6 +23,8 @@ const publicPages = [
   "/",
   "/about",
   "/academics",
+  "/admissions", 
+  "/fees",       
   "/news",
   "/resources",
   "/gallery",
@@ -48,7 +52,7 @@ export default function Navbar() {
           >
             <div className="nav-brand-mark">
               <img
-                src="/images/HIC_Logo2.png"
+                src="/images/HIC_Logo.png"
                 alt="Hidayatul Islam College Logo"
                 className="h-10 w-10 object-contain sm:h-12 sm:w-12"
               />

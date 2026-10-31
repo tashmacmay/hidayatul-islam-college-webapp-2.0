@@ -11,7 +11,7 @@ export default function Gallery() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_RunningRace.jpg"
         imageAlt="Gallery and Media"
         breadcrumb="Gallery & Media"
         title={<>Gallery & <span className="text-gold">Media</span></>}

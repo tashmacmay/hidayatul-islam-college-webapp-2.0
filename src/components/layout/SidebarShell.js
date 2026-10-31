@@ -76,7 +76,7 @@ export default function SidebarShell({
       >
 
         <img
-          src="/images/HIC_Logo2.png"
+          src="/images/HIC_Logo.png"
           alt="Hidayatul Islam College logo"
           className={`h-[42px] w-[42px] rounded-full border-2 border-gold bg-white p-[2px] ${
             isCollapsed ? "hidden" : ""

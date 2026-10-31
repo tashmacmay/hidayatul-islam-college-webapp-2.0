@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-const heroImages = ["/images/HIC-kids.jpg", "/images/HIC-image2.jpg"];
+const heroImages = ["/images/HIC_ClassPhoto.jpg", "/images/HIC_KidsArchitecture.jpg", "/images/HIC_KidsPointing.jpg", "/images/HIC_Field.jpg", "/images/HIC_GirlsDresses.jpg", "/images/HIC_Archery.jpg", "/images/HIC_RunningRace.jpg", "/images/HIC_Computers.jpg"];
 
 export default function HomeHeroSlider() {
   const [currentImage, setCurrentImage] = useState(0);
@@ -34,7 +34,7 @@ export default function HomeHeroSlider() {
           {/* Logo and Arabic Text */}
           <div className="mb-6 flex items-center gap-5">
             <div className="flex h-28 w-28 items-center justify-center rounded-full border-[3px] border-gold bg-white">
-              <img src="/images/HIC_Logo2.png" alt="Hidayatul Islam College Logo" className="h-24 w-24 object-contain" />
+              <img src="/images/HIC_Logo.png" alt="Hidayatul Islam College Logo" className="h-24 w-24 object-contain" />
             </div>
 
             <div>

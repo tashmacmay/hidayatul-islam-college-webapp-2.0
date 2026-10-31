@@ -48,7 +48,7 @@ export default function Contact() {
   return (
     <>
       <PageHero
-        image="/images/HIC-image2.jpg"
+        image="/images/HIC_Computers.jpg"
         imageAlt="Contact Hidayatul Islam College"
         breadcrumb="Contact Us"
         title={<>Get in <span className="text-gold">Touch</span></>}
