@@ -93,7 +93,7 @@ export default function About() {
             About <span className="text-gold">Our School</span>
           </>
         }
-        description="A faith-based, coeducational primary school in Kensington, offering Grades R–7 and registered with the Western Cape Education Department."
+        description="A faith-based, independent, coeducational primary school in Kensington, offering Grades R–7 and registered with the Western Cape Education Department."
       />
 
       <section className="section-shell--white px-6 py-14 md:px-10 md:py-20">
