@@ -9,6 +9,7 @@ import {
   ScrollText,
   X,
 } from "lucide-react";
+import { Section, Container } from "@/components/ui/layout";
 
 const gradePhases = {
   "Grade R": "foundation",
@@ -176,8 +177,8 @@ export default function GradeExplorer() {
   }
 
   return (
-    <section className="section-shell !pt-6 !pb-12 bg-gray-50 md:!pt-8 md:!pb-14">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <Section tone="cream" space="sm">
+      <Container size="wide">
         <div className="text-center">
           <p className="text-xs font-semibold uppercase tracking-widest text-gold">
             Explore By Grade
@@ -268,7 +269,7 @@ export default function GradeExplorer() {
             </div>
           </div>
         </div>
-      </div>
+      </Container>
 
       {/* Subject overview modal */}
       <dialog
@@ -328,6 +329,6 @@ export default function GradeExplorer() {
           </div>
         )}
       </dialog>
-    </section>
+    </Section>
   );
 }

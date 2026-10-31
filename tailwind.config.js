@@ -20,7 +20,7 @@ module.exports = {
           light: "#f0d080",
           pale: "#fdf6e3",
         },
-        "off-white": "#f7f8fc",
+        cream: "#f9f5ae",
         "text-muted": "#5a6a82",
       },
     },

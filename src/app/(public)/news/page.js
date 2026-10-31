@@ -1,5 +1,11 @@
 import { PageHero } from "@/components/ui/primitives";
+import { Section, Container } from "@/components/ui/layout";
 import NewsList from "@/components/public/NewsList";
+
+export const metadata = {
+  title: "News & Announcements | Hidayatul Islam College",
+  description: "Stay up to date with the latest news, events, and notices from Hidayatul Islam College.",
+};
 
 export default function News() {
   return (
@@ -12,11 +18,11 @@ export default function News() {
         description="Stay up to date with everything happening at Hidayatul Islam College — events, achievements, notices, and community news."
       />
 
-      <section className="section-shell section-shell--off-white">
-        <div className="mx-auto max-w-6xl">
+      <Section tone="white">
+        <Container>
           <NewsList />
-        </div>
-      </section>
+        </Container>
+      </Section>
     </>
   );
 }

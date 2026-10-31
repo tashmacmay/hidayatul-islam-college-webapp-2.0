@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Lock, Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/ui/layout";
 
 const links = [
   { name: "Home", href: "/" },
@@ -36,13 +38,9 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <header
-      className={`nav-shell ${
-        isPublicPage ? "absolute left-0 top-0" : "relative"
-      }`}
-    >
+    <header className={`nav-shell ${isPublicPage ? "absolute left-0 top-0" : "relative"}`}>
       <nav className={isPublicPage ? "nav-container" : "nav-container--solid"}>
-        <div className="nav-inner">
+        <Container className="nav-inner">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
@@ -78,10 +76,10 @@ export default function Navbar() {
               );
             })}
 
-            <Link href="/login" className="nav-login-button">
-              <Lock size={10} />
+            <Button href="/login" variant="primary" size="sm" className="ml-2">
+              <Lock size={12} />
               Portal Login
-            </Link>
+            </Button>
           </div>
 
           <button
@@ -96,11 +94,11 @@ export default function Navbar() {
           >
             {menuOpen ? <X size={25} /> : <Menu size={25} />}
           </button>
-        </div>
+        </Container>
 
         {menuOpen && (
           <div id="mobile-navigation" className="nav-mobile-panel">
-            <div className="flex flex-col">
+            <Container className="flex flex-col">
               {links.map((link) => {
                 const active = pathname === link.href;
 
@@ -117,15 +115,16 @@ export default function Navbar() {
                 );
               })}
 
-              <Link
+              <Button
                 href="/login"
+                variant="primary"
+                className="mt-4 w-full"
                 onClick={() => setMenuOpen(false)}
-                className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-3 text-sm font-medium text-navy transition-colors hover:bg-gold-light"
               >
                 <Lock size={16} />
                 Portal Login
-              </Link>
-            </div>
+              </Button>
+            </Container>
           </div>
         )}
       </nav>
