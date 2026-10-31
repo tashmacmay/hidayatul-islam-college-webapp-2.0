@@ -1,4 +1,4 @@
-import { PageHero, PopiaNote, SectionHeader } from "@/components/ui/primitives";
+import { PageHero, PopiaNote } from "@/components/ui/primitives";
 import GalleryGrid from "@/components/public/GalleryGrid";
 import { Section, Container } from "@/components/ui/layout";
 
@@ -18,25 +18,15 @@ export default function Gallery() {
         description="A window into life at Hidayatul Islam College — events, learning, sport, and community moments captured throughout the year."
       />
 
+
       <Section tone="white">
         <Container>
-          <SectionHeader
-            label="Our Moments"
-            title="School Life in Pictures"
-            className="text-center"
-            variant="centered--tight"
-          />
-
-          <PopiaNote className="mx-auto mt-8 max-w-5xl">
-            Photos will only be published once the appropriate consent has been obtained. Images containing learners must be handled in accordance with the Protection of Personal Information Act (POPIA).
+          <PopiaNote className="mb-10">
+            Gallery images featuring learners will only be published once the appropriate consent has been obtained, in accordance with the Protection of Personal Information Act (POPIA).
           </PopiaNote>
-
-          <div className="mt-10">
-            <GalleryGrid />
-          </div>
+          <GalleryGrid />
         </Container>
       </Section>
-
     </>
   );
 }

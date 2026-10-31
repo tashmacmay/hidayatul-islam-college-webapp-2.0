@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/primitives";
 import LoadingState from "@/components/ui/LoadingState";
 import usePublicList from "@/hooks/usePublicList";
 import { Card } from "@/components/ui/card";
+import { Megaphone } from "lucide-react";
 
 function formatDate(iso) {
   if (!iso) return "";
@@ -55,18 +56,24 @@ export default function NewsList() {
       )}
 
       {!loading && !error && visible.length > 0 && (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        // Added items-start here to stop the stretching
+        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((item) => (
             <Card
               key={item.id}
               href={item.slug ? `/news/${item.slug}` : undefined}
               media={
-                item.featured_image_url && (
+                item.featured_image_url ? (
                   <img
                     src={item.featured_image_url}
                     alt={item.title}
                     className="h-full w-full object-cover object-top transition duration-300 group-hover:scale-[1.02]"
                   />
+                ) : (
+                  // Fallback placeholder so cards without images don't look broken
+                  <div className="flex h-full w-full items-center justify-center bg-navy/5">
+                    <Megaphone className="h-12 w-12 text-navy/20" />
+                  </div>
                 )
               }
             >
@@ -75,7 +82,7 @@ export default function NewsList() {
               </p>
               <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
               <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
-              <p className="line-clamp-2 text-sm text-text-muted flex-1">
+              <p className="line-clamp-2 text-sm text-text-muted">
                 {item.excerpt || (item.content ?? "").slice(0, 160)}
               </p>
               {item.slug && (

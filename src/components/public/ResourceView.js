@@ -12,7 +12,7 @@ export default function ResourceView() {
   const [selectedGrade, setSelectedGrade] = useState("All Grades");
 
   return (
-    <Section tone="cream">
+    <Section tone="white">
       <Container>
         <PopiaNote title="POPIA & Privacy Notice" variant="resources">
           Personal information must be handled in accordance with the Protection of Personal Information Act (POPIA).
