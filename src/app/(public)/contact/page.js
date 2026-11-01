@@ -2,6 +2,7 @@ import { CtaBanner, InfoRow, PageHero, SectionHeader } from "@/components/ui/pri
 import { Section, Container } from "@/components/ui/layout";
 import { Card } from "@/components/ui/card";
 import { MapPin, Phone, Mail } from "lucide-react";
+import { schoolInfo } from "@/lib/school-info";
 
 export const metadata = {
   title: "Contact Us | Hidayatul Islam College",
@@ -14,9 +15,9 @@ const contactRows = [
     title: "Address",
     content: (
       <p className="mt-1 text-sm leading-6 text-gray-600">
-        Corner of Second Avenue and Tenth Street<br />
-        Kensington, Cape Town<br />
-        South Africa
+        {schoolInfo.address.line1}<br />
+        {schoolInfo.address.line2}<br />
+        {schoolInfo.address.line3}
       </p>
     ),
   },
@@ -25,8 +26,11 @@ const contactRows = [
     title: "Phone",
     content: (
       <div className="mt-1 space-y-1 text-sm text-gray-600">
-        <a href="tel:+27215937544" className="block transition hover:text-gold">021 593 7544</a>
-        <a href="tel:+27215936423" className="block transition hover:text-gold">021 593 6423</a>
+        {schoolInfo.phones.map((phone) => (
+          <a key={phone} href={`tel:${phone.replace(/\s/g, '')}`} className="block transition hover:text-gold">
+            {phone}
+          </a>
+        ))}
       </div>
     ),
   },
@@ -35,10 +39,14 @@ const contactRows = [
     title: "Email",
     content: (
       <div className="mt-1 text-sm leading-6 text-gray-600">
-        <a href="mailto:hidayatulprimary@gmail.com" className="block transition hover:text-gold">hidayatulprimary@gmail.com</a>
+        <a href={`mailto:${schoolInfo.email}`} className="block transition hover:text-gold">
+          {schoolInfo.email}
+        </a>
         <p className="mt-3 font-semibold text-navy">Principal &amp; Chief Operations Officer contact</p>
-        <p>Mr J. Alexander — Principal<br />Mrs A. Fridie — Chief Operations Officer</p>
-        <a href="mailto:afridie@hidayatulprimary.co.za" className="block transition hover:text-gold">afridie@hidayatulprimary.co.za</a>
+        <p>{schoolInfo.staff.principal} — Principal<br />{schoolInfo.staff.coo} — Chief Operations Officer</p>
+        <a href={`mailto:${schoolInfo.principalEmail}`} className="block transition hover:text-gold">
+          {schoolInfo.principalEmail}
+        </a>
       </div>
     ),
   },
@@ -95,7 +103,13 @@ export default function Contact() {
       <Section tone="cream">
         <Container>
           <div className="text-center">
-            <SectionHeader label="Other Ways to Reach Us" title="Quick Contacts" description="For more information, please get in touch with the school through the contact details provided above." variant="centered" />
+            {/* Updated Header Text */}
+            <SectionHeader 
+              label="Support" 
+              title="How Can We Help You?" 
+              description="Choose the relevant department below to get in touch with the right team for your enquiry." 
+              variant="centered" 
+            />
           </div>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {[
@@ -114,7 +128,7 @@ export default function Contact() {
 
       <CtaBanner
         title="Ready to be part of the HIC family?"
-        actions={[{ label: "Email Us", href: "mailto:hidayatulprimary@gmail.com", variant: "primary" }]}
+        actions={[{ label: "Email Us", href: `mailto:${schoolInfo.email}`, variant: "primary" }]}
       />
     </>
   );
