@@ -169,9 +169,7 @@ export default function UsersPage() {
     setForm({
       email: user.email || "",
       display_name: user.display_name || "",
-      // Map legacy "admin" roles to "staff"
       role: user.role === "admin" ? "staff" : (user.role || "parent"),
-      // Ensure the checkbox is checked if they were previously an admin
       is_admin: user.is_admin === true || user.role === "admin",
     });
     setError("");
@@ -236,9 +234,7 @@ export default function UsersPage() {
   // ============================================================
 
   async function deleteUser() {
-    if (!deletingUser) {
-      return;
-    }
+    if (!deletingUser) return;
 
     try {
       setSaving(true);
@@ -270,23 +266,22 @@ export default function UsersPage() {
   }
 
   // ============================================================
-  // IMPORT FILE
+  // IMPORT FILE (UPDATED FOR EXCEL AND SPACE CLEANING)
   // ============================================================
 
   function handleFile(event) {
     const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     setError("");
     setSuccess("");
     setImportResult(null);
 
-    if (!file.name.toLowerCase().endsWith(".csv")) {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!["csv", "xls", "xlsx"].includes(fileExtension)) {
       setImportFile(null);
       setImportPreview([]);
-      setError("Only .csv files are supported.");
+      setError("Only .csv, .xls, and .xlsx files are supported.");
       return;
     }
 
@@ -296,57 +291,63 @@ export default function UsersPage() {
       try {
         const data = new Uint8Array(event.target.result);
         const workbook = XLSX.read(data, { type: "array" });
+        
         if (!workbook.SheetNames.length) {
           throw new Error("The file contains no worksheets.");
         }
+
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(firstSheet, {
           defval: "",
           raw: false,
         });
+
         if (rows.length === 0) {
-          throw new Error("The CSV file contains no data rows.");
+          throw new Error("The file contains no data rows.");
         }
 
-        const headers = Object.keys(rows[0]).map((header) =>
+        // Clean headers: trim spaces and lowercase everything
+        const rawHeaders = Object.keys(rows[0]);
+        const cleanHeaders = rawHeaders.map((header) =>
           String(header).trim().toLowerCase()
         );
-        const requiredColumns = [
-          "email",
-          "display_name",
-          "role",
-          "is_admin",
-        ];
+
+        const requiredColumns = ["email", "display_name", "role", "is_admin"];
         const missingColumns = requiredColumns.filter(
-          (column) => !headers.includes(column)
+          (column) => !cleanHeaders.includes(column)
         );
+
         if (missingColumns.length > 0) {
-          throw new Error(
-            `Missing required columns: ${missingColumns.join(", ")}`
-          );
+          throw new Error(`Missing required columns: ${missingColumns.join(", ")}`);
         }
 
+        // Map clean headers back to original raw keys to extract data safely
+        const headerMap = {};
+        rawHeaders.forEach((rawKey) => {
+          headerMap[String(rawKey).trim().toLowerCase()] = rawKey;
+        });
+
         const formattedRows = rows.map((row) => ({
-          email: String(row.email ?? "").trim(),
-          display_name: String(row.display_name ?? "").trim(),
-          role: String(row.role ?? "").trim().toLowerCase(),
-          is_admin: String(row.is_admin ?? "").trim().toLowerCase(),
+          email: String(row[headerMap["email"]] ?? "").trim(),
+          display_name: String(row[headerMap["display_name"]] ?? "").trim(),
+          role: String(row[headerMap["role"]] ?? "").trim().toLowerCase(),
+          is_admin: String(row[headerMap["is_admin"]] ?? "").trim().toLowerCase(),
         }));
 
         setImportFile(file);
         setImportPreview(formattedRows);
       } catch (error) {
-        console.error("Unable to read user CSV:", error);
+        console.error("Unable to read user file:", error);
         setImportFile(null);
         setImportPreview([]);
-        setError(error.message || "Unable to read this CSV file.");
+        setError(error.message || "Unable to read this file.");
       }
     };
 
     reader.onerror = () => {
       setImportFile(null);
       setImportPreview([]);
-      setError("Unable to read this CSV file.");
+      setError("Unable to read this file.");
     };
     reader.readAsArrayBuffer(file);
   }
@@ -369,7 +370,7 @@ export default function UsersPage() {
 
   async function importUsers() {
     if (!importFile || importPreview.length === 0) {
-      setError("Choose a valid CSV file before importing.");
+      setError("Choose a valid file before importing.");
       return;
     }
 
@@ -381,6 +382,7 @@ export default function UsersPage() {
       const baseHeaders = await getAuthHeaders();
       const formData = new FormData();
       formData.append("file", importFile);
+      
       const response = await fetch("/api/users/import", {
         method: "POST",
         headers: baseHeaders,
@@ -537,11 +539,9 @@ export default function UsersPage() {
                     >
                       <option value="parent">Parent</option>
                       <option value="staff">Staff</option>
-                      {/* Admin option removed here */}
                     </select>
                   </div>
 
-                  {/* Conditionally render checkbox only for Staff */}
                   {form.role === "staff" && (
                     <label className="flex items-center gap-3 pt-2">
                       <input
@@ -597,7 +597,7 @@ export default function UsersPage() {
                   <div>
                     <h2 className="text-xl font-bold text-navy">Import Users</h2>
                     <p className="text-sm text-gray-500">
-                      Upload a CSV with email, display_name, role, and is_admin columns.
+                      Upload a CSV or Excel file with email, display_name, role, and is_admin columns.
                     </p>
                   </div>
                   <button
@@ -612,11 +612,11 @@ export default function UsersPage() {
                   <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
                     <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
                     <h3 className="font-semibold text-navy">Upload User File</h3>
-                    <p className="mt-1 text-sm text-gray-500">CSV only</p>
+                    <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv"
+                      accept=".csv, .xls, .xlsx"
                       onChange={handleFile}
                       className="mx-auto mt-4 block text-sm"
                     />
