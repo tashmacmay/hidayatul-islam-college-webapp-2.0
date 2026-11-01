@@ -607,7 +607,11 @@ export default function NoticeManagementPage() {
             disabled={loading}
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-text transition hover:bg-slate-50 disabled:opacity-50"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+            <RefreshCw
+              className={`text-gold ${loading ? "animate-spin" : ""}`}
+              size={16}
+            />{" "}
+            Refresh
           </button>
         </div>
 

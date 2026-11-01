@@ -419,7 +419,10 @@ export default function SchoolBookingsPage() {
                   disabled={syncing}
                   className="flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <RefreshCw size={16} className={syncing ? "animate-spin" : ""} />
+                  <RefreshCw
+                    className={syncing ? "animate-spin text-gold" : "text-gold"}
+                    size={16}
+                  />
                   {syncing ? "Syncing…" : "Sync Now"}
                 </button>
 

@@ -685,8 +685,8 @@ return (
                 {uploading ? (
                   <>
                     <RefreshCw
-                      size={15}
-                      className="animate-spin"
+                      className="animate-spin text-gold"
+                      size={16}
                     />
                     Uploading...
                   </>
