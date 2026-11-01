@@ -1,269 +1,150 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  Calendar,
-  AlertCircle,
-  Newspaper,
-} from "lucide-react";
+import { notFound } from "next/navigation";
+import { Section, Container } from "@/components/ui/layout";
+import { ArrowLeft, Calendar, FileText } from "lucide-react";
 
-export default function NewsArticlePage() {
-  const params = useParams();
-  const slug = params?.slug;
+async function getNewsItem(slug) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/news/${slug}`, {
+      cache: 'no-store'
+    });
+    
+    if (!res.ok) return null;
+    
+    const data = await res.json();
+    const item = data.news || data;
+    
+    if (!item || !item.title) return null;
+    
+    return item;
+  } catch (error) {
+    console.error("Failed to fetch news item:", error);
+    return null;
+  }
+}
 
-  const [article, setArticle] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export async function generateMetadata({ params }) {
+  const { slug } = await params; 
+  const item = await getNewsItem(slug);
+  
+  if (!item) return { title: "Article Not Found | Hidayatul Islam College" };
 
-  useEffect(() => {
-    if (!slug) return;
+  return {
+    title: `${item.title} | Hidayatul Islam College`,
+    description: item.excerpt || "Read the latest news from Hidayatul Islam College.",
+  };
+}
 
-    const fetchArticle = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        setArticle(null);
+function formatDate(iso) {
+  if (!iso) return "";
+  return new Intl.DateTimeFormat("en-ZA", {
+    timeZone: "Africa/Johannesburg",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(iso));
+}
 
-        const response = await fetch(
-          `/api/news/${encodeURIComponent(slug)}`
-        );
+export default async function NewsArticle({ params }) {
+  const { slug } = await params;
+  const item = await getNewsItem(slug);
 
-        if (!response.ok) {
-          setError(response.status === 404 ? "not-found" : "unavailable");
-          return;
-        }
-
-        const data = await response.json();
-        console.log("ARTICLE PAGE RESPONSE:", data);
-
-        // The API returns:
-        // { news: { ...article } }
-        setArticle(data.news);
-      } catch (error) {
-        console.error("Failed to fetch news article:", error);
-        setError("unavailable");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticle();
-  }, [slug]);
-
-  // ============================================================
-  // LOADING
-  // ============================================================
-
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#f8f9fc]">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[#dbe1ec] border-t-[#0d2260]" />
-
-          <p className="text-sm text-[#5a6a82]">
-            Loading article...
-          </p>
-        </div>
-      </main>
-    );
+  if (!item) {
+    notFound();
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
-
-  if (error || !article) {
-    const articleNotFound = error === "not-found" || (!error && !article);
-
-    return (
-      <main className="min-h-screen bg-[#f8f9fc]">
-        <div className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-            <AlertCircle className="h-8 w-8 text-red-500" />
-          </div>
-
-          <h1 className="text-3xl font-bold text-[#0d2260]">
-            {articleNotFound
-              ? "Article not found"
-              : "Unable to load this article right now."}
-          </h1>
-
-          <p className="mx-auto mt-3 max-w-lg text-[#5a6a82]">
-            {articleNotFound
-              ? "This news article could not be found."
-              : "Please try again later."}
-          </p>
-
-          <Link
-            href="/news"
-            className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#0d2260] px-5 py-3 text-sm font-semibold text-white hover:bg-[#162f7a]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to News
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
-  // ============================================================
-  // ARTICLE CONTENT
-  // ============================================================
-
-  const contentParagraphs = article.content
-    ? article.content
-        .split(/\r?\n/)
-        .map((paragraph) => paragraph.trim())
-        .filter(Boolean)
-    : [];
-
-  // ============================================================
-  // ARTICLE PAGE
-  // ============================================================
+  const mediaUrl = item.preview_url || item.featured_image_url;
+  const isPdf = (item.featured_image_url || "").toLowerCase().includes('.pdf');
 
   return (
-    <main className="min-h-screen bg-[#f8f9fc]">
+    <Section tone="white" space="md">
+      <Container>
+        <Link
+          href="/news"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-navy transition hover:text-gold"
+        >
+          <ArrowLeft size={16} />
+          Back to News
+        </Link>
 
-      {/* ========================================================
-          ARTICLE HEADER
-      ======================================================== */}
-
-      <section className="border-b border-gray-200 bg-white">
-        <div className="mx-auto max-w-5xl px-6 py-10 md:px-8 md:py-14">
-
-          {/* Back to News */}
-
-          <Link
-            href="/news"
-            className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-[#0d2260] hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to News
-          </Link>
-
-          {/* Category */}
-
-          {article.category && (
-            <div className="mb-5">
-              <span className="inline-flex items-center gap-2 rounded-full bg-[#f5e9b8] px-4 py-1.5 text-sm font-semibold text-[#0d2260]">
-                <Newspaper className="h-4 w-4" />
-                {article.category}
-              </span>
-            </div>
-          )}
-
-          {/* Title */}
-
-          <h1 className="max-w-4xl text-4xl font-bold leading-tight tracking-tight text-[#0d2260] md:text-5xl lg:text-6xl">
-            {article.title}
+        {/* Article Header */}
+        <div className="mb-8">
+          <span className="inline-block rounded-full bg-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-navy mb-4">
+            {item.category || "News"}
+          </span>
+          <h1 className="font-serif text-3xl font-bold leading-tight text-navy md:text-5xl">
+            {item.title}
           </h1>
-
-          {/* Published date */}
-
-          {article.published_at && (
-            <div className="mt-6 flex items-center gap-2 text-sm text-[#5a6a82]">
-              <Calendar className="h-4 w-4" />
-
-              <span>
-                Published{" "}
-                {new Date(article.published_at).toLocaleDateString(
-                  "en-ZA",
-                  {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  }
-                )}
-              </span>
-            </div>
-          )}
+          <p className="mt-5 flex items-center gap-2 text-sm font-medium text-gray-500 border-b border-gray-200 pb-6">
+            <Calendar size={16} />
+            Published {formatDate(item.published_at)}
+          </p>
         </div>
-      </section>
 
-      {/* ========================================================
-          FEATURED IMAGE
-      ======================================================== */}
-
-      {(article.preview_url || article.featured_image_url) && (
-        <section className="bg-white">
-          <div className="mx-auto max-w-5xl px-6 md:px-8">
-            <div className="overflow-hidden rounded-2xl">
-              <img
-                src={article.preview_url || article.featured_image_url}
-                alt={article.title}
-                className="block h-auto max-h-[600px] w-full object-contain"
-                onError={(event) => {
-                  console.error(
-                    "Failed to load news featured image:",
-                    event.currentTarget.src
-                  );
-                  event.currentTarget.style.display = "none";
-                }}
-              />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* ========================================================
-          ARTICLE CONTENT
-      ======================================================== */}
-
-      <section className="bg-[#f8f9fc]">
-        <div className="mx-auto max-w-3xl px-6 py-12 md:px-8 md:py-16">
-
-          {/* Excerpt */}
-
-          {article.excerpt && (
-            <div className="mb-10 border-l-4 border-[#f5e9b8] pl-5">
-              <p className="text-lg font-medium leading-8 text-[#5a6a82] md:text-xl">
-                {article.excerpt}
-              </p>
-            </div>
-          )}
-
-          {/* Main Article */}
-
-          <article className="rounded-2xl bg-white px-6 py-8 shadow-sm md:px-10 md:py-10">
-
-            {contentParagraphs.length > 0 ? (
-              <div className="space-y-6">
-                {contentParagraphs.map((paragraph, index) => (
-                  <p
-                    key={index}
-                    className="text-base leading-8 text-gray-700 md:text-lg md:leading-9"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            ) : (
-              <p className="text-base text-[#5a6a82]">
-                No article content is available.
+        {/* Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mt-10">
+          
+          {/* LEFT COLUMN: Text + Bottom Button */}
+          <div className="lg:col-span-7 flex flex-col justify-start">
+            
+            {item.excerpt && (
+              <p className="text-xl md:text-2xl font-medium leading-relaxed text-navy mb-8">
+                {item.excerpt}
               </p>
             )}
 
-          </article>
+            {/* Main Content Area */}
+            <div className="prose prose-lg prose-navy max-w-none text-gray-700 whitespace-pre-wrap leading-8">
+              {item.content || (!item.excerpt ? "No further details available for this article." : "")}
+            </div>
 
-          {/* ====================================================
-              BACK TO NEWS
-          ==================================================== */}
+            {/* Back to All News Button anchored to the text */}
+            <div className="mt-12 pt-8 border-t border-gray-200">
+              <Link
+                href="/news"
+                className="inline-flex items-center gap-2 rounded-lg border border-navy px-6 py-3 text-sm font-semibold text-navy transition hover:bg-navy hover:text-white"
+              >
+                <ArrowLeft size={16} />
+                Back to All News
+              </Link>
+            </div>
+          </div>
 
-          <div className="mt-10 border-t border-gray-200 pt-8">
-            <Link
-              href="/news"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#0d2260] px-5 py-3 text-sm font-semibold text-[#0d2260] hover:bg-[#0d2260] hover:text-white"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to All News
-            </Link>
+          {/* RIGHT COLUMN: Sticky Media */}
+          <div className="lg:col-span-5">
+            <div className="sticky top-24">
+              {mediaUrl && (
+                <>
+                  {isPdf ? (
+                    <a 
+                      href={`/api/storage/${item.featured_image_url}`} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-navy p-10 text-center shadow-sm transition hover:bg-navy-dark"
+                    >
+                      <FileText size={56} className="text-gold" />
+                      <div>
+                        <span className="block text-base font-bold text-white mt-2">View Document</span>
+                        <span className="mt-1 block text-sm text-blue-200">Opens in new tab</span>
+                      </div>
+                    </a>
+                  ) : (
+                    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-md">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={mediaUrl}
+                        alt={item.title}
+                        className="w-full h-auto object-contain"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
         </div>
-      </section>
-    </main>
+      </Container>
+    </Section>
   );
 }
