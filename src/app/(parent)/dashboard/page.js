@@ -29,7 +29,7 @@ export default function DashboardPage() {
   // ==========================================================
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [dbProfile, setDbProfile] = useState(null); // NEW: Store database profile
+  const [dbProfile, setDbProfile] = useState(null);
 
   // ==========================================================
   // DASHBOARD DATA
@@ -76,17 +76,16 @@ export default function DashboardPage() {
         const token = await user.getIdToken();
         const headers = { Authorization: `Bearer ${token}` };
 
-        // ADDED: Fetch user profile from database alongside other data
         const [
           noticesResponse,
           resourcesResponse,
           bookingsResponse,
           profileResponse, 
         ] = await Promise.all([
-          fetch("/api/notices", { method: "GET", headers }),
-          fetch("/api/resources", { method: "GET", headers }),
-          fetch("/api/bookings", { method: "GET", headers }),
-          fetch("/api/user-role", { method: "GET", headers }), // Fetches the DB user
+          fetch("/api/notices", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/resources", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/bookings", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/user-role", { method: "GET", headers, cache: "no-store" }),
         ]);
 
         const [
@@ -101,16 +100,13 @@ export default function DashboardPage() {
           profileResponse.json(),
         ]);
 
-        // Set the database profile (which has the display_name)
         if (profileResponse.ok && profileData) {
            setDbProfile(profileData.user || profileData); 
         }
 
-        // Notices
         if (!noticesResponse.ok) throw new Error(noticesData.error || "Failed to load notices.");
         setNotices(Array.isArray(noticesData) ? noticesData : []);
 
-        // Resources
         if (!resourcesResponse.ok) throw new Error(resourcesData.error || "Failed to load resources.");
         const resources = Array.isArray(resourcesData)
           ? resourcesData
@@ -119,7 +115,6 @@ export default function DashboardPage() {
           : [];
         setResourceCount(resources.length);
 
-        // Bookings
         if (!bookingsResponse.ok) throw new Error(bookingsData.error || "Failed to load bookings.");
         setBookings(Array.isArray(bookingsData) ? bookingsData : []);
 
@@ -148,11 +143,8 @@ export default function DashboardPage() {
   if (!user) return null;
 
   // ==========================================================
-  // USER DISPLAY NAME (FIXED)
+  // USER DISPLAY NAME
   // ==========================================================
-  // 1. Try the database name (e.g., "John Smith")
-  // 2. Fallback to Firebase name
-  // 3. Fallback to Email prefix
   const displayName =
     dbProfile?.display_name ||
     user.displayName ||
@@ -160,9 +152,11 @@ export default function DashboardPage() {
     "Parent";
 
   // ==========================================================
-  // RECENT NOTICES
+  // DATA PREPARATION
   // ==========================================================
   const recentNotices = notices.slice(0, 3);
+  
+  // Filter for only upcoming bookings to match the preview section
   const upcomingBookings = bookings.filter(
     (booking) => !booking.status || booking.status === "upcoming"
   );
@@ -189,11 +183,12 @@ export default function DashboardPage() {
       )}
 
       <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* FIXED: Now uses upcomingBookings.length so the number matches the list below */}
         <DashboardStatCard
           icon={<CalendarDays size={21} />}
           title="My Bookings"
-          value={loading ? "..." : bookings.length}
-          subtitle="Booking information"
+          value={loading ? "..." : upcomingBookings.length}
+          subtitle="Upcoming appointments"
           href="/my-bookings"
         />
 
