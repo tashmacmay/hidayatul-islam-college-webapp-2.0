@@ -4,9 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Fragment } from "react";
 import {
-  UserCircle,
   LogOut,
-  Menu,
   ChevronLeft,
   ChevronRight,
   X,
@@ -14,7 +12,6 @@ import {
 
 export default function SidebarShell({
   sections,
-  profileHref,
   roleLabel,
   user,
   loading,
@@ -23,12 +20,11 @@ export default function SidebarShell({
   mobileOpen = false,
   onToggle,
   onCloseMobile,
-  displayName: customDisplayName, // Accept DB name
+  displayName: customDisplayName,
 }) {
   const pathname = usePathname();
   const isCollapsed = collapsed && !mobileOpen;
 
-  // Use custom database name if available, fallback to Firebase, then email
   const displayName =
     customDisplayName ||
     user?.displayName ||
@@ -104,7 +100,6 @@ export default function SidebarShell({
       </div>
 
       {/* NAVIGATION */}
-      {/* Reduced py-2 to save vertical space */}
       <div className="flex-1 overflow-y-auto py-1">
         {sections.map((section, sectionIndex) => (
           <Fragment key={section.heading || sectionIndex}>
@@ -129,7 +124,6 @@ export default function SidebarShell({
                   key={link.href}
                   href={link.href}
                   onClick={link.onClick}
-                  // CHANGED py-[9px] to py-2
                   className={`flex items-center gap-[11px] border-l-[3px] py-2 text-[13px] font-medium transition-all ${
                     isCollapsed ? "justify-center px-2" : "px-5"
                   } ${
@@ -147,26 +141,6 @@ export default function SidebarShell({
             })}
           </Fragment>
         ))}
-
-        <div className="mx-4 my-1.5 h-px bg-white/10" />
-
-        {/* MY PROFILE */}
-        <Link
-          href={profileHref}
-          // CHANGED py-[9px] to py-2
-          className={`flex items-center gap-[11px] border-l-[3px] py-2 text-[13px] font-medium transition-all ${
-            isCollapsed ? "justify-center px-2" : "px-5"
-          } ${
-            pathname === profileHref
-              ? "border-gold bg-[#c9a2271a] text-white"
-              : "border-transparent text-[#7090b0] hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          <UserCircle size={17} />
-          <span className={isCollapsed ? "hidden" : undefined}>
-            My Profile
-          </span>
-        </Link>
 
         <div className="mx-4 my-1.5 h-px bg-white/10" />
 

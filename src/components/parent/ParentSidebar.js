@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRole } from "@/providers/RoleProvider";
 
@@ -14,6 +11,7 @@ import {
   CalendarDays,
   Bell,
   BookOpen,
+  Newspaper,
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
@@ -68,31 +66,12 @@ export default function ParentSidebar({
   };
 
   const parentLinks = [
-    {
-      name: "My Dashboard",
-      href: "/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "My Bookings",
-      href: "/my-bookings",
-      icon: CalendarDays,
-    },
-    {
-      name: "School Notices",
-      href: "/notices",
-      icon: Bell,
-    },
-    {
-      name: "Learning Resources",
-      href: "/learning-resources",
-      icon: BookOpen,
-    },
-    {
-      name: "School Calendar",
-      href: "/calendar",
-      icon: CalendarDays,
-    },
+    { name: "My Dashboard", href: "/dashboard", icon: LayoutDashboard },
+    { name: "My Bookings", href: "/my-bookings", icon: CalendarDays },
+    { name: "School Notices", href: "/notices", icon: Bell },
+    { name: "School News", href: "/portal-news", icon: Newspaper },
+    { name: "Learning Resources", href: "/learning-resources", icon: BookOpen },
+    { name: "School Calendar", href: "/calendar", icon: CalendarDays },
   ];
 
   return (

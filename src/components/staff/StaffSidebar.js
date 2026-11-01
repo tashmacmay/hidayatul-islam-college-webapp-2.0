@@ -13,6 +13,7 @@ import {
   BookOpen,
   Users,
   Images,
+  Newspaper,
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
@@ -26,13 +27,12 @@ export default function StaffSidebar({
   const { isAdmin, loading: roleLoading } = useRole();
   const [user, setUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
-  const [dbName, setDbName] = useState(null); // NEW: Store DB name
+  const [dbName, setDbName] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       
-      // Fetch DB profile for display name
       if (currentUser) {
         try {
           const token = await currentUser.getIdToken();
@@ -63,16 +63,15 @@ export default function StaffSidebar({
     }
   };
 
-  // Staff-facing links
   const staffLinks = [
     { name: "My Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
     { name: "School Notices", href: "/staff/school-notices", icon: Bell },
     { name: "My Bookings", href: "/staff/bookings", icon: CalendarDays },
+    { name: "School News", href: "/staff/news", icon: Newspaper },
     { name: "Learning Resources", href: "/staff/learning-resources", icon: BookOpen },
     { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
   ];
 
-  // Management links
   const adminLinks = [
     { name: "Term Calendar Management", href: "/staff/admin/term-calendar-management", icon: CalendarDays },
     { name: "Notice Management", href: "/staff/admin/notice-management", icon: Bell },
