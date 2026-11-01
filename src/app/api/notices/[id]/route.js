@@ -1,27 +1,59 @@
-// app/api/notices/[id]/route.js
+
 import { NextResponse } from 'next/server';
 import { getPostgresConnection } from '@/lib/db-postgres';
-import { verifyUser } from '@/lib/auth';
+import { requireStaff } from '@/lib/auth';
+
+function validateNoticeId(rawId) {
+  if (!/^\d+$/.test(String(rawId || ''))) {
+    return null;
+  }
+
+  const id = Number(rawId);
+
+  return Number.isSafeInteger(id) && id > 0
+    ? id
+    : null;
+}
 
 export async function PUT(req, { params }) {
   try {
-    const user = await verifyUser(req);
-    const id = Number(params.id);
-    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
-      return NextResponse.json({ error: 'Invalid notice ID' }, { status: 400 });
+    await requireStaff(req);
+
+    const id = validateNoticeId(params.id);
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Invalid notice ID.' },
+        { status: 400 }
+      );
     }
 
     const body = await req.json();
-    const { title, category, content, recipients, status, scheduled_for } = body;
 
-    console.log('🔧 Updating notice:', { id, title, category, content, recipients, status, scheduled_for });
+    const {
+      title,
+      category,
+      content,
+      recipients,
+      status,
+      scheduled_for,
+    } = body;
 
-    // Validate required fields
-    if (!title || !category || !content || !recipients || !status) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (
+      !title?.trim?.() ||
+      !category?.trim?.() ||
+      !content?.trim?.() ||
+      !recipients?.trim?.() ||
+      !status?.trim?.()
+    ) {
+      return NextResponse.json(
+        { error: 'Missing required fields.' },
+        { status: 400 }
+      );
     }
 
     const pool = getPostgresConnection();
+
     const result = await pool.query(
       `
         UPDATE "dbo"."Notices"
@@ -34,57 +66,91 @@ export async function PUT(req, { params }) {
           scheduled_for = $6,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = $7
+        RETURNING id
       `,
       [
-        title,
-        category,
-        content,
-        recipients,
-        status,
+        title.trim(),
+        category.trim(),
+        content.trim(),
+        recipients.trim(),
+        status.trim(),
         scheduled_for ? new Date(scheduled_for) : null,
         id,
       ]
     );
 
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Notice not found.' },
+        { status: 404 }
+      );
     }
 
-    console.log('✅ Notice updated:', id);
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('❌ PUT error:', err);
-    if (err.message === 'User not found in database' || err.message === 'Invalid token' || err.message === 'Missing or invalid Authorization header') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+  } catch (error) {
+    console.error('PUT /api/notices/[id] error:', error);
+
+    const status = Number(error.statusCode) || 500;
+
+    return NextResponse.json(
+      {
+        error:
+          status === 401 || status === 403
+            ? error.message
+            : 'Failed to update notice.',
+      },
+      { status }
+    );
   }
 }
 
 export async function DELETE(req, { params }) {
   try {
-    const user = await verifyUser(req);
-    const id = Number(params.id);
-    if (!/^\d+$/.test(params.id) || !Number.isSafeInteger(id) || id < 1) {
-      return NextResponse.json({ error: 'Invalid notice ID' }, { status: 400 });
+    await requireStaff(req);
+
+    const id = validateNoticeId(params.id);
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Invalid notice ID.' },
+        { status: 400 }
+      );
     }
 
     const pool = getPostgresConnection();
+
     const result = await pool.query(
-      'DELETE FROM "dbo"."Notices" WHERE id = $1',
+      `
+        DELETE FROM "dbo"."Notices"
+        WHERE id = $1
+        RETURNING id
+      `,
       [id]
     );
 
     if (result.rowCount === 0) {
-      return NextResponse.json({ error: 'Notice not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Notice not found.' },
+        { status: 404 }
+      );
     }
-    console.log('🗑️ Notice deleted:', id);
+
     return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('❌ DELETE error:', err);
-    if (err.message === 'User not found in database' || err.message === 'Invalid token' || err.message === 'Missing or invalid Authorization header') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+
+  } catch (error) {
+    console.error('DELETE /api/notices/[id] error:', error);
+
+    const status = Number(error.statusCode) || 500;
+
+    return NextResponse.json(
+      {
+        error:
+          status === 401 || status === 403
+            ? error.message
+            : 'Failed to delete notice.',
+      },
+      { status }
+    );
   }
 }
