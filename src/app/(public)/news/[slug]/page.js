@@ -1,11 +1,18 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers"; // <-- Add this import
 import { Section, Container } from "@/components/ui/layout";
 import { ArrowLeft, Calendar, FileText } from "lucide-react";
 
 async function getNewsItem(slug) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/news/${slug}`, {
+    // Dynamically get the host URL (works locally AND on Vercel)
+    const headersList = headers();
+    const host = headersList.get("host") || "localhost:3000";
+    const protocol = host.includes("localhost") ? "http" : "https";
+    const baseUrl = `${protocol}://${host}`;
+
+    const res = await fetch(`${baseUrl}/api/news/${slug}`, {
       cache: 'no-store'
     });
     
