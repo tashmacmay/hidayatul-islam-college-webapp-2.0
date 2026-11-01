@@ -2,7 +2,21 @@ import { NextResponse } from "next/server";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { verifyFirebaseToken } from "@/lib/verifyToken";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+/**
+ * Links an authenticated Firebase account to an existing Neon invitation.
+ *
+ * Important:
+ * - The user must already exist in Neon.
+ * - The email must match the administrator-created invitation.
+ * - The Firebase UID is obtained from the verified token.
+ * - A different Firebase UID must never overwrite an existing link.
+ * - Email verification is intentionally not required in this prototype.
+ */
 export async function POST(request) {
+  // Step 1: Extract the Firebase ID token from the Authorization header.
   const authHeader = request.headers.get("authorization");
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -21,64 +35,105 @@ export async function POST(request) {
     );
   }
 
+  // Step 2: Verify the token's signature, issuer and audience.
   let decoded;
 
   try {
     decoded = await verifyFirebaseToken(token);
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { error: "Invalid or expired authentication token." },
+      { error: "Invalid or expired Firebase authentication token." },
       { status: 401 }
     );
   }
 
+  // Firebase ID tokens use "sub" as the user's UID.
   const uid = decoded.sub;
-  const email = decoded.email?.trim().toLowerCase();
-
-  if (decoded.email_verified !== true) {
-    return NextResponse.json(
-      {
-        error:
-          "Please verify your email address before activating your Hidayatul account.",
-      },
-      { status: 403 }
-    );
-  }
+  const email =
+    typeof decoded.email === "string"
+      ? decoded.email.trim().toLowerCase()
+      : "";
 
   if (!uid || !email) {
     return NextResponse.json(
       {
         error:
-          "Firebase account is missing required identity details.",
+          "The Firebase account is missing its required UID or email address.",
       },
       { status: 400 }
     );
   }
 
+  let client;
+
   try {
     const pool = getPostgresConnection();
 
-    // Check whether this Firebase UID is already linked.
-    const existingUid = await pool.query(
+    // Use a dedicated connection because the linking operation is transactional.
+    client = await pool.connect();
+
+    await client.query("BEGIN");
+
+    /*
+     * Step 3: Check whether this Firebase UID is already linked.
+     *
+     * If it is linked, only accept the request if the Firebase email
+     * still matches the email stored in the linked Neon record.
+     */
+    const existingUidResult = await client.query(
       `
-        SELECT id, email, display_name, role, is_admin
+        SELECT
+          id,
+          email,
+          display_name,
+          role,
+          is_admin
         FROM "dbo"."Users"
         WHERE firebase_uid = $1
+        LIMIT 1
+        FOR UPDATE
       `,
       [uid]
     );
 
-    if (existingUid.rows.length > 0) {
+    if (existingUidResult.rows.length > 0) {
+      const existingUser = existingUidResult.rows[0];
+
+      const existingEmail = String(existingUser.email || "")
+        .trim()
+        .toLowerCase();
+
+      if (existingEmail !== email) {
+        await client.query("ROLLBACK");
+
+        return NextResponse.json(
+          {
+            error:
+              "This Firebase account is already linked to a different email address. Please contact an administrator.",
+          },
+          { status: 409 }
+        );
+      }
+
+      await client.query("COMMIT");
+
       return NextResponse.json({
         success: true,
         linked: false,
         message: "Firebase account is already linked.",
-        user: existingUid.rows[0],
+        user: existingUser,
       });
     }
 
-    // Locate the administrator-created invitation by email.
-    const invitedResult = await pool.query(
+    /*
+     * Step 4: Find the administrator-created invitation.
+     *
+     * The browser cannot choose the user's role or create its own
+     * Neon record. The matching invitation supplies those details.
+     *
+     * FOR UPDATE locks the invitation row during this transaction.
+     */
+    const invitedResult = await client.query(
       `
         SELECT
           id,
@@ -90,11 +145,14 @@ export async function POST(request) {
         FROM "dbo"."Users"
         WHERE LOWER(BTRIM(email)) = $1
         LIMIT 1
+        FOR UPDATE
       `,
       [email]
     );
 
     if (invitedResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+
       return NextResponse.json(
         {
           error:
@@ -106,11 +164,16 @@ export async function POST(request) {
 
     const invitedUser = invitedResult.rows[0];
 
-    // Never replace a different Firebase identity.
+    /*
+     * Step 5: Prevent an invitation from being claimed by another
+     * Firebase account.
+     */
     if (
       invitedUser.firebase_uid &&
       invitedUser.firebase_uid !== uid
     ) {
+      await client.query("ROLLBACK");
+
       return NextResponse.json(
         {
           error:
@@ -120,9 +183,14 @@ export async function POST(request) {
       );
     }
 
-    // Link only if the invitation is still unclaimed
-    // or already linked to this same UID.
-    const updateResult = await pool.query(
+    /*
+     * Step 6: Link the Firebase UID to the invitation.
+     *
+     * The WHERE condition provides an additional safeguard:
+     * only an unlinked invitation or one already linked to this
+     * same UID can be updated.
+     */
+    const updateResult = await client.query(
       `
         UPDATE "dbo"."Users"
         SET
@@ -144,6 +212,8 @@ export async function POST(request) {
     );
 
     if (updateResult.rows.length === 0) {
+      await client.query("ROLLBACK");
+
       return NextResponse.json(
         {
           error:
@@ -153,6 +223,9 @@ export async function POST(request) {
       );
     }
 
+    // Commit the successful link.
+    await client.query("COMMIT");
+
     return NextResponse.json({
       success: true,
       linked: true,
@@ -160,14 +233,38 @@ export async function POST(request) {
       user: updateResult.rows[0],
     });
   } catch (error) {
+    // Roll back any incomplete database operation.
+    if (client) {
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        console.error("User-link rollback failed:", rollbackError.message);
+      }
+    }
+
     console.error("POST /api/users/link failed:", {
       code: error?.code,
       message: error?.message,
     });
 
+    if (error?.code === "23505") {
+      return NextResponse.json(
+        {
+          error:
+            "This Firebase account is already linked to another user record.",
+        },
+        { status: 409 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Failed to link Firebase account." },
       { status: 500 }
     );
+  } finally {
+    // Always release the connection back to the PostgreSQL pool.
+    if (client) {
+      client.release();
+    }
   }
 }
