@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Lock, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Container } from "@/components/ui/layout";
 
 const links = [
   { name: "Home", href: "/" },
@@ -20,15 +19,7 @@ const links = [
 ];
 
 const publicPages = [
-  "/",
-  "/about",
-  "/academics",
-  "/admissions", 
-  "/fees",       
-  "/news",
-  "/resources",
-  "/gallery",
-  "/contact",
+  "/", "/about", "/academics", "/admissions", "/fees", "/news", "/resources", "/gallery", "/contact",
 ];
 
 export default function Navbar() {
@@ -44,7 +35,8 @@ export default function Navbar() {
   return (
     <header className={`nav-shell ${isPublicPage ? "absolute left-0 top-0" : "relative"}`}>
       <nav className={isPublicPage ? "nav-container" : "nav-container--solid"}>
-        <Container className="nav-inner">
+        {/* Replaced Container with full-width flex and matching hero padding */}
+        <div className="flex w-full items-center justify-between gap-3 px-6 md:px-16 h-[var(--public-nav-height)]">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
@@ -67,7 +59,6 @@ export default function Navbar() {
           <div className="nav-desktop">
             {links.map((link) => {
               const active = pathname === link.href;
-
               return (
                 <Link
                   key={link.href}
@@ -89,23 +80,21 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label={
-              menuOpen ? "Close navigation menu" : "Open navigation menu"
-            }
+            aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             className="nav-toggle"
           >
             {menuOpen ? <X size={25} /> : <Menu size={25} />}
           </button>
-        </Container>
+        </div>
 
         {menuOpen && (
           <div id="mobile-navigation" className="nav-mobile-panel">
-            <Container className="flex flex-col">
+            {/* Replaced Container with matching hero padding */}
+            <div className="flex flex-col px-6 md:px-16 pb-4">
               {links.map((link) => {
                 const active = pathname === link.href;
-
                 return (
                   <Link
                     key={link.href}
@@ -128,7 +117,7 @@ export default function Navbar() {
                 <Lock size={16} />
                 Portal Login
               </Button>
-            </Container>
+            </div>
           </div>
         )}
       </nav>
