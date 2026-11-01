@@ -1,16 +1,18 @@
-import { NextResponse } from "next/server";
-import { getPostgresConnection } from "@/lib/db-postgres";
-import { verifyUser } from "@/lib/auth";
 
-export const runtime = "nodejs";
+import { NextResponse } from 'next/server';
+import { getPostgresConnection } from '@/lib/db-postgres';
+import { requireRoles } from '@/lib/auth';
+
+export const runtime = 'nodejs';
 
 export async function GET(req) {
   try {
-    await verifyUser(req);
+    await requireRoles(req, ['parent', 'staff']);
 
     const url = new URL(req.url);
-    const search = url.searchParams.get("search");
-    const grade = url.searchParams.get("grade");
+
+    const search = url.searchParams.get('search');
+    const grade = url.searchParams.get('grade');
 
     const pool = getPostgresConnection();
 
@@ -32,8 +34,9 @@ export async function GET(req) {
 
     const values = [];
 
-    if (grade && grade !== "All") {
+    if (grade && grade !== 'All') {
       values.push(grade);
+
       query += `
         AND (
           grade = $${values.length}
@@ -44,6 +47,7 @@ export async function GET(req) {
 
     if (search?.trim()) {
       values.push(`%${search.trim()}%`);
+
       query += `
         AND (
           title ILIKE $${values.length}
@@ -61,12 +65,20 @@ export async function GET(req) {
     const result = await pool.query(query, values);
 
     return NextResponse.json(result.rows);
-  } catch (err) {
-    console.error("GET /api/notices error:", err);
+
+  } catch (error) {
+    console.error('GET /api/notices error:', error);
+
+    const status = Number(error.statusCode) || 500;
 
     return NextResponse.json(
-      { error: "Failed to fetch notices" },
-      { status: 500 }
+      {
+        error:
+          status === 401 || status === 403
+            ? error.message
+            : 'Failed to fetch notices.',
+      },
+      { status }
     );
   }
 }

@@ -1,40 +1,39 @@
+
 import { NextResponse } from 'next/server';
-import { getPostgresConnection } from '@/lib/db-postgres';
 import { verifyUser } from '@/lib/auth';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
-    try {
-        const user = await verifyUser(request);
-        const uid = user.uid;
+  try {
+    // verifyUser validates Firebase and retrieves the
+    // current role from Neon PostgreSQL.
+    const user = await verifyUser(request);
 
-        const pool = getPostgresConnection();
-        const result = await pool.query(
-            'SELECT role, is_admin FROM "dbo"."Users" WHERE firebase_uid = $1',
-            [uid]
-        );
+    return NextResponse.json({
+      role: user.role,
+      is_admin: user.isAdmin,
+    });
 
-        if (result.rows.length === 0) {
-            return NextResponse.json(
-                { error: 'User not found in database' },
-                { status: 404 }
-            );
-        }
+  } catch (error) {
+    console.error('GET /api/user-role error:', {
+      code: error?.code,
+      message: error?.message,
+    });
 
-        const { role, is_admin } = result.rows[0];
-        return NextResponse.json({
-            role,
-            is_admin: Boolean(is_admin)
-        });
-    } catch (error) {
-        console.error('DB error:', error);
-        if (error.message === 'User not found in database' ||
-            error.message === 'Invalid token' ||
-            error.message === 'Missing or invalid Authorization header') {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-        }
-        return NextResponse.json(
-            { error: 'Internal server error' },
-            { status: 500 }
-        );
-    }
+    const status = Number(error.statusCode) || 500;
+
+    return NextResponse.json(
+      {
+        error:
+          status === 401
+            ? 'Unauthorized.'
+            : status === 403
+              ? 'Your account does not have an assigned role.'
+              : 'Unable to retrieve your account role.',
+      },
+      { status }
+    );
+  }
 }

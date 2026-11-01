@@ -1,80 +1,71 @@
-//Adapting index.js from https://learn.microsoft.com/en-us/graph/tutorials/javascript-app-only to Next.js webapp
+
 import { NextResponse } from 'next/server';
-//Verifies Firebase token AND looks user up in SQL
-import { verifyUser } from '@/lib/auth';
-import { //Importing "export"ed functions from the graphHelper
+import { requireParent } from '@/lib/auth';
+
+import {
   initializeGraphForAppOnlyAuth,
   getBookingsAsync,
   getStaffMemberLookupAsync,
   formatParentBooking,
 } from '@/lib/graph/graphHelper';
 
-export async function GET(request) { //Receives "request" to read Authorization header
-  try {
-    //Identify the caller:
-    let user;
-    try {
-      user = await verifyUser(request); //Reads the "Authorization: Bearer <token>" header
-    } catch (error) {
-      //No valid token or no matching SQL row
-      return NextResponse.json(
-        { error: error.message || 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+export const runtime = 'nodejs';
 
-    //Normalise the email from the token (comparisons later are safe)
+export async function GET(request) {
+  try {
+    // A valid Firebase token is not sufficient.
+    // The database role must be parent.
+    const user = await requireParent(request);
+
     const email = (user.email || '').toLowerCase().trim();
+
     if (!email) {
-      //Valid token, but no email attatched - needed for filtering!
       return NextResponse.json(
-        { error: 'No email on token' },
+        { error: 'Your account does not have an email address.' },
         { status: 400 }
       );
     }
 
     initializeGraphForAppOnlyAuth();
 
-    //Fetch bookings and the staff lookup in parallel.
-    //If the staff lookup fails, fall back to null so the page still loads
-    //(staff names degrade to raw IDs rather than the page 500ing).
     const [response, staffLookup] = await Promise.all([
       getBookingsAsync(),
-      getStaffMemberLookupAsync().catch((err) => {
-        console.error('Staff lookup fetch failed:', err);
+
+      getStaffMemberLookupAsync().catch((error) => {
+        console.error('Staff lookup fetch failed:', error);
         return null;
       }),
     ]);
 
-    //Filter the bookings by logged-in email:
-    //Filter BEFORE mapping because formatParentBooking() drops email field
-    const mine = response.value.filter((booking) => {
+    const mine = (response.value || []).filter((booking) => {
       const bookerEmail = (
         booking.customerEmailAddress ||
-        booking.customers?.[0]?.emailAddress || //in case there are multiple guests - unlikely - but check here
-        '' //MS Bookings page will require email field, but this is safety net
+        booking.customers?.[0]?.emailAddress ||
+        ''
       ).toLowerCase().trim();
 
       return bookerEmail === email;
     });
 
-    //Map remaining bookings to UI shape:
-    const bookings = mine.map((booking) => formatParentBooking(booking, staffLookup)); //Booking data isnt in right formation for the ui db table -> map to right cogfiguration!
+    const bookings = mine.map((booking) =>
+      formatParentBooking(booking, staffLookup)
+    );
 
-    return NextResponse.json(bookings); //In response to GET(), return the data through Next.js as JSON
+    return NextResponse.json(bookings);
 
   } catch (error) {
-    console.error('FULL GRAPH ERROR:', error);
+    console.error('GET /api/bookings error:', error);
+
+    const status = Number(error.statusCode) || 500;
 
     return NextResponse.json(
       {
-        error: 'Failed to retrieve Microsoft Bookings',
-        statusCode: error.statusCode,
-        code: error.code,
-        message: error.message,
-        body: error.body,
+        error:
+          status === 401 || status === 403
+            ? error.message
+            : 'Failed to retrieve Microsoft Bookings.',
       },
-      { status: error.statusCode || 500 }
+      { status }
     );
   }
 }
