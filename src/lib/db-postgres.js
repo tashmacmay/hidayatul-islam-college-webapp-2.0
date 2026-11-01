@@ -1,4 +1,3 @@
-
 import pg from 'pg';
 
 const { Pool } = pg;
@@ -16,7 +15,9 @@ export function getPostgresConnection() {
       max: 10,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 15000,
-      ssl: { rejectUnauthorized: true },
+      // Neon sometimes rejects the strict certificate in Node.js. 
+      // Setting this to false prevents the ECONNRESET error.
+      ssl: { rejectUnauthorized: false }, 
     });
 
     pool.on('error', (error) => {

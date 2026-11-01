@@ -40,6 +40,10 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
+  // Replaces importResult for page-level banners
+  const [importStatus, setImportStatus] = useState(null); 
+
   const [showUserModal, setShowUserModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -49,7 +53,7 @@ export default function UsersPage() {
   const [importing, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState([]);
   const [importFile, setImportFile] = useState(null);
-  const [importResult, setImportResult] = useState(null);
+  
   const fileInputRef = useRef(null);
 
   // ============================================================
@@ -139,7 +143,6 @@ export default function UsersPage() {
         [name]: type === "checkbox" ? checked : value,
       };
 
-      // If role is changed away from staff, force is_admin to false
       if (name === "role" && value !== "staff") {
         newForm.is_admin = false;
       }
@@ -157,6 +160,7 @@ export default function UsersPage() {
     setForm({ ...emptyForm });
     setError("");
     setSuccess("");
+    setImportStatus(null);
     setShowUserModal(true);
   }
 
@@ -174,6 +178,7 @@ export default function UsersPage() {
     });
     setError("");
     setSuccess("");
+    setImportStatus(null);
     setShowUserModal(true);
   }
 
@@ -266,7 +271,7 @@ export default function UsersPage() {
   }
 
   // ============================================================
-  // IMPORT FILE (UPDATED FOR EXCEL AND SPACE CLEANING)
+  // IMPORT FILE
   // ============================================================
 
   function handleFile(event) {
@@ -275,7 +280,7 @@ export default function UsersPage() {
 
     setError("");
     setSuccess("");
-    setImportResult(null);
+    setImportStatus(null);
 
     const fileExtension = file.name.split('.').pop().toLowerCase();
     if (!["csv", "xls", "xlsx"].includes(fileExtension)) {
@@ -306,7 +311,6 @@ export default function UsersPage() {
           throw new Error("The file contains no data rows.");
         }
 
-        // Clean headers: trim spaces and lowercase everything
         const rawHeaders = Object.keys(rows[0]);
         const cleanHeaders = rawHeaders.map((header) =>
           String(header).trim().toLowerCase()
@@ -321,7 +325,6 @@ export default function UsersPage() {
           throw new Error(`Missing required columns: ${missingColumns.join(", ")}`);
         }
 
-        // Map clean headers back to original raw keys to extract data safely
         const headerMap = {};
         rawHeaders.forEach((rawKey) => {
           headerMap[String(rawKey).trim().toLowerCase()] = rawKey;
@@ -355,7 +358,7 @@ export default function UsersPage() {
   function openImportUsers() {
     setError("");
     setSuccess("");
-    setImportResult(null);
+    setImportStatus(null);
     setImportFile(null);
     setImportPreview([]);
     if (fileInputRef.current) {
@@ -365,7 +368,7 @@ export default function UsersPage() {
   }
 
   // ============================================================
-  // IMPORT USERS
+  // IMPORT USERS (ALL FEEDBACK GOES TO PAGE BANNER)
   // ============================================================
 
   async function importUsers() {
@@ -378,6 +381,7 @@ export default function UsersPage() {
       setImporting(true);
       setError("");
       setSuccess("");
+      setImportStatus(null);
 
       const baseHeaders = await getAuthHeaders();
       const formData = new FormData();
@@ -390,23 +394,63 @@ export default function UsersPage() {
       });
       const data = await response.json();
 
+      // 1. CLOSE THE MODAL IMMEDIATELY, NO MATTER WHAT
+      setShowImportModal(false);
+      setImportPreview([]);
+      setImportFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // 2. HANDLE HARD ERRORS (Server rejected the file entirely)
       if (!response.ok) {
-        setImportResult(data);
-        throw new Error(data.error || "Failed to import users.");
+        setImportStatus({
+          type: "error",
+          title: "Import Failed",
+          message: data.error || "The server rejected the file.",
+          details: data.failures, // Show row errors if they exist
+        });
+        return;
       }
 
       await fetchUsers();
-      setImportResult(data);
-      setImportPreview([]);
-      setImportFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
 
-      setSuccess(`Imported ${data.summary.imported} user(s). Skipped ${data.summary.duplicates} duplicate(s).`);
+      const { imported, duplicates, invalid, total } = data.summary;
+
+      // 3. HANDLE ALL FAILED (All duplicates or invalid)
+      if (imported === 0) {
+        setImportStatus({
+          type: "error",
+          title: "0 Users Imported",
+          message: `0 of ${total} users imported. ${duplicates} duplicate(s), ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 4. HANDLE PARTIAL SUCCESS (Some imported, some failed)
+      else if (imported < total) {
+        setImportStatus({
+          type: "warning",
+          title: "Partial Import",
+          message: `Successfully imported ${imported} user(s). Skipped ${duplicates} duplicate(s) and ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 5. HANDLE FULL SUCCESS (All imported)
+      else {
+        setImportStatus({
+          type: "success",
+          title: "Import Successful",
+          message: `All ${imported} user(s) were imported successfully.`,
+        });
+      }
+      
     } catch (error) {
+      // Catch network errors
+      setShowImportModal(false); // Still close modal
       console.error("Import error:", error);
-      setError(error.message || "An error occurred while importing users.");
+      setImportStatus({
+        type: "error",
+        title: "Network Error",
+        message: error.message || "An error occurred while importing users.",
+      });
     } finally {
       setImporting(false);
     }
@@ -416,6 +460,7 @@ export default function UsersPage() {
     try {
       setError("");
       setSuccess("");
+      setImportStatus(null);
       const response = await fetch(`/api/users/export?format=${format}`, {
         headers: await getAuthHeaders(),
       });
@@ -589,7 +634,7 @@ export default function UsersPage() {
             </div>
           )}
 
-          {/* IMPORT MODAL */}
+          {/* IMPORT MODAL (No error display here anymore) */}
           {showImportModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
@@ -659,27 +704,6 @@ export default function UsersPage() {
                           </tbody>
                         </table>
                       </div>
-                    </div>
-                  )}
-
-                  {importResult?.summary && (
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-                      <p className="font-semibold">Import summary</p>
-                      <p className="mt-1">
-                        Total: {importResult.summary.total} · Imported:{" "}
-                        {importResult.summary.imported} · Duplicates:{" "}
-                        {importResult.summary.duplicates} · Invalid:{" "}
-                        {importResult.summary.invalid}
-                      </p>
-                      {importResult.failures?.length > 0 && (
-                        <ul className="mt-2 list-inside list-disc">
-                          {importResult.failures.map((failure) => (
-                            <li key={`${failure.row}-${failure.reasons.join("|")}`}>
-                              Row {failure.row}: {failure.reasons.join(", ")}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </div>
                   )}
 
@@ -821,15 +845,53 @@ export default function UsersPage() {
             }
           />
 
-          {/* ALERTS */}
+          {/* NEW IMPORT STATUS BANNER (Now with row details) */}
+          {importStatus && (
+            <div
+              className={`rounded-lg border p-4 text-sm mb-4 ${
+                importStatus.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : importStatus.type === "warning"
+                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold">{importStatus.title}</p>
+                  <p className="mt-1">{importStatus.message}</p>
+                  
+                  {/* Show row-level errors on the page if they exist */}
+                  {importStatus.details && importStatus.details.length > 0 && (
+                    <ul className="mt-3 list-inside list-disc space-y-1">
+                      {importStatus.details.map((failure, idx) => (
+                        <li key={idx}>
+                          Row {failure.row}: {failure.reasons.join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                </div>
+                <button
+                  onClick={() => setImportStatus(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* GENERAL ALERTS */}
           {success && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 mb-4">
               {success}
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-4">
               {error}
             </div>
           )}
@@ -878,7 +940,7 @@ export default function UsersPage() {
           </div>
 
           {/* USERS TABLE */}
-          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm mt-4">
             <div className="flex items-center justify-between border-b border-slate-200 p-6">
               <div>
                 <h2 className="text-xl font-bold text-navy">Users</h2>

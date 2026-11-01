@@ -10,6 +10,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation"; // ADDED THIS
 
 const RoleContext = createContext(null);
 
@@ -17,6 +18,7 @@ export function RoleProvider({ children }) {
   const [role, setRole] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const router = useRouter(); // ADDED THIS
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(
@@ -52,6 +54,9 @@ export function RoleProvider({ children }) {
           console.error("Error fetching role:", error);
           setRole(null);
           setIsAdmin(false);
+          
+          // ADDED THIS: Redirect to login if the database fails or user is not found
+          router.push("/login"); 
         } finally {
           setLoading(false);
         }
@@ -59,7 +64,7 @@ export function RoleProvider({ children }) {
     );
 
     return () => unsubscribe();
-  }, []);
+  }, [router]); // ADDED router TO DEPENDENCY ARRAY
 
   return (
     <RoleContext.Provider value={{ role, isAdmin, loading }}>
