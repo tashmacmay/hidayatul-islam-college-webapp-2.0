@@ -3,7 +3,7 @@
 export const schoolDocuments = {
   admissions: {
     checklist: "/documents/registration-checklist.pdf",
-    transfer: "/documents/transfer-form.pdf",
+    transfer: "/documents/confidential-report.pdf",
     application: "/documents/application-form.pdf",
     sports: "/documents/sporting-codes.pdf",
     reregistration: "/documents/re-registration.pdf",
@@ -11,4 +11,4 @@ export const schoolDocuments = {
   fees: {
     structure: "/documents/fee-structure.pdf",
   }
-}
+};
