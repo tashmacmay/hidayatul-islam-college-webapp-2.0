@@ -98,7 +98,6 @@ export default function ParentSidebar({
   return (
     <SidebarShell
       sections={[{ heading: isAdmin ? "Parent" : null, items: parentLinks }]}
-      profileHref="/profile"
       roleLabel="Parent"
       user={user}
       displayName={dbName}

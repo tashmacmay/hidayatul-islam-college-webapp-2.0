@@ -90,7 +90,6 @@ export default function StaffSidebar({
           ? [{ heading: "Admin", items: adminLinks }]
           : []),
       ]}
-      profileHref="/staff/profile"
       roleLabel={isAdmin ? "Admin / Staff" : "Staff"}
       user={user}
       displayName={dbName}
