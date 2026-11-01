@@ -19,6 +19,7 @@
     "date-fns": "^4.4.0",
     "dotenv": "^18.0.9",
     "firebase": "^12.17.1",
+    "firebase-admin": "^14.5.0",
     "framer-motion": "^12.40.0",
     "ical-generator": "^11.0.0",
     "isomorphic-fetch": "^3.0.0",
