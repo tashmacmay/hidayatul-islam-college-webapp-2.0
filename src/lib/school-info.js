@@ -17,6 +17,6 @@ export const schoolInfo = {
     friday: "All grades dismiss at 12:00",
   },
   socials: {
-    facebook: "https://facebook.com/YOUR_PAGE_URL", // Replace with actual URL
+    facebook: "https://www.facebook.com/hidayatulislamprimary/L",
   }
 };
