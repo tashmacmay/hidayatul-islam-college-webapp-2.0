@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Container } from "@/components/ui/layout";
 
 export default function Footer() {
   return (
     <footer className="site-footer">
-      <Container className="flex flex-col items-center justify-between gap-4 py-6 md:flex-row md:py-4">
+      {/* Replaced Container with full-width flex and matching hero padding */}
+      <div className="flex w-full flex-col items-center justify-between gap-4 px-6 py-6 md:flex-row md:px-16 md:py-4">
         <div className="text-center md:text-left">
           <h2 className="site-footer-title">Hidayatul Islam College</h2>
           <p className="site-footer-copy">
@@ -12,7 +12,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-5">
+        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
           <Link href="#" className="site-footer-link">
             POPIA Policy
           </Link>
@@ -22,11 +22,9 @@ export default function Footer() {
           <Link href="#" className="site-footer-link">
             Accessibility
           </Link>
-          <Link href="/staff/login" className="site-footer-link">
-            Staff Portal
-          </Link>
+          {/* Staff Portal removed as requested */}
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }
