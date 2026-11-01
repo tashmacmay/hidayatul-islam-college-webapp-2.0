@@ -12,25 +12,6 @@ import {
   X,
 } from "lucide-react";
 
-/**
- * @param {{
- *   sections: Array<{
- *     heading?: string,
- *     items: Array<{
- *       name: string,
- *       href: string,
- *       icon: React.ComponentType,
- *       onClick?: (e: React.MouseEvent) => void,
- *       disabled?: boolean,
- *     }>,
- *   }>,
- *   profileHref: string,
- *   roleLabel: string,
- *   user: import("firebase/auth").User | null,
- *   loading: boolean,
- *   onLogout: () => void,
- * }} props
- */
 export default function SidebarShell({
   sections,
   profileHref,
@@ -42,11 +23,14 @@ export default function SidebarShell({
   mobileOpen = false,
   onToggle,
   onCloseMobile,
+  displayName: customDisplayName, // Accept DB name
 }) {
   const pathname = usePathname();
   const isCollapsed = collapsed && !mobileOpen;
 
+  // Use custom database name if available, fallback to Firebase, then email
   const displayName =
+    customDisplayName ||
     user?.displayName ||
     user?.email?.split("@")[0] ||
     roleLabel;
@@ -64,17 +48,12 @@ export default function SidebarShell({
         mobileOpen ? "translate-x-0" : "-translate-x-full"
       } ${isCollapsed ? "md:w-16" : "md:w-60"}`}
     >
-
-      {/* ======================================================
-          HEADER
-          ====================================================== */}
-
+      {/* HEADER */}
       <div
         className={`relative flex items-center gap-3 border-b border-white/10 py-4 ${
           isCollapsed ? "justify-center px-2" : "px-5"
         }`}
       >
-
         <img
           src="/images/HIC_Logo.png"
           alt="Hidayatul Islam College logo"
@@ -82,12 +61,10 @@ export default function SidebarShell({
             isCollapsed ? "hidden" : ""
           }`}
         />
-
         <div className={isCollapsed ? "hidden" : undefined}>
           <strong className="block font-serif text-[13px] font-bold text-white">
             HIC Portal
           </strong>
-
           <span className="text-[10px] text-gold-light">
             Hidayatul Islam College
           </span>
@@ -124,32 +101,22 @@ export default function SidebarShell({
             )}
           </button>
         )}
-
       </div>
 
-      {/* ======================================================
-          NAVIGATION
-          ====================================================== */}
-
-      <div className="flex-1 overflow-y-auto py-2">
-
+      {/* NAVIGATION */}
+      {/* Reduced py-2 to save vertical space */}
+      <div className="flex-1 overflow-y-auto py-1">
         {sections.map((section, sectionIndex) => (
           <Fragment key={section.heading || sectionIndex}>
             {section.heading && (
-              <div className={isCollapsed ? "hidden" : "px-5 py-2"}>
-
+              <div className={isCollapsed ? "hidden" : "px-5 py-1.5"}>
                 <div className="flex items-center gap-3">
-
                   <div className="h-px flex-1 bg-white/10" />
-
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
                     {section.heading}
                   </span>
-
                   <div className="h-px flex-1 bg-white/10" />
-
                 </div>
-
               </div>
             )}
 
@@ -162,7 +129,8 @@ export default function SidebarShell({
                   key={link.href}
                   href={link.href}
                   onClick={link.onClick}
-                  className={`flex items-center gap-[11px] border-l-[3px] py-[9px] text-[13px] font-medium transition-all ${
+                  // CHANGED py-[9px] to py-2
+                  className={`flex items-center gap-[11px] border-l-[3px] py-2 text-[13px] font-medium transition-all ${
                     isCollapsed ? "justify-center px-2" : "px-5"
                   } ${
                     active && !link.disabled
@@ -171,26 +139,22 @@ export default function SidebarShell({
                   }`}
                 >
                   <Icon className={link.disabled ? "opacity-50" : undefined} size={17} />
-
                   <span className={isCollapsed ? "hidden" : undefined}>
                     {link.name}
                   </span>
                 </Link>
               );
             })}
-
           </Fragment>
         ))}
 
-        <div className="mx-4 my-2 h-px bg-white/10" />
+        <div className="mx-4 my-1.5 h-px bg-white/10" />
 
-        {/* ==================================================
-            MY PROFILE
-            ================================================== */}
-
+        {/* MY PROFILE */}
         <Link
           href={profileHref}
-          className={`flex items-center gap-[11px] border-l-[3px] py-[9px] text-[13px] font-medium transition-all ${
+          // CHANGED py-[9px] to py-2
+          className={`flex items-center gap-[11px] border-l-[3px] py-2 text-[13px] font-medium transition-all ${
             isCollapsed ? "justify-center px-2" : "px-5"
           } ${
             pathname === profileHref
@@ -199,68 +163,48 @@ export default function SidebarShell({
           }`}
         >
           <UserCircle size={17} />
-
           <span className={isCollapsed ? "hidden" : undefined}>
             My Profile
           </span>
         </Link>
 
-        <div className="mx-4 my-2 h-px bg-white/10" />
+        <div className="mx-4 my-1.5 h-px bg-white/10" />
 
-        {/* ==================================================
-            LOGOUT
-            ================================================== */}
-
+        {/* LOGOUT */}
         <button
           type="button"
           onClick={onLogout}
-          className={`flex w-full items-center gap-[11px] border-l-[3px] border-transparent py-[9px] text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white ${
+          className={`flex w-full items-center gap-[11px] border-l-[3px] border-transparent py-2 text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white ${
             isCollapsed ? "justify-center px-2" : "px-5"
           }`}
         >
           <LogOut size={17} />
-
           <span className={isCollapsed ? "hidden" : undefined}>
             Logout
           </span>
         </button>
-
       </div>
 
-      {/* ======================================================
-          BOTTOM USER
-          ====================================================== */}
-
+      {/* BOTTOM USER */}
       <div
-        className={`border-t border-white/10 py-[14px] ${
+        className={`border-t border-white/10 py-3 ${
           isCollapsed ? "px-2" : "px-5"
         }`}
       >
-
         <div className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""}`}>
-
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold font-bold text-navy-dark">
             {loading ? "..." : initials}
           </div>
-
           <div className={`min-w-0 ${isCollapsed ? "hidden" : ""}`}>
-
             <div className="truncate text-sm font-semibold text-white">
-              {loading
-                ? "Loading..."
-                : displayName}
+              {loading ? "Loading..." : displayName}
             </div>
-
             <div className="text-xs text-[#7090b0]">
               {loading ? "" : roleLabel}
             </div>
-
           </div>
-
         </div>
-
       </div>
-
     </aside>
   );
 }
