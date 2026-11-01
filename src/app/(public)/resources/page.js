@@ -18,12 +18,6 @@ export default function Resources() {
       />
       
       <ResourceView />
-
-      <CtaBanner
-        eyebrow="Parent Portal"
-        title="More resources in the Parent Portal"
-        actions={[{ label: "Portal Login", href: "/login", variant: "primary" }]}
-      />
     </>
   );
 }

@@ -11,4 +11,4 @@ export const schoolDocuments = {
   fees: {
     structure: "/documents/fee-structure.pdf",
   }
-};
+}

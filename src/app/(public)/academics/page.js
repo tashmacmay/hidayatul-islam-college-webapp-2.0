@@ -49,13 +49,13 @@ export default function Academics() {
       />
 
       <Section tone="white" space="sm">
-        <Container className="grid items-center gap-6 lg:grid-cols-2 lg:gap-10">
-          <div>
+        <Container className="grid items-stretch gap-6 lg:grid-cols-2 lg:gap-10">
+          <div className="flex flex-col justify-center">
             <SectionHeader label="Our Curriculum" title="Building Strong Foundations" className="text-left" variant="left" />
             <p className="mt-4 leading-8 text-gray-600">Hidayatul Islam College offers primary education from Grade R to Grade 7, following the CAPS curriculum alongside an integrated Islamic syllabus.</p>
             <p className="mt-3 leading-8 text-gray-600">Learning develops foundational literacy and numeracy, subject knowledge, personal responsibility and positive character.</p>
           </div>
-          <Card variant="navy" className="p-6 sm:p-8">
+          <Card variant="navy" className="p-6 sm:p-8 [&>div]:justify-center">
             <h3 className="text-xl font-bold text-white">The 3 Rs</h3>
             <div className="mt-4"><SubjectList items={foundationalLearning} /></div>
           </Card>
@@ -66,11 +66,11 @@ export default function Academics() {
 
       <Section tone="navy" space="sm">
         <Container>
-          <SectionHeader label="Faith & Learning" title="Islamic Syllabus Topics" description="Islamic learning supports spiritual development, good character and understanding of faith." variant="onNavy" />
+          <SectionHeader label="Faith & Learning" title="Islamic Syllabus Topics" description="Islamic learning supports spiritual development, good character and understanding of faith." variant="onNavy" className="text-left [&>p]:text-blue-100" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
             {islamicTopics.map(({ icon: Icon, title }) => (
-              <Card key={title} variant="ghost" className="text-center border-white/20 bg-white/5">
-                <div className="flex justify-center"><Icon className="h-6 w-6 text-gold" /></div>
+              <Card key={title} variant="ghost" className="border-white/20 bg-white/5">
+                <Icon className="h-6 w-6 text-gold" />
                 <h3 className="mt-4 text-base font-semibold text-gold">{title}</h3>
               </Card>
             ))}
@@ -80,7 +80,7 @@ export default function Academics() {
 
       <Section tone="white" space="sm">
         <Container>
-          <SectionHeader label="Our Approach" title="Educational Aims" description="Our approach supports learners academically while nurturing their character and confidence." variant="centered--tight" />
+          <SectionHeader label="Our Approach" title="Educational Aims" description="Our approach supports learners academically while nurturing their character and confidence." variant="left" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8">
             {educationalAims.map(({ icon: Icon, title, description }) => (
               <Card key={title} variant="light">
@@ -95,11 +95,11 @@ export default function Academics() {
 
       <Section tone="cream" space="sm">
         <Container>
-          <SectionHeader label="Language Development" title="Literacy and Languages" description="Language learning supports communication, comprehension and participation across the curriculum." variant="centered--tight" />
+          <SectionHeader label="Language Development" title="Literacy and Languages" description="Language learning supports communication, comprehension and participation across the curriculum." variant="left" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
             {languageCards.map(({ icon: Icon, title, subtitle, description }) => (
-              <Card key={title} variant="light" className="text-center">
-                <div className="flex justify-center"><Icon className="h-7 w-7 text-gold" /></div>
+              <Card key={title} variant="light">
+                <Icon className="h-7 w-7 text-gold" />
                 <h3 className="mt-4 text-base font-semibold text-navy">{title}</h3>
                 <p className="mt-2 font-semibold text-gold">{subtitle}</p>
                 <p className="mt-3 text-sm leading-7 text-gray-600">{description}</p>
@@ -111,7 +111,7 @@ export default function Academics() {
 
       <Section tone="white" space="sm">
         <Container>
-          <SectionHeader label="Learner Well-being" title="Learner Support" description="Learners benefit from guidance, monitoring and collaboration between school and home." variant="centered--tight" />
+          <SectionHeader label="Learner Well-being" title="Learner Support" description="Learners benefit from guidance, monitoring and collaboration between school and home." variant="left" />
           <div className="mt-6 grid gap-4 sm:grid-cols-2 sm:gap-5 lg:mt-8 lg:grid-cols-3">
             {learnerSupport.map(({ icon: Icon, title, description }) => (
               <Card key={title} variant="light">
@@ -126,7 +126,7 @@ export default function Academics() {
 
       <Section tone="cream" space="sm">
         <Container>
-          <SectionHeader label="Beyond the Classroom" title="Sport & Co-Curricular Activities" description="Activities give learners opportunities to participate, develop skills and build connections." variant="centered--tight" />
+          <SectionHeader label="Beyond the Classroom" title="Sport & Co-Curricular Activities" description="Activities give learners opportunities to participate, develop skills and build connections." variant="left" />
           <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-8 lg:grid-cols-4">
             {coCurricularActivities.map((item) => (
               <Card key={item} variant="light" className="text-center p-4">
