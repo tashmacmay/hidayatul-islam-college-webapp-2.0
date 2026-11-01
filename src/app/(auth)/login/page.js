@@ -14,93 +14,185 @@ import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // function to handle role-based redirect
-  const redirectBasedOnRole = async (user) => {
-    try {
-      const token = await user.getIdToken();
+  /**
+   * Safely reads an API response so an empty response does not
+   * cause a JSON parsing exception in the login page.
+   */
+  async function readApiResponse(response) {
+    const responseText = await response.text();
 
-      const res = await fetch(`/api/user-role?uid=${user.uid}`, {
+    if (!responseText) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(responseText);
+    } catch {
+      return {
+        error: "The server returned an invalid response. Please try again.",
+      };
+    }
+  }
+
+  /**
+   * Retrieves the authenticated user's role from Neon.
+   *
+   * The UID is already contained in the Firebase ID token.
+   * There is no need to send it separately as a query parameter.
+   */
+  async function redirectBasedOnRole(firebaseUser) {
+    try {
+      const token = await firebaseUser.getIdToken(true);
+
+      const response = await fetch("/api/user-role", {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        cache: "no-store",
       });
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "User role not found");
+      const data = await readApiResponse(response);
+
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Unable to determine your account role."
+        );
       }
 
-      const data = await res.json();
-
-      // Decide redirect path
+      // Parents use the parent dashboard.
       if (data.role === "parent") {
-        router.push("/dashboard");
-      } else if (data.role === "staff") {
-        router.push("/staff/dashboard");
-      } else {
-        throw new Error("Unknown role");
+        router.replace("/dashboard");
+        return;
       }
-    } catch (err) {
-      console.error("Role fetch error:", err);
-      setError(
-        err.message || "Unable to determine your role. Please contact support."
+
+      // Staff and administrators have separate landing pages.
+      if (data.role === "staff") {
+        if (data.is_admin === true) {
+          router.replace("/staff/notices");
+        } else {
+          router.replace("/staff/dashboard");
+        }
+
+        return;
+      }
+
+      throw new Error(
+        "Your account does not have a valid application role. Please contact an administrator."
       );
-      setLoading(false);
+    } catch (roleError) {
+      console.error("Role resolution failed:", {
+        message: roleError?.message,
+      });
 
-      // Sign out if the authenticated user has no valid role.
-      await signOut(auth);
-    }
-  };
-
-  // Email/password sign in
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      await redirectBasedOnRole(userCredential.user);
-    } catch (err) {
-      console.error("Login error:", err);
-      // Handle Firebase auth errors
-      switch (err.code) {
-        case "auth/user-not-found":
-          setError("No account found with this email.");
-          break;
-        case "auth/wrong-password":
-          setError("Incorrect password.");
-          break;
-        case "auth/invalid-email":
-          setError("Invalid email address.");
-          break;
-        default:
-          setError("Login failed. Please try again.");
+      // Do not leave an account signed in if it cannot be
+      // associated with a valid Neon user record and role.
+      try {
+        await signOut(auth);
+      } catch (signOutError) {
+        console.error("Unable to sign out:", signOutError);
       }
-      setLoading(false);
-    }
-  };
 
-  // Google sign in
-  const handleGoogleSignIn = async () => {
+      throw roleError;
+    }
+  }
+
+  /**
+   * Email and password login.
+   *
+   * Firebase authenticates the credentials. The application then
+   * checks the user's database record before allowing access.
+   */
+  async function handleSubmit(event) {
+    event.preventDefault();
+
     setError("");
     setLoading(true);
+
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      await redirectBasedOnRole(result.user);
-    } catch (err) {
-      console.error("Google sign-in error:", err);
-      setError("Google sign-in failed. Please try again.");
+      const normalizedEmail = email.trim().toLowerCase();
+
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        normalizedEmail,
+        password
+      );
+
+      await redirectBasedOnRole(credential.user);
+    } catch (loginError) {
+      console.error("Login failed:", {
+        code: loginError?.code,
+        message: loginError?.message,
+      });
+
+      switch (loginError.code) {
+        case "auth/user-not-found":
+          setError("No Firebase account was found with this email address.");
+          break;
+
+        case "auth/wrong-password":
+        case "auth/invalid-credential":
+          setError("The email address or password is incorrect.");
+          break;
+
+        case "auth/invalid-email":
+          setError("Please enter a valid email address.");
+          break;
+
+        case "auth/too-many-requests":
+          setError(
+            "There have been too many login attempts. Please wait before trying again."
+          );
+          break;
+
+        default:
+          setError(
+            loginError.message ||
+              "Login failed. Please try again or contact an administrator."
+          );
+      }
+    } finally {
       setLoading(false);
     }
-  };
+  }
+
+  /**
+   * Google sign-in.
+   *
+   * Google authentication does not automatically create a Neon
+   * user record. The account must already be linked to an
+   * administrator-created record to access the application.
+   */
+  async function handleGoogleSignIn() {
+    setError("");
+    setLoading(true);
+
+    try {
+      const credential = await signInWithPopup(auth, googleProvider);
+
+      await redirectBasedOnRole(credential.user);
+    } catch (googleError) {
+      console.error("Google sign-in failed:", {
+        code: googleError?.code,
+        message: googleError?.message,
+      });
+
+      setError(
+        googleError.message ||
+          "Google sign-in failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <>
@@ -109,25 +201,30 @@ export default function LoginPage() {
       <main className="min-h-[calc(100vh-80px)] flex items-center justify-center bg-off-white px-4 py-12">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10">
-            {/* Header */}
+            {/* Page heading */}
             <div className="text-center">
-              <h1 className="text-3xl font-bold text-navy">Welcome Back</h1>
+              <h1 className="text-3xl font-bold text-navy">
+                Welcome Back
+              </h1>
 
               <p className="mt-2 text-text-muted">
-                Sign in to your account to continue
+                Sign in to your account to continue.
               </p>
 
               <div className="mx-auto mt-3 h-1 w-16 rounded-full bg-gold" />
             </div>
 
-            {/* Error message */}
+            {/* Login error */}
             {error && (
-              <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200">
+              <div
+                role="alert"
+                className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 border border-red-200"
+              >
                 {error}
               </div>
             )}
 
-            {/* Email/password form */}
+            {/* Email and password login */}
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
               {/* Email */}
               <div>
@@ -144,7 +241,7 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(event) => setEmail(event.target.value)}
                     required
                     autoComplete="email"
                     className="form-input pl-10"
@@ -169,7 +266,7 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(event) => setPassword(event.target.value)}
                     required
                     autoComplete="current-password"
                     className="form-input pl-10 pr-10"
@@ -179,7 +276,7 @@ export default function LoginPage() {
 
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
+                    onClick={() => setShowPassword((current) => !current)}
                     className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-navy"
                     aria-label={
                       showPassword ? "Hide password" : "Show password"
@@ -194,28 +291,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {/* Remember me / Forgot password */}
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-text-muted cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 accent-gold border-gray-300 rounded focus:ring-gold"
-                    disabled={loading}
-                  />
-                  Remember me
-                </label>
-
-                <a
-                  href="/forgot-password"
-                  className="text-sm font-medium text-gold hover:text-gold-light transition"
-                >
-                  Forgot password?
-                </a>
-              </div>
-
-              {/* Sign in */}
+              {/* Submit login */}
               <button
                 type="submit"
                 disabled={loading}
@@ -225,24 +301,31 @@ export default function LoginPage() {
               </button>
             </form>
 
-            {/* Divider */}
+            {/* Alternative sign-in method */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200" />
               </div>
 
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-4 text-text-muted">or</span>
+                <span className="bg-white px-4 text-text-muted">
+                  or
+                </span>
               </div>
             </div>
 
-            {/* Google sign in */}
+            {/* Google sign-in */}
             <button
+              type="button"
               onClick={handleGoogleSignIn}
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white py-3 font-medium text-navy transition hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 disabled:opacity-50"
             >
-              <svg className="h-5 w-5" viewBox="0 0 24 24">
+              <svg
+                className="h-5 w-5"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
                   fill="#4285F4"
@@ -264,7 +347,7 @@ export default function LoginPage() {
               Sign in with Google
             </button>
 
-            {/* Invitation / account activation */}
+            {/* Invitation activation link */}
             <div className="mt-6 text-center">
               <p className="text-sm text-text-muted">
                 Have you been invited but have not created your password yet?

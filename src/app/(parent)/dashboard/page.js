@@ -5,10 +5,10 @@ import { useRouter } from "next/navigation";
 import { onAuthStateChanged } from "firebase/auth";
 
 import {
-CalendarDays,
-Bell,
-BookOpen,
-RefreshCw,
+  CalendarDays,
+  Bell,
+  BookOpen,
+  RefreshCw,
 } from "lucide-react";
 
 import ParentSidebar from "@/components/parent/ParentSidebar";
@@ -21,235 +21,160 @@ import RecentNoticesPreview from "@/components/ui/RecentNoticesPreview";
 import UpcomingBookingsPreview from "@/components/ui/UpcomingBookingsPreview";
 import LoadingState from "@/components/ui/LoadingState";
 
-// ============================================================
-// PARENT DASHBOARD
-// ============================================================
-
 export default function DashboardPage() {
-const router = useRouter();
+  const router = useRouter();
 
-// ==========================================================
-// AUTH
-// ==========================================================
+  // ==========================================================
+  // AUTH & PROFILE
+  // ==========================================================
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [dbProfile, setDbProfile] = useState(null); // NEW: Store database profile
 
-const [user, setUser] = useState(null);
-const [authLoading, setAuthLoading] = useState(true);
+  // ==========================================================
+  // DASHBOARD DATA
+  // ==========================================================
+  const [notices, setNotices] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [resourceCount, setResourceCount] = useState(0);
 
-// ==========================================================
-// DASHBOARD DATA
-// ==========================================================
+  // ==========================================================
+  // LOADING / ERROR
+  // ==========================================================
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-const [notices, setNotices] = useState([]);
-const [bookings, setBookings] = useState([]);
-const [resourceCount, setResourceCount] =
-useState(0);
+  // ==========================================================
+  // AUTHENTICATION
+  // ==========================================================
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!currentUser) {
+          router.push("/login");
+          return;
+        }
+        setUser(currentUser);
+        setAuthLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [router]);
 
-// ==========================================================
-// LOADING / ERROR
-// ==========================================================
+  // ==========================================================
+  // LOAD DASHBOARD DATA
+  // ==========================================================
+  useEffect(() => {
+    if (!user) return;
 
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState("");
+    async function loadDashboard() {
+      try {
+        setLoading(true);
+        setError("");
 
-// ==========================================================
-// AUTHENTICATION
-// ==========================================================
+        const token = await user.getIdToken();
+        const headers = { Authorization: `Bearer ${token}` };
 
-useEffect(() => {
-const unsubscribe = onAuthStateChanged(
-auth,
-(currentUser) => {
-if (!currentUser) {
-router.push("/login");
-return;
-}
+        // ADDED: Fetch user profile from database alongside other data
+        const [
+          noticesResponse,
+          resourcesResponse,
+          bookingsResponse,
+          profileResponse, 
+        ] = await Promise.all([
+          fetch("/api/notices", { method: "GET", headers }),
+          fetch("/api/resources", { method: "GET", headers }),
+          fetch("/api/bookings", { method: "GET", headers }),
+          fetch("/api/user-role", { method: "GET", headers }), // Fetches the DB user
+        ]);
 
-     setUser(currentUser);
-    setAuthLoading(false);
+        const [
+          noticesData,
+          resourcesData,
+          bookingsData,
+          profileData,
+        ] = await Promise.all([
+          noticesResponse.json(),
+          resourcesResponse.json(),
+          bookingsResponse.json(),
+          profileResponse.json(),
+        ]);
+
+        // Set the database profile (which has the display_name)
+        if (profileResponse.ok && profileData) {
+           setDbProfile(profileData.user || profileData); 
+        }
+
+        // Notices
+        if (!noticesResponse.ok) throw new Error(noticesData.error || "Failed to load notices.");
+        setNotices(Array.isArray(noticesData) ? noticesData : []);
+
+        // Resources
+        if (!resourcesResponse.ok) throw new Error(resourcesData.error || "Failed to load resources.");
+        const resources = Array.isArray(resourcesData)
+          ? resourcesData
+          : Array.isArray(resourcesData.resources)
+          ? resourcesData.resources
+          : [];
+        setResourceCount(resources.length);
+
+        // Bookings
+        if (!bookingsResponse.ok) throw new Error(bookingsData.error || "Failed to load bookings.");
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+
+      } catch (err) {
+        console.error("Parent dashboard error:", err);
+        setError(err.message || "Unable to load dashboard data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, [user]);
+
+  // ==========================================================
+  // AUTH LOADING
+  // ==========================================================
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+        <RefreshCw size={28} className="animate-spin text-gold" />
+      </div>
+    );
   }
-);
 
-return () => unsubscribe();
- 
-}, [router]);
+  if (!user) return null;
 
-// ==========================================================
-// LOAD DASHBOARD DATA
-// ==========================================================
+  // ==========================================================
+  // USER DISPLAY NAME (FIXED)
+  // ==========================================================
+  // 1. Try the database name (e.g., "John Smith")
+  // 2. Fallback to Firebase name
+  // 3. Fallback to Email prefix
+  const displayName =
+    dbProfile?.display_name ||
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "Parent";
 
-useEffect(() => {
-if (!user) {
-return;
-}
+  // ==========================================================
+  // RECENT NOTICES
+  // ==========================================================
+  const recentNotices = notices.slice(0, 3);
+  const upcomingBookings = bookings.filter(
+    (booking) => !booking.status || booking.status === "upcoming"
+  );
 
- 
-async function loadDashboard() {
-  try {
-    setLoading(true);
-    setError("");
-
-    const token = await user.getIdToken();
-
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
-
-    // ------------------------------------------------------
-    const [
-      noticesResponse,
-      resourcesResponse,
-      bookingsResponse,
-    ] = await Promise.all([
-      fetch("/api/notices", {
-        method: "GET",
-        headers,
-      }),
-
-      fetch("/api/resources", {
-        method: "GET",
-        headers,
-      }),
-
-      fetch("/api/bookings", {
-        method: "GET",
-        headers,
-      }),
-    ]);
-
-    const [
-      noticesData,
-      resourcesData,
-      bookingsData,
-    ] = await Promise.all([
-      noticesResponse.json(),
-      resourcesResponse.json(),
-      bookingsResponse.json(),
-    ]);
-
-    // ------------------------------------------------------
-    // Notices
-    // /api/notices returns the array directly.
-    // ------------------------------------------------------
-
-    if (!noticesResponse.ok) {
-      throw new Error(
-        noticesData.error ||
-          "Failed to load notices."
-      );
-    }
-
-    setNotices(
-      Array.isArray(noticesData)
-        ? noticesData
-        : []
-    );
-
-    // ------------------------------------------------------
-    // Resources
-    // ------------------------------------------------------
-
-    if (!resourcesResponse.ok) {
-      throw new Error(
-        resourcesData.error ||
-          "Failed to load resources."
-      );
-    }
-
-    const resources = Array.isArray(
-      resourcesData
-    )
-      ? resourcesData
-      : Array.isArray(
-          resourcesData.resources
-        )
-      ? resourcesData.resources
-      : [];
-
-    setResourceCount(resources.length);
-
-    if (!bookingsResponse.ok) {
-      throw new Error(
-        bookingsData.error ||
-          "Failed to load bookings."
-      );
-    }
-
-    setBookings(
-      Array.isArray(bookingsData)
-        ? bookingsData
-        : []
-    );
-  } catch (err) {
-    console.error(
-      "Parent dashboard error:",
-      err
-    );
-
-    setError(
-      err.message ||
-        "Unable to load dashboard data. Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-}
-
-loadDashboard();
- 
-}, [user]);
-
-// ==========================================================
-// AUTH LOADING
-// ==========================================================
-
-if (authLoading) {
-return ( <div className="flex min-h-screen items-center justify-center bg-slate-100"> <RefreshCw
-       size={28}
-       className="animate-spin text-gold"
-     /> </div>
-);
-}
-
-if (!user) {
-return null;
-}
-
-// ==========================================================
-// USER DISPLAY NAME
-// ==========================================================
-
-const displayName =
-user.displayName ||
-user.email?.split("@")[0] ||
-"Parent";
-
-// ==========================================================
-// RECENT NOTICES
-// ==========================================================
-
-const recentNotices = notices.slice(0, 3);
-const upcomingBookings = bookings.filter(
-  (booking) =>
-    !booking.status ||
-    booking.status === "upcoming"
-);
-
-// ==========================================================
-// PAGE
-// ==========================================================
-
-return (
-<ShellPage
-sidebar={(sidebarProps) => (
-<ParentSidebar {...sidebarProps} />
-)}
-spaceY=""
->
-
-       {/* ==================================================
-          PAGE HEADER
-      ================================================== */}
-
+  // ==========================================================
+  // PAGE
+  // ==========================================================
+  return (
+    <ShellPage
+      sidebar={(sidebarProps) => <ParentSidebar {...sidebarProps} />}
+      spaceY=""
+    >
       <PageHeader
         icon={BookOpen}
         portalLabel="Parent Portal"
@@ -257,29 +182,13 @@ spaceY=""
         subtitle="Welcome back. Here is a quick overview of your school information."
       />
 
-      {/* ==================================================
-          ERROR
-      ================================================== */}
-
       {error && (
         <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* ==================================================
-          SUMMARY CARDS
-      ================================================== */}
-
       <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-        {/* ------------------------------------------------
-            BOOKINGS
-            ------------------------------------------------
-            Intentionally left empty because bookings are
-            being handled by another team member.
-        ------------------------------------------------ */}
-
         <DashboardStatCard
           icon={<CalendarDays size={21} />}
           title="My Bookings"
@@ -288,43 +197,22 @@ spaceY=""
           href="/my-bookings"
         />
 
-        {/* ------------------------------------------------
-            NOTICES
-        ------------------------------------------------ */}
-
         <DashboardStatCard
           icon={<Bell size={21} />}
           title="Notices"
-          value={
-            loading
-              ? "..."
-              : notices.length
-          }
+          value={loading ? "..." : notices.length}
           subtitle="Published school notices"
           href="/notices"
         />
 
-        {/* ------------------------------------------------
-            RESOURCES
-        ------------------------------------------------ */}
-
         <DashboardStatCard
           icon={<BookOpen size={21} />}
           title="Resources"
-          value={
-            loading
-              ? "..."
-              : resourceCount
-          }
+          value={loading ? "..." : resourceCount}
           subtitle="Available resources"
           href="/resources"
         />
-
       </section>
-
-      {/* ==================================================
-          RECENT NOTICES
-      ================================================== */}
 
       <div className="mb-7 grid gap-6 lg:grid-cols-2">
         <SectionCard
@@ -359,8 +247,6 @@ spaceY=""
           )}
         </SectionCard>
       </div>
-
     </ShellPage>
- 
-);
+  );
 }

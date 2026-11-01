@@ -18,6 +18,7 @@ import {
   Upload,
   X,
   FileSpreadsheet,
+  Download,
   RefreshCw,
 } from "lucide-react";
 
@@ -47,6 +48,8 @@ export default function UsersPage() {
   const [saving, setSaving] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState([]);
+  const [importFile, setImportFile] = useState(null);
+  const [importResult, setImportResult] = useState(null);
   const fileInputRef = useRef(null);
 
   // ============================================================
@@ -80,10 +83,6 @@ export default function UsersPage() {
 
   // ============================================================
   // AUTH HEADERS
-  //
-  // NOTE: Do NOT set Content-Type on GET requests — Next.js App
-  // Router drops the Authorization header when Content-Type is set
-  // on a request with no body. Only set it for POST/PUT/DELETE.
   // ============================================================
 
   async function getAuthHeaders(user = auth.currentUser) {
@@ -133,10 +132,20 @@ export default function UsersPage() {
 
   function handleFormChange(event) {
     const { name, value, type, checked } = event.target;
-    setForm((previous) => ({
-      ...previous,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    
+    setForm((previous) => {
+      const newForm = {
+        ...previous,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      // If role is changed away from staff, force is_admin to false
+      if (name === "role" && value !== "staff") {
+        newForm.is_admin = false;
+      }
+
+      return newForm;
+    });
   }
 
   // ============================================================
@@ -160,8 +169,10 @@ export default function UsersPage() {
     setForm({
       email: user.email || "",
       display_name: user.display_name || "",
-      role: user.role || "parent",
-      is_admin: user.is_admin === true,
+      // Map legacy "admin" roles to "staff"
+      role: user.role === "admin" ? "staff" : (user.role || "parent"),
+      // Ensure the checkbox is checked if they were previously an admin
+      is_admin: user.is_admin === true || user.role === "admin",
     });
     setError("");
     setSuccess("");
@@ -270,6 +281,14 @@ export default function UsersPage() {
 
     setError("");
     setSuccess("");
+    setImportResult(null);
+
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      setImportFile(null);
+      setImportPreview([]);
+      setError("Only .csv files are supported.");
+      return;
+    }
 
     const reader = new FileReader();
 
@@ -277,34 +296,71 @@ export default function UsersPage() {
       try {
         const data = new Uint8Array(event.target.result);
         const workbook = XLSX.read(data, { type: "array" });
+        if (!workbook.SheetNames.length) {
+          throw new Error("The file contains no worksheets.");
+        }
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+        const rows = XLSX.utils.sheet_to_json(firstSheet, {
+          defval: "",
+          raw: false,
+        });
+        if (rows.length === 0) {
+          throw new Error("The CSV file contains no data rows.");
+        }
+
+        const headers = Object.keys(rows[0]).map((header) =>
+          String(header).trim().toLowerCase()
+        );
+        const requiredColumns = [
+          "email",
+          "display_name",
+          "role",
+          "is_admin",
+        ];
+        const missingColumns = requiredColumns.filter(
+          (column) => !headers.includes(column)
+        );
+        if (missingColumns.length > 0) {
+          throw new Error(
+            `Missing required columns: ${missingColumns.join(", ")}`
+          );
+        }
 
         const formattedRows = rows.map((row) => ({
-          email: row.email || row.Email || "",
-          display_name:
-            row.display_name ||
-            row.Display_Name ||
-            row.displayName ||
-            row.name ||
-            row.Name ||
-            "",
-          role: row.role || row.Role || "parent",
-          is_admin:
-            row.is_admin === true ||
-            row.is_admin === 1 ||
-            String(row.is_admin).toLowerCase() === "true" ||
-            String(row.is_admin) === "1",
+          email: String(row.email ?? "").trim(),
+          display_name: String(row.display_name ?? "").trim(),
+          role: String(row.role ?? "").trim().toLowerCase(),
+          is_admin: String(row.is_admin ?? "").trim().toLowerCase(),
         }));
 
+        setImportFile(file);
         setImportPreview(formattedRows);
       } catch (error) {
-        console.error("❌ Unable to read file:", error);
-        setError("Unable to read this file. Please check the format.");
+        console.error("Unable to read user CSV:", error);
+        setImportFile(null);
+        setImportPreview([]);
+        setError(error.message || "Unable to read this CSV file.");
       }
     };
 
+    reader.onerror = () => {
+      setImportFile(null);
+      setImportPreview([]);
+      setError("Unable to read this CSV file.");
+    };
     reader.readAsArrayBuffer(file);
+  }
+
+  function openImportUsers() {
+    setError("");
+    setSuccess("");
+    setImportResult(null);
+    setImportFile(null);
+    setImportPreview([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setShowImportModal(true);
   }
 
   // ============================================================
@@ -312,8 +368,8 @@ export default function UsersPage() {
   // ============================================================
 
   async function importUsers() {
-    if (importPreview.length === 0) {
-      setError("There are no users to import.");
+    if (!importFile || importPreview.length === 0) {
+      setError("Choose a valid CSV file before importing.");
       return;
     }
 
@@ -322,50 +378,65 @@ export default function UsersPage() {
       setError("");
       setSuccess("");
 
-      let imported = 0;
-      let failed = 0;
+      const baseHeaders = await getAuthHeaders();
+      const formData = new FormData();
+      formData.append("file", importFile);
+      const response = await fetch("/api/users/import", {
+        method: "POST",
+        headers: baseHeaders,
+        body: formData,
+      });
+      const data = await response.json();
 
-      for (const user of importPreview) {
-        try {
-          const baseHeaders = await getAuthHeaders();
-          const response = await fetch("/api/users", {
-            method: "POST",
-            headers: {
-              ...baseHeaders,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(user),
-          });
-
-          if (response.ok) {
-            imported++;
-          } else {
-            failed++;
-          }
-        } catch (error) {
-          console.error("❌ Failed to import user:", error);
-          failed++;
-        }
+      if (!response.ok) {
+        setImportResult(data);
+        throw new Error(data.error || "Failed to import users.");
       }
 
       await fetchUsers();
+      setImportResult(data);
       setImportPreview([]);
-      setShowImportModal(false);
-
+      setImportFile(null);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
 
-      setSuccess(
-        `${imported} user(s) imported successfully${
-          failed > 0 ? `, ${failed} failed.` : "."
-        }`
-      );
+      setSuccess(`Imported ${data.summary.imported} user(s). Skipped ${data.summary.duplicates} duplicate(s).`);
     } catch (error) {
-      console.error("❌ Import error:", error);
-      setError("An error occurred while importing users.");
+      console.error("Import error:", error);
+      setError(error.message || "An error occurred while importing users.");
     } finally {
       setImporting(false);
+    }
+  }
+
+  async function exportUsers(format) {
+    try {
+      setError("");
+      setSuccess("");
+      const response = await fetch(`/api/users/export?format=${format}`, {
+        headers: await getAuthHeaders(),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to export users.");
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get("content-disposition") || "";
+      const filename =
+        disposition.match(/filename="([^"]+)"/)?.[1] ||
+        `users.${format}`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      setSuccess(`${format.toUpperCase()} export downloaded.`);
+    } catch (error) {
+      console.error("Export error:", error);
+      setError(error.message || "Unable to export users.");
     }
   }
 
@@ -466,20 +537,23 @@ export default function UsersPage() {
                     >
                       <option value="parent">Parent</option>
                       <option value="staff">Staff</option>
-                      <option value="admin">Admin</option>
+                      {/* Admin option removed here */}
                     </select>
                   </div>
 
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      name="is_admin"
-                      checked={form.is_admin}
-                      onChange={handleFormChange}
-                      className="h-4 w-4"
-                    />
-                    <span className="text-sm font-medium">Administrator access</span>
-                  </label>
+                  {/* Conditionally render checkbox only for Staff */}
+                  {form.role === "staff" && (
+                    <label className="flex items-center gap-3 pt-2">
+                      <input
+                        type="checkbox"
+                        name="is_admin"
+                        checked={form.is_admin}
+                        onChange={handleFormChange}
+                        className="h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
+                      />
+                      <span className="text-sm font-medium">Administrator access</span>
+                    </label>
+                  )}
 
                   {!editingUser && (
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
@@ -522,7 +596,9 @@ export default function UsersPage() {
                 <div className="flex items-center justify-between border-b p-6">
                   <div>
                     <h2 className="text-xl font-bold text-navy">Import Users</h2>
-                    <p className="text-sm text-gray-500">Upload a CSV or Excel file.</p>
+                    <p className="text-sm text-gray-500">
+                      Upload a CSV with email, display_name, role, and is_admin columns.
+                    </p>
                   </div>
                   <button
                     onClick={() => setShowImportModal(false)}
@@ -536,11 +612,11 @@ export default function UsersPage() {
                   <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
                     <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
                     <h3 className="font-semibold text-navy">Upload User File</h3>
-                    <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
+                    <p className="mt-1 text-sm text-gray-500">CSV only</p>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv,.xls,.xlsx"
+                      accept=".csv"
                       onChange={handleFile}
                       className="mx-auto mt-4 block text-sm"
                     />
@@ -571,12 +647,39 @@ export default function UsersPage() {
                                 <td className="p-3">{user.display_name}</td>
                                 <td className="p-3">{user.email}</td>
                                 <td className="p-3 capitalize">{user.role}</td>
-                                <td className="p-3">{user.is_admin ? "Yes" : "No"}</td>
+                                <td className="p-3">
+                                  {["true", "1"].includes(
+                                    String(user.is_admin).toLowerCase()
+                                  )
+                                    ? "Yes"
+                                    : "No"}
+                                </td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
+                    </div>
+                  )}
+
+                  {importResult?.summary && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+                      <p className="font-semibold">Import summary</p>
+                      <p className="mt-1">
+                        Total: {importResult.summary.total} · Imported:{" "}
+                        {importResult.summary.imported} · Duplicates:{" "}
+                        {importResult.summary.duplicates} · Invalid:{" "}
+                        {importResult.summary.invalid}
+                      </p>
+                      {importResult.failures?.length > 0 && (
+                        <ul className="mt-2 list-inside list-disc">
+                          {importResult.failures.map((failure) => (
+                            <li key={`${failure.row}-${failure.reasons.join("|")}`}>
+                              Row {failure.row}: {failure.reasons.join(", ")}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   )}
 
@@ -678,12 +781,34 @@ export default function UsersPage() {
             action={
               <div className="flex flex-col gap-2 sm:flex-row">
                 <button
-                  onClick={() => setShowImportModal(true)}
+                  onClick={openImportUsers}
                   className="flex items-center justify-center gap-2 rounded-lg border border-gold px-4 py-2 font-semibold text-gold hover:bg-gold hover:text-navy"
                 >
                   <Upload size={18} />
                   Import Users
                 </button>
+
+                <div className="flex items-center gap-1 rounded-lg border border-slate-200 px-2">
+                  <Download size={16} className="text-slate-500" />
+                  <select
+                    defaultValue=""
+                    onChange={(event) => {
+                      if (event.target.value) {
+                        exportUsers(event.target.value);
+                        event.target.value = "";
+                      }
+                    }}
+                    className="bg-transparent py-2 text-sm font-semibold text-slate-700 outline-none"
+                    aria-label="Export users"
+                  >
+                    <option value="" disabled>
+                      Export
+                    </option>
+                    <option value="csv">CSV</option>
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="pdf">PDF</option>
+                  </select>
+                </div>
 
                 <button
                   onClick={openAddUser}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPostgresConnection } from "@/lib/db-postgres";
 import { requireAdmin } from "@/lib/auth";
+import { getFirebaseAdminAuth } from "@/lib/firebase-admin";
 
 const USER_FIELDS = `
   id,
@@ -432,7 +433,7 @@ export async function DELETE(request) {
 
     const target = await pool.query(
       `
-        SELECT id, role, is_admin
+        SELECT id, role, is_admin, firebase_uid
         FROM "dbo"."Users"
         WHERE id = $1
       `,
@@ -468,13 +469,52 @@ export async function DELETE(request) {
       }
     }
 
-    await pool.query(
-      `
-        DELETE FROM "dbo"."Users"
-        WHERE id = $1
-      `,
-      [id]
-    );
+    const firebaseUid = target.rows[0].firebase_uid;
+
+    if (firebaseUid) {
+      try {
+        await getFirebaseAdminAuth().deleteUser(firebaseUid);
+      } catch (error) {
+        if (error?.code !== "auth/user-not-found") {
+          console.error("Failed to delete Firebase user:", {
+            databaseUserId: id,
+            firebaseErrorCode: error?.code,
+            message: error?.message,
+          });
+
+          return NextResponse.json(
+            {
+              error:
+                "The Firebase account could not be deleted. The database record was kept so you can retry.",
+            },
+            { status: 502 }
+          );
+        }
+      }
+    }
+
+    try {
+      await pool.query(
+        `
+          DELETE FROM "dbo"."Users"
+          WHERE id = $1
+        `,
+        [id]
+      );
+    } catch (error) {
+      console.error("Firebase user deleted but database deletion failed:", {
+        databaseUserId: id,
+        message: error?.message,
+      });
+
+      return NextResponse.json(
+        {
+          error:
+            "The Firebase account was deleted, but the database record could not be removed. Please contact an administrator.",
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       message: "User record deleted successfully.",

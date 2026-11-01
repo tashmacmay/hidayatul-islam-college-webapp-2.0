@@ -1,4 +1,3 @@
-
 import { verifyFirebaseToken } from './verifyToken';
 import { getPostgresConnection } from './db-postgres';
 
@@ -77,8 +76,9 @@ export async function verifyUser(req) {
   try {
     const pool = getPostgresConnection();
 
+    // ADDED: display_name to the SELECT query
     result = await pool.query(
-      `SELECT id, role, is_admin
+      `SELECT id, role, is_admin, display_name
        FROM "dbo"."Users"
        WHERE firebase_uid = $1
        LIMIT 1`,
@@ -142,6 +142,7 @@ export async function verifyUser(req) {
     id: row.id,
     role,
     isAdmin,
+    display_name: row.display_name || null, // ADDED: Return the display name
   };
 }
 
