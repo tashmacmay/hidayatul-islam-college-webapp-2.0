@@ -83,10 +83,6 @@ export default function UsersPage() {
 
   // ============================================================
   // AUTH HEADERS
-  //
-  // NOTE: Do NOT set Content-Type on GET requests — Next.js App
-  // Router drops the Authorization header when Content-Type is set
-  // on a request with no body. Only set it for POST/PUT/DELETE.
   // ============================================================
 
   async function getAuthHeaders(user = auth.currentUser) {
@@ -136,10 +132,20 @@ export default function UsersPage() {
 
   function handleFormChange(event) {
     const { name, value, type, checked } = event.target;
-    setForm((previous) => ({
-      ...previous,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    
+    setForm((previous) => {
+      const newForm = {
+        ...previous,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      // If role is changed away from staff, force is_admin to false
+      if (name === "role" && value !== "staff") {
+        newForm.is_admin = false;
+      }
+
+      return newForm;
+    });
   }
 
   // ============================================================
@@ -163,8 +169,10 @@ export default function UsersPage() {
     setForm({
       email: user.email || "",
       display_name: user.display_name || "",
-      role: user.role || "parent",
-      is_admin: user.is_admin === true,
+      // Map legacy "admin" roles to "staff"
+      role: user.role === "admin" ? "staff" : (user.role || "parent"),
+      // Ensure the checkbox is checked if they were previously an admin
+      is_admin: user.is_admin === true || user.role === "admin",
     });
     setError("");
     setSuccess("");
@@ -529,20 +537,23 @@ export default function UsersPage() {
                     >
                       <option value="parent">Parent</option>
                       <option value="staff">Staff</option>
-                      <option value="admin">Admin</option>
+                      {/* Admin option removed here */}
                     </select>
                   </div>
 
-                  <label className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      name="is_admin"
-                      checked={form.is_admin}
-                      onChange={handleFormChange}
-                      className="h-4 w-4"
-                    />
-                    <span className="text-sm font-medium">Administrator access</span>
-                  </label>
+                  {/* Conditionally render checkbox only for Staff */}
+                  {form.role === "staff" && (
+                    <label className="flex items-center gap-3 pt-2">
+                      <input
+                        type="checkbox"
+                        name="is_admin"
+                        checked={form.is_admin}
+                        onChange={handleFormChange}
+                        className="h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
+                      />
+                      <span className="text-sm font-medium">Administrator access</span>
+                    </label>
+                  )}
 
                   {!editingUser && (
                     <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
