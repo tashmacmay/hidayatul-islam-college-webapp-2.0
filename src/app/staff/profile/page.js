@@ -11,6 +11,7 @@ import {
   X,
   Camera,
   CheckCircle2,
+  RefreshCw,
 } from "lucide-react";
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -202,7 +203,10 @@ export default function MyProfilePage() {
       >
         <div className="flex min-h-[70vh] items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-[var(--border)] border-t-[var(--navy)]" />
+            <RefreshCw
+              className="mx-auto mb-4 animate-spin text-gold"
+              size={32}
+            />
 
             <p className="text-sm text-[var(--text-muted)]">
               Loading your profile...

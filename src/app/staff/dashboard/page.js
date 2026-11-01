@@ -14,6 +14,7 @@ import {
   CalendarDays,
   Bell,
   BookOpen,
+  RefreshCw,
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
@@ -127,7 +128,7 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#c9a227] border-t-transparent" />
+        <RefreshCw className="animate-spin text-gold" size={32} />
       </div>
     );
   }

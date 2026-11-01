@@ -135,7 +135,7 @@ export default function DashboardPage() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <RefreshCw size={28} className="animate-spin text-gold" />
+        <RefreshCw className="animate-spin text-gold" size={32} />
       </div>
     );
   }
