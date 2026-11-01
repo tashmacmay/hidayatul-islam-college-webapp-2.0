@@ -10,7 +10,8 @@ export function Card({
   className = "",
   children,
 }) {
-  const base = "rounded-2xl overflow-hidden transition flex flex-col w-full h-full";
+  // REMOVED h-full from base
+  const base = "rounded-2xl overflow-hidden transition flex flex-col w-full min-w-0";
   
   const variants = {
     light: "bg-white border border-gray-200 shadow-sm",
@@ -31,7 +32,7 @@ export function Card({
         </div>
       )}
       
-      <div className={padded ? "p-6 flex flex-col flex-1" : "flex flex-col flex-1"}>
+      <div className={padded ? "p-6 flex flex-col" : "flex flex-col"}>
         {icon && (
           <div className={centered ? "mx-auto flex justify-center mb-4" : "mb-4"}>
             {icon}
@@ -43,7 +44,8 @@ export function Card({
   );
 
   if (href) {
-    return <Link href={href} className="block h-full">{inner}</Link>;
+    // REMOVED h-full from Link
+    return <Link href={href} className="block w-full">{inner}</Link>;
   }
   return inner;
 }

@@ -41,14 +41,14 @@ export default function About() {
 
       <Section tone="white" space="sm">
         <Container className="grid items-stretch gap-8 lg:grid-cols-2 lg:gap-12 mb-16 md:mb-24">
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-center min-w-0">
             <SectionHeader label="Who We Are" title={<>Rooted in Faith,{" "}<span className="block text-gold">Built for Excellence</span></>} className="text-left" variant="left" />
             <p className="mt-6 body-copy">Hidayatul Islam College is an independent, faith-based community institution registered with the Western Cape Education Department as an Independent Entity. The school is located on the corner of 10th Street and 2nd Avenue in Kensington.</p>
             <p className="mt-4 body-copy">The coeducational primary school offers Grades R to 7 and follows the CAPS curriculum with an integrated Islamic syllabus.</p>
             <p className="mt-4 body-copy">Foundational learning focuses on reading, writing and arithmetic, alongside Islamic studies and the development of learners&apos; character.</p>
           </div>
           
-          <Card variant="navy" className="text-center p-7 sm:p-9 [&>div]:justify-center">
+          <Card variant="navy" className="text-center p-7 sm:p-9 [&>div]:justify-center min-w-0">
             <p className="text-2xl text-gold">علم نور</p>
             <h3 className="mt-4 text-lg font-semibold">“Knowledge is Light”</h3>
             <p className="mt-3 text-blue-200">Foundational Learning · Character · Faith</p>
@@ -125,8 +125,8 @@ export default function About() {
       </Section>
 
       <Section tone="cream" space="sm">
-        <Container className="grid gap-8 lg:grid-cols-2 lg:items-start lg:gap-12">
-          <div>
+        <Container className="grid w-full gap-8 lg:grid-cols-2 lg:items-start lg:gap-12 overflow-hidden">
+          <div className="min-w-0">
             <SectionHeader label="Community & Culture" title={<>More than a school —{" "}<span className="block text-gold">a community</span></>} className="text-left" variant="left" />
             <p className="mt-6 leading-8 text-gray-600">
               Hidayatul Islam College is a faith-based community institution that encourages cooperation between parents and teachers, and active parent involvement in school activities.
@@ -136,19 +136,21 @@ export default function About() {
             </p>
             <Link
               href="/resources"
-              className="mt-8 inline-flex items-center justify-center rounded-lg bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-dark"
+              className="mt-8 inline-flex items-center justify-center rounded-lg bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-dark whitespace-normal text-center"
             >
               Explore Public Resources
             </Link>
           </div>
-          <div className="space-y-3">
+          
+          {/* FIXED WRAPPER: flex flex-col gap-3 instead of space-y-3 */}
+          <div className="flex flex-col gap-3 min-w-0">
             {communityHighlights.map(({ icon: Icon, title, description }) => (
               <Card key={title} variant="light" className="p-5 sm:p-5">
-                <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5 shrink-0 text-gold" />
-                  <h3 className="font-bold text-navy">{title}</h3>
+                <div className="flex items-start gap-3">
+                  <Icon className="h-5 w-5 shrink-0 text-gold mt-1" />
+                  <h3 className="font-bold text-navy break-words">{title}</h3>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
+                <p className="mt-2 text-sm leading-6 text-gray-600 break-words">{description}</p>
               </Card>
             ))}
           </div>
