@@ -1,28 +1,58 @@
 import Link from "next/link";
+import { schoolInfo } from "@/lib/school-info";
 
 export default function Footer() {
   return (
     <footer className="site-footer">
-      {/* Replaced Container with full-width flex and matching hero padding */}
-      <div className="flex w-full flex-col items-center justify-between gap-4 px-6 py-6 md:flex-row md:px-16 md:py-4">
-        <div className="text-center md:text-left">
-          <h2 className="site-footer-title">Hidayatul Islam College</h2>
-          <p className="site-footer-copy">
-            © 2026 Hidayatul Islam College · Kensington, Cape Town · All rights reserved.
-          </p>
-        </div>
+      <div className="w-full px-6 py-8 md:px-16 md:py-10">
+        
+        {/* items-stretch keeps the columns equal height on desktop */}
+        <div className="flex flex-col md:flex-row md:justify-between items-stretch gap-8 md:gap-12">
+          
+          {/* Column 1: Brand & Copyright */}
+          <div className="flex flex-col justify-between text-center md:text-left flex-1">
+            <div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                Hidayatul Islam College
+              </h2>
+              <p className="text-sm text-gray-400 max-w-sm mx-auto md:mx-0 leading-relaxed">
+                Knowledge is Light. An independent, coeducational primary school in Kensington, Cape Town.
+              </p>
+            </div>
+            <p className="text-xs text-gray-500 mt-4 md:mt-0">
+              © 2026 Hidayatul Islam College.<br />All rights reserved.
+            </p>
+          </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
-          <Link href="#" className="site-footer-link">
-            POPIA Policy
-          </Link>
-          <Link href="#" className="site-footer-link">
-            Terms of Use
-          </Link>
-          <Link href="#" className="site-footer-link">
-            Accessibility
-          </Link>
-          {/* Staff Portal removed as requested */}
+          {/* Column 2: Unified Contact & Connect */}
+          <div className="flex flex-col justify-between text-center md:text-right flex-1 items-center md:items-end">
+            {/* Removed md:mb-0 so the gap matches the left column */}
+            <h3 className="text-xl font-bold text-white mb-2">
+              Contact & Connect
+            </h3>
+            <div className="text-sm text-gray-400 leading-relaxed space-y-1 md:mt-0">
+              <p>
+                {schoolInfo.address.line1}<br />
+                {schoolInfo.address.line2}
+              </p>
+              <p>
+                <a href={`tel:${schoolInfo.phones[0].replace(/\s/g, '')}`} className="hover:text-white transition">
+                  {schoolInfo.phones[0]}
+                </a>
+              </p>
+              <p className="pt-2">
+                <a 
+                  href={schoolInfo.socials.facebook} 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="hover:text-gold transition underline underline-offset-4 decoration-gray-600"
+                >
+                  Follow us on Facebook
+                </a>
+              </p>
+            </div>
+          </div>
+
         </div>
       </div>
     </footer>

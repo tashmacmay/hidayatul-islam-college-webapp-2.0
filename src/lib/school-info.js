@@ -15,5 +15,8 @@ export const schoolInfo = {
     start: "07:45",
     dismissal: "Grade R 13:15; Grades 1–2 13:40; Grade 3 14:00; Grades 4–7 15:00",
     friday: "All grades dismiss at 12:00",
+  },
+  socials: {
+    facebook: "https://www.facebook.com/hidayatulislamprimary/L",
   }
 };
