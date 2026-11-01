@@ -22,17 +22,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  /**
-   * Safely reads an API response so an empty response does not
-   * cause a JSON parsing exception in the login page.
-   */
   async function readApiResponse(response) {
     const responseText = await response.text();
-
-    if (!responseText) {
-      return {};
-    }
-
+    if (!responseText) return {};
     try {
       return JSON.parse(responseText);
     } catch {
@@ -42,12 +34,6 @@ export default function LoginPage() {
     }
   }
 
-  /**
-   * Retrieves the authenticated user's role from Neon.
-   *
-   * The UID is already contained in the Firebase ID token.
-   * There is no need to send it separately as a query parameter.
-   */
   async function redirectBasedOnRole(firebaseUser) {
     try {
       const token = await firebaseUser.getIdToken(true);
@@ -74,14 +60,9 @@ export default function LoginPage() {
         return;
       }
 
-      // Staff and administrators have separate landing pages.
+      // Staff and administrators both land on the Staff Dashboard.
       if (data.role === "staff") {
-        if (data.is_admin === true) {
-          router.replace("/staff/notices");
-        } else {
-          router.replace("/staff/dashboard");
-        }
-
+        router.replace("/staff/dashboard");
         return;
       }
 
@@ -93,8 +74,6 @@ export default function LoginPage() {
         message: roleError?.message,
       });
 
-      // Do not leave an account signed in if it cannot be
-      // associated with a valid Neon user record and role.
       try {
         await signOut(auth);
       } catch (signOutError) {
@@ -105,12 +84,6 @@ export default function LoginPage() {
     }
   }
 
-  /**
-   * Email and password login.
-   *
-   * Firebase authenticates the credentials. The application then
-   * checks the user's database record before allowing access.
-   */
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -164,20 +137,12 @@ export default function LoginPage() {
     }
   }
 
-  /**
-   * Google sign-in.
-   *
-   * Google authentication does not automatically create a Neon
-   * user record. The account must already be linked to an
-   * administrator-created record to access the application.
-   */
   async function handleGoogleSignIn() {
     setError("");
     setLoading(true);
 
     try {
       const credential = await signInWithPopup(auth, googleProvider);
-
       await redirectBasedOnRole(credential.user);
     } catch (googleError) {
       console.error("Google sign-in failed:", {

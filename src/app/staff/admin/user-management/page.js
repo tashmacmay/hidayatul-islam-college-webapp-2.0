@@ -40,6 +40,10 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  
+  // Replaces importResult for page-level banners
+  const [importStatus, setImportStatus] = useState(null); 
+
   const [showUserModal, setShowUserModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -49,7 +53,7 @@ export default function UsersPage() {
   const [importing, setImporting] = useState(false);
   const [importPreview, setImportPreview] = useState([]);
   const [importFile, setImportFile] = useState(null);
-  const [importResult, setImportResult] = useState(null);
+  
   const fileInputRef = useRef(null);
 
   // ============================================================
@@ -139,7 +143,6 @@ export default function UsersPage() {
         [name]: type === "checkbox" ? checked : value,
       };
 
-      // If role is changed away from staff, force is_admin to false
       if (name === "role" && value !== "staff") {
         newForm.is_admin = false;
       }
@@ -157,6 +160,7 @@ export default function UsersPage() {
     setForm({ ...emptyForm });
     setError("");
     setSuccess("");
+    setImportStatus(null);
     setShowUserModal(true);
   }
 
@@ -169,13 +173,12 @@ export default function UsersPage() {
     setForm({
       email: user.email || "",
       display_name: user.display_name || "",
-      // Map legacy "admin" roles to "staff"
       role: user.role === "admin" ? "staff" : (user.role || "parent"),
-      // Ensure the checkbox is checked if they were previously an admin
       is_admin: user.is_admin === true || user.role === "admin",
     });
     setError("");
     setSuccess("");
+    setImportStatus(null);
     setShowUserModal(true);
   }
 
@@ -236,9 +239,7 @@ export default function UsersPage() {
   // ============================================================
 
   async function deleteUser() {
-    if (!deletingUser) {
-      return;
-    }
+    if (!deletingUser) return;
 
     try {
       setSaving(true);
@@ -275,18 +276,17 @@ export default function UsersPage() {
 
   function handleFile(event) {
     const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     setError("");
     setSuccess("");
-    setImportResult(null);
+    setImportStatus(null);
 
-    if (!file.name.toLowerCase().endsWith(".csv")) {
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!["csv", "xls", "xlsx"].includes(fileExtension)) {
       setImportFile(null);
       setImportPreview([]);
-      setError("Only .csv files are supported.");
+      setError("Only .csv, .xls, and .xlsx files are supported.");
       return;
     }
 
@@ -296,57 +296,61 @@ export default function UsersPage() {
       try {
         const data = new Uint8Array(event.target.result);
         const workbook = XLSX.read(data, { type: "array" });
+        
         if (!workbook.SheetNames.length) {
           throw new Error("The file contains no worksheets.");
         }
+
         const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(firstSheet, {
           defval: "",
           raw: false,
         });
+
         if (rows.length === 0) {
-          throw new Error("The CSV file contains no data rows.");
+          throw new Error("The file contains no data rows.");
         }
 
-        const headers = Object.keys(rows[0]).map((header) =>
+        const rawHeaders = Object.keys(rows[0]);
+        const cleanHeaders = rawHeaders.map((header) =>
           String(header).trim().toLowerCase()
         );
-        const requiredColumns = [
-          "email",
-          "display_name",
-          "role",
-          "is_admin",
-        ];
+
+        const requiredColumns = ["email", "display_name", "role", "is_admin"];
         const missingColumns = requiredColumns.filter(
-          (column) => !headers.includes(column)
+          (column) => !cleanHeaders.includes(column)
         );
+
         if (missingColumns.length > 0) {
-          throw new Error(
-            `Missing required columns: ${missingColumns.join(", ")}`
-          );
+          throw new Error(`Missing required columns: ${missingColumns.join(", ")}`);
         }
 
+        const headerMap = {};
+        rawHeaders.forEach((rawKey) => {
+          headerMap[String(rawKey).trim().toLowerCase()] = rawKey;
+        });
+
         const formattedRows = rows.map((row) => ({
-          email: String(row.email ?? "").trim(),
-          display_name: String(row.display_name ?? "").trim(),
-          role: String(row.role ?? "").trim().toLowerCase(),
-          is_admin: String(row.is_admin ?? "").trim().toLowerCase(),
+          email: String(row[headerMap["email"]] ?? "").trim(),
+          display_name: String(row[headerMap["display_name"]] ?? "").trim(),
+          role: String(row[headerMap["role"]] ?? "").trim().toLowerCase(),
+          is_admin: String(row[headerMap["is_admin"]] ?? "").trim().toLowerCase(),
         }));
 
         setImportFile(file);
         setImportPreview(formattedRows);
       } catch (error) {
-        console.error("Unable to read user CSV:", error);
+        console.error("Unable to read user file:", error);
         setImportFile(null);
         setImportPreview([]);
-        setError(error.message || "Unable to read this CSV file.");
+        setError(error.message || "Unable to read this file.");
       }
     };
 
     reader.onerror = () => {
       setImportFile(null);
       setImportPreview([]);
-      setError("Unable to read this CSV file.");
+      setError("Unable to read this file.");
     };
     reader.readAsArrayBuffer(file);
   }
@@ -354,7 +358,7 @@ export default function UsersPage() {
   function openImportUsers() {
     setError("");
     setSuccess("");
-    setImportResult(null);
+    setImportStatus(null);
     setImportFile(null);
     setImportPreview([]);
     if (fileInputRef.current) {
@@ -364,12 +368,12 @@ export default function UsersPage() {
   }
 
   // ============================================================
-  // IMPORT USERS
+  // IMPORT USERS (ALL FEEDBACK GOES TO PAGE BANNER)
   // ============================================================
 
   async function importUsers() {
     if (!importFile || importPreview.length === 0) {
-      setError("Choose a valid CSV file before importing.");
+      setError("Choose a valid file before importing.");
       return;
     }
 
@@ -377,10 +381,12 @@ export default function UsersPage() {
       setImporting(true);
       setError("");
       setSuccess("");
+      setImportStatus(null);
 
       const baseHeaders = await getAuthHeaders();
       const formData = new FormData();
       formData.append("file", importFile);
+      
       const response = await fetch("/api/users/import", {
         method: "POST",
         headers: baseHeaders,
@@ -388,23 +394,63 @@ export default function UsersPage() {
       });
       const data = await response.json();
 
+      // 1. CLOSE THE MODAL IMMEDIATELY, NO MATTER WHAT
+      setShowImportModal(false);
+      setImportPreview([]);
+      setImportFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // 2. HANDLE HARD ERRORS (Server rejected the file entirely)
       if (!response.ok) {
-        setImportResult(data);
-        throw new Error(data.error || "Failed to import users.");
+        setImportStatus({
+          type: "error",
+          title: "Import Failed",
+          message: data.error || "The server rejected the file.",
+          details: data.failures, // Show row errors if they exist
+        });
+        return;
       }
 
       await fetchUsers();
-      setImportResult(data);
-      setImportPreview([]);
-      setImportFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
 
-      setSuccess(`Imported ${data.summary.imported} user(s). Skipped ${data.summary.duplicates} duplicate(s).`);
+      const { imported, duplicates, invalid, total } = data.summary;
+
+      // 3. HANDLE ALL FAILED (All duplicates or invalid)
+      if (imported === 0) {
+        setImportStatus({
+          type: "error",
+          title: "0 Users Imported",
+          message: `0 of ${total} users imported. ${duplicates} duplicate(s), ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 4. HANDLE PARTIAL SUCCESS (Some imported, some failed)
+      else if (imported < total) {
+        setImportStatus({
+          type: "warning",
+          title: "Partial Import",
+          message: `Successfully imported ${imported} user(s). Skipped ${duplicates} duplicate(s) and ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 5. HANDLE FULL SUCCESS (All imported)
+      else {
+        setImportStatus({
+          type: "success",
+          title: "Import Successful",
+          message: `All ${imported} user(s) were imported successfully.`,
+        });
+      }
+      
     } catch (error) {
+      // Catch network errors
+      setShowImportModal(false); // Still close modal
       console.error("Import error:", error);
-      setError(error.message || "An error occurred while importing users.");
+      setImportStatus({
+        type: "error",
+        title: "Network Error",
+        message: error.message || "An error occurred while importing users.",
+      });
     } finally {
       setImporting(false);
     }
@@ -414,6 +460,7 @@ export default function UsersPage() {
     try {
       setError("");
       setSuccess("");
+      setImportStatus(null);
       const response = await fetch(`/api/users/export?format=${format}`, {
         headers: await getAuthHeaders(),
       });
@@ -537,11 +584,9 @@ export default function UsersPage() {
                     >
                       <option value="parent">Parent</option>
                       <option value="staff">Staff</option>
-                      {/* Admin option removed here */}
                     </select>
                   </div>
 
-                  {/* Conditionally render checkbox only for Staff */}
                   {form.role === "staff" && (
                     <label className="flex items-center gap-3 pt-2">
                       <input
@@ -589,7 +634,7 @@ export default function UsersPage() {
             </div>
           )}
 
-          {/* IMPORT MODAL */}
+          {/* IMPORT MODAL (No error display here anymore) */}
           {showImportModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
               <div className="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
@@ -597,7 +642,7 @@ export default function UsersPage() {
                   <div>
                     <h2 className="text-xl font-bold text-navy">Import Users</h2>
                     <p className="text-sm text-gray-500">
-                      Upload a CSV with email, display_name, role, and is_admin columns.
+                      Upload a CSV or Excel file with email, display_name, role, and is_admin columns.
                     </p>
                   </div>
                   <button
@@ -612,11 +657,11 @@ export default function UsersPage() {
                   <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
                     <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
                     <h3 className="font-semibold text-navy">Upload User File</h3>
-                    <p className="mt-1 text-sm text-gray-500">CSV only</p>
+                    <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
                     <input
                       ref={fileInputRef}
                       type="file"
-                      accept=".csv"
+                      accept=".csv, .xls, .xlsx"
                       onChange={handleFile}
                       className="mx-auto mt-4 block text-sm"
                     />
@@ -659,27 +704,6 @@ export default function UsersPage() {
                           </tbody>
                         </table>
                       </div>
-                    </div>
-                  )}
-
-                  {importResult?.summary && (
-                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-                      <p className="font-semibold">Import summary</p>
-                      <p className="mt-1">
-                        Total: {importResult.summary.total} · Imported:{" "}
-                        {importResult.summary.imported} · Duplicates:{" "}
-                        {importResult.summary.duplicates} · Invalid:{" "}
-                        {importResult.summary.invalid}
-                      </p>
-                      {importResult.failures?.length > 0 && (
-                        <ul className="mt-2 list-inside list-disc">
-                          {importResult.failures.map((failure) => (
-                            <li key={`${failure.row}-${failure.reasons.join("|")}`}>
-                              Row {failure.row}: {failure.reasons.join(", ")}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </div>
                   )}
 
@@ -821,15 +845,53 @@ export default function UsersPage() {
             }
           />
 
-          {/* ALERTS */}
+          {/* NEW IMPORT STATUS BANNER (Now with row details) */}
+          {importStatus && (
+            <div
+              className={`rounded-lg border p-4 text-sm mb-4 ${
+                importStatus.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : importStatus.type === "warning"
+                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold">{importStatus.title}</p>
+                  <p className="mt-1">{importStatus.message}</p>
+                  
+                  {/* Show row-level errors on the page if they exist */}
+                  {importStatus.details && importStatus.details.length > 0 && (
+                    <ul className="mt-3 list-inside list-disc space-y-1">
+                      {importStatus.details.map((failure, idx) => (
+                        <li key={idx}>
+                          Row {failure.row}: {failure.reasons.join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                </div>
+                <button
+                  onClick={() => setImportStatus(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* GENERAL ALERTS */}
           {success && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 mb-4">
               {success}
             </div>
           )}
 
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-4">
               {error}
             </div>
           )}
@@ -878,7 +940,7 @@ export default function UsersPage() {
           </div>
 
           {/* USERS TABLE */}
-          <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm mt-4">
             <div className="flex items-center justify-between border-b border-slate-200 p-6">
               <div>
                 <h2 className="text-xl font-bold text-navy">Users</h2>

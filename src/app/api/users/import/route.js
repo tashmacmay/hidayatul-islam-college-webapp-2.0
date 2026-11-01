@@ -78,7 +78,7 @@ function validateRows(rows, headers) {
 
     if (email) {
       if (emails.has(email)) {
-        rowErrors.push(`Duplicate email in CSV (row ${emails.get(email)})`);
+        rowErrors.push(`Duplicate email in file (row ${emails.get(email)})`);
       } else {
         emails.set(email, rowNumber);
       }
@@ -110,14 +110,16 @@ export async function POST(request) {
 
     if (!file || typeof file.arrayBuffer !== "function") {
       return NextResponse.json(
-        { error: "A CSV file is required." },
+        { error: "A spreadsheet file is required." },
         { status: 400 }
       );
     }
 
-    if (!file.name?.toLowerCase().endsWith(".csv")) {
+    // UPDATED: Allow Excel files
+    const fileExtension = file.name?.toLowerCase().split('.').pop();
+    if (!["csv", "xls", "xlsx"].includes(fileExtension)) {
       return NextResponse.json(
-        { error: "Only .csv files are supported." },
+        { error: "Only .csv, .xls, and .xlsx files are supported." },
         { status: 400 }
       );
     }
@@ -125,7 +127,7 @@ export async function POST(request) {
     const buffer = Buffer.from(await file.arrayBuffer());
     if (buffer.length === 0) {
       return NextResponse.json(
-        { error: "The CSV file is empty." },
+        { error: "The file is empty." },
         { status: 400 }
       );
     }
@@ -140,16 +142,16 @@ export async function POST(request) {
         raw: false,
       });
     } catch (error) {
-      console.error("Failed to parse user CSV:", error.message);
+      console.error("Failed to parse user file:", error.message);
       return NextResponse.json(
-        { error: "The CSV file is corrupted or could not be parsed." },
+        { error: "The file is corrupted or could not be parsed." },
         { status: 400 }
       );
     }
 
     if (rows.length === 0) {
       return NextResponse.json(
-        { error: "The CSV file contains no data rows." },
+        { error: "The file contains no data rows." },
         { status: 400 }
       );
     }
