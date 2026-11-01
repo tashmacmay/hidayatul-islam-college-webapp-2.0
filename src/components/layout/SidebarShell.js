@@ -104,7 +104,7 @@ export default function SidebarShell({
         {sections.map((section, sectionIndex) => (
           <Fragment key={section.heading || sectionIndex}>
             {section.heading && (
-              <div className={isCollapsed ? "hidden" : "px-5 py-1.5"}>
+              <div className={isCollapsed ? "hidden" : "px-5 py-1"}>
                 <div className="flex items-center gap-3">
                   <div className="h-px flex-1 bg-white/10" />
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-gold-light">
@@ -124,7 +124,7 @@ export default function SidebarShell({
                   key={link.href}
                   href={link.href}
                   onClick={link.onClick}
-                  className={`flex items-center gap-[11px] border-l-[3px] py-2 text-[13px] font-medium transition-all ${
+                  className={`flex items-center gap-[10px] border-l-[3px] py-1.5 text-[13px] font-medium transition-all ${
                     isCollapsed ? "justify-center px-2" : "px-5"
                   } ${
                     active && !link.disabled
@@ -142,13 +142,13 @@ export default function SidebarShell({
           </Fragment>
         ))}
 
-        <div className="mx-4 my-1.5 h-px bg-white/10" />
+        <div className="mx-4 my-1 h-px bg-white/10" />
 
         {/* LOGOUT */}
         <button
           type="button"
           onClick={onLogout}
-          className={`flex w-full items-center gap-[11px] border-l-[3px] border-transparent py-2 text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white ${
+          className={`flex w-full items-center gap-[10px] border-l-[3px] border-transparent py-1.5 text-[13px] font-medium text-[#7090b0] transition-all hover:bg-white/5 hover:text-white ${
             isCollapsed ? "justify-center px-2" : "px-5"
           }`}
         >
@@ -161,7 +161,7 @@ export default function SidebarShell({
 
       {/* BOTTOM USER */}
       <div
-        className={`border-t border-white/10 py-3 ${
+        className={`border-t border-white/10 py-2.5 ${
           isCollapsed ? "px-2" : "px-5"
         }`}
       >
