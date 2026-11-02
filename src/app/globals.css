@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -61,7 +60,7 @@ select {
 
 @layer components {
   .section-header-divider {
-    @apply gold-divider mx-auto;
+    @apply mt-5 h-1 w-20 rounded-full bg-gold mx-auto;
   }
 
   .page-hero {

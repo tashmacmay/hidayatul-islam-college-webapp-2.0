@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SectionHeader, PopiaNote } from "@/components/ui/primitives";
 import FilterButtons from "@/components/public/FilterButtons";
 import ResourceList from "@/components/public/ResourceList";
+import { Container } from "@/components/ui/layout";
 
 const grades = ["All Grades", "Grade R", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Grade 6", "Grade 7"];
 
@@ -11,12 +12,12 @@ export default function ResourceView() {
   const [selectedGrade, setSelectedGrade] = useState("All Grades");
 
   return (
-    <div className="w-full">
-      <PopiaNote title="POPIA & Privacy Notice" variant="resources">
+    <Container>
+      <PopiaNote title="POPIA & Privacy Notice" variant="gallery" className="mb-10">
         Personal information must be handled in accordance with the Protection of Personal Information Act (POPIA).
       </PopiaNote>
 
-      <div className="mt-8 rounded-2xl bg-navy p-8 text-white shadow-lg">
+      <div className="rounded-2xl bg-navy p-8 text-white shadow-lg">
         <div className="grid gap-8 lg:grid-cols-2">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-[3px] text-gold">Start Here</p>
@@ -60,6 +61,6 @@ export default function ResourceView() {
           </p>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
