@@ -80,8 +80,7 @@ export default function ResourceList({ selectedGrade = "All Grades" }) {
       )}
 
       {!loading && !error && gradeVisible.length > 0 && (
-        // Added items-start here to stop the stretching
-        <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 items-stretch">
           {gradeVisible.map((resource) => {
             const videoId = getYouTubeVideoId(resource.youtube_url);
             const href = videoId ? resource.youtube_url : resource.file_url || resource.youtube_url;
@@ -115,15 +114,19 @@ export default function ResourceList({ selectedGrade = "All Grades" }) {
             }
 
             return (
-              <Card key={resource.id} href={href} media={mediaContent}>
+              <Card 
+                key={resource.id} 
+                href={href} 
+                media={mediaContent} 
+                className="h-full"
+              >
                 <p className="text-xs font-semibold uppercase tracking-wide text-gold">
                   {resource.category}
                 </p>
                 <h3 className="mt-2 line-clamp-2 text-lg font-semibold text-navy">
                   {resource.title}
                 </h3>
-                {/* Removed flex-1 from this paragraph so it doesn't stretch the card */}
-                <p className="mt-2 line-clamp-3 text-sm text-text-muted">
+                <p className="mt-2 line-clamp-3 text-sm text-text-muted flex-1">
                   {resource.caption || resource.description}
                 </p>
                 <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-navy">

@@ -1,23 +1,23 @@
 "use client";
 
-import ParentSidebar from "@/components/parent/ParentSidebar";
+import StaffSidebar from "@/components/staff/StaffSidebar";
 import ShellPage from "@/components/layout/ShellPage";
 import PageHeader from "@/components/ui/PageHeader";
-import { Newspaper } from "lucide-react";
-import NewsView from "@/features/news/NewsView";
+import { BookOpen } from "lucide-react";
+import ResourceView from "@/components/public/ResourceView";
 
-export default function ParentNewsPage() {
+export default function StaffResourcesPage() {
   return (
-    <ShellPage sidebar={(props) => <ParentSidebar {...props} />}>
+    <ShellPage sidebar={(props) => <StaffSidebar {...props} />}>
       <PageHeader
-        icon={Newspaper}
-        portalLabel="Parent Portal"
-        title="School News"
-        subtitle="Stay up to date with the latest announcements."
+        icon={BookOpen}
+        portalLabel="Staff Portal"
+        title="Learning Resources"
+        subtitle="Access school learning materials and documents."
       />
       
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-        <NewsView />
+        <ResourceView />
       </div>
     </ShellPage>
   );

@@ -136,11 +136,8 @@ export default function SchoolBookingsPage() {
         throw new Error(data.error || "Sync failed");
       }
 
-      // OPTIMISTIC UPDATE: Instantly update the UI to "just now"
-      // We DO NOT call loadLastSync() here anymore to prevent it from overwriting our new time!
       setLastSync({ syncedAt: new Date().toISOString() });
 
-      // Reload the bookings table to show new data
       await loadBookings();
       
       setSyncMessage(
@@ -506,8 +503,13 @@ export default function SchoolBookingsPage() {
                           {booking.staff}
                         </td>
 
+                        {/* FIXED: Defensive check to hide 1900s epoch dates */}
                         <td className="py-4 text-slate-600">
-                          {booking.date}
+                          {booking.date && 
+                           !String(booking.date).includes("1900") && 
+                           !String(booking.date).includes("1970") 
+                            ? booking.date 
+                            : "—"}
                         </td>
 
                         <td className="py-4 text-slate-600">
