@@ -70,6 +70,7 @@ export default function SchoolBookingsPage() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        cache: "no-store",
       });
 
       const data = await response.json();
@@ -95,6 +96,7 @@ export default function SchoolBookingsPage() {
       const token = await user.getIdToken();
       const response = await fetch("/api/admin/reporting/last-sync", {
         headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
       });
       const data = await response.json();
 
@@ -127,15 +129,22 @@ export default function SchoolBookingsPage() {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       const data = await response.json();
 
       if (!response.ok) {
         throw new Error(data.error || "Sync failed");
       }
 
-      await Promise.all([loadBookings(), loadLastSync()]);
+      // OPTIMISTIC UPDATE: Instantly update the UI to "just now"
+      // We DO NOT call loadLastSync() here anymore to prevent it from overwriting our new time!
+      setLastSync({ syncedAt: new Date().toISOString() });
+
+      // Reload the bookings table to show new data
+      await loadBookings();
+      
       setSyncMessage(
-        `Sync complete — ${data.inserted} inserted, ${data.updated} updated`
+        `Sync complete — ${data.inserted || 0} inserted, ${data.updated || 0} updated`
       );
       window.setTimeout(() => setSyncMessage(""), 5000);
     } catch (err) {
@@ -362,8 +371,8 @@ export default function SchoolBookingsPage() {
             </form>
           </div>
         </div>
-      )}</>}>
-          {/* Header */}
+      )}</>}
+    >
           <PageHeader
             icon={CalendarDays}
             portalLabel="Admin Portal"
@@ -390,17 +399,14 @@ export default function SchoolBookingsPage() {
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
               <p className="text-sm text-red-700">{error}</p>
             </div>
           )}
 
-          {/* Stats */}
           <BookingsStats bookings={bookings} loading={loading} />
 
-          {/* Bookings card */}
           <BookingsCard
             title="School Booking Overview"
             titleIcon={Clock3}
@@ -413,7 +419,10 @@ export default function SchoolBookingsPage() {
                   disabled={syncing}
                   className="flex items-center gap-2 rounded-lg bg-navy px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  <RefreshCw size={16} className={syncing ? "animate-spin" : ""} />
+                  <RefreshCw
+                    className={syncing ? "animate-spin text-gold" : "text-gold"}
+                    size={16}
+                  />
                   {syncing ? "Syncing…" : "Sync Now"}
                 </button>
 

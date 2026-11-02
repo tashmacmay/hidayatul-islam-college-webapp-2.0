@@ -40,10 +40,6 @@ export default function CalendarView({ role }) {
 
   const [viewingCalendar, setViewingCalendar] = useState(null);
 
-  // ==========================================================
-  // Load calendars
-  // ==========================================================
-
   useEffect(() => {
     loadCalendars();
   }, []);
@@ -57,9 +53,7 @@ export default function CalendarView({ role }) {
       const user = auth.currentUser;
 
       if (!user) {
-        setError(
-          "You must be logged in to view the school calendar."
-        );
+        setError("You must be logged in to view the school calendar.");
         return;
       }
 
@@ -87,15 +81,10 @@ export default function CalendarView({ role }) {
     }
   }
 
-  // ==========================================================
-  // Filter calendars
-  // ==========================================================
-
   const filteredCalendars = useMemo(() => {
     return calendars.filter((calendar) => {
       const matchesTerm =
-        selectedTerm === "all" ||
-        String(calendar.term) === selectedTerm;
+        selectedTerm === "all" || String(calendar.term) === selectedTerm;
 
       const matchesGrade =
         selectedGrade === "all" ||
@@ -105,10 +94,6 @@ export default function CalendarView({ role }) {
       return matchesTerm && matchesGrade;
     });
   }, [calendars, selectedTerm, selectedGrade]);
-
-  // ==========================================================
-  // Group calendars by term
-  // ==========================================================
 
   const calendarsByTerm = useMemo(() => {
     const grouped = {};
@@ -122,10 +107,6 @@ export default function CalendarView({ role }) {
     return grouped;
   }, [filteredCalendars]);
 
-  // ==========================================================
-  // Open and close calendar
-  // ==========================================================
-
   function openViewModal(calendar) {
     setViewingCalendar(calendar);
   }
@@ -133,10 +114,6 @@ export default function CalendarView({ role }) {
   function closeViewModal() {
     setViewingCalendar(null);
   }
-
-  // ==========================================================
-  // Render
-  // ==========================================================
 
   return (
     <ShellPage
@@ -149,27 +126,23 @@ export default function CalendarView({ role }) {
       }
       modals={
         <>
-          {/* View Calendar Modal */}
-
+          {/* View Calendar Modal - Exact Copy of Admin Modal */}
           {viewingCalendar && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center bg-navy/40 p-4">
-              <div className="flex max-h-[90vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+              <div className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+                
                 {/* Header */}
-
                 <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-lg font-bold text-navy">
                         Term {viewingCalendar.term}
                       </h2>
-
                       <span className="text-slate-300">/</span>
-
                       <span className="text-sm font-semibold text-text-muted">
                         {viewingCalendar.grade}
                       </span>
                     </div>
-
                     <p className="mt-0.5 text-xs text-text-muted">
                       {viewingCalendar.file_name}
                     </p>
@@ -177,7 +150,6 @@ export default function CalendarView({ role }) {
 
                   <button
                     onClick={closeViewModal}
-                    aria-label="Close calendar preview"
                     className="rounded-lg p-2 text-text-muted transition hover:bg-slate-100"
                   >
                     <X size={19} />
@@ -185,56 +157,51 @@ export default function CalendarView({ role }) {
                 </div>
 
                 {/* Preview */}
-
                 <div className="min-h-0 flex-1 overflow-auto bg-slate-100 p-5">
                   {!viewingCalendar.preview_url ? (
                     <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
-                      <FileText
-                        size={32}
-                        className="mb-3 text-slate-400"
-                      />
-
+                      <FileText size={32} className="mb-3 text-slate-400" />
                       <p className="text-sm font-semibold text-navy">
                         Preview unavailable
                       </p>
-
                       <p className="mt-1 max-w-md text-sm text-text-muted">
-                        This calendar may be an older file that has not
-                        been migrated to private Object Storage yet.
-                        Please contact the school administrator for help.
+                        This calendar may be an older file that has not been
+                        migrated to private Object Storage yet. Please contact the school administrator for help.
                       </p>
                     </div>
                   ) : viewingCalendar.file_type === "PDF" ? (
                     <iframe
                       src={viewingCalendar.preview_url}
                       title={viewingCalendar.file_name}
-                      className="h-[70vh] w-full rounded-xl border border-slate-100 bg-white"
+                      className="h-[60vh] w-full rounded-xl border border-slate-100 bg-white"
                     />
                   ) : (
-                    <div className="flex min-h-[60vh] items-center justify-center">
+                    <div className="flex min-h-[50vh] items-center justify-center">
                       <img
                         src={viewingCalendar.preview_url}
                         alt={viewingCalendar.file_name}
-                        className="max-h-[70vh] max-w-full rounded-xl border border-slate-100 bg-white object-contain shadow-sm"
+                        className="max-h-[65vh] max-w-full rounded-xl border border-slate-100 bg-white object-contain shadow-sm"
                       />
                     </div>
                   )}
                 </div>
 
                 {/* Footer */}
-
-                <div className="flex items-center justify-between border-t border-slate-100 px-5 py-4">
-                  <p className="text-xs text-text-muted">
+                <div className="flex flex-col gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="text-xs text-text-muted">
                     {viewingCalendar.file_type} calendar
-                  </p>
+                  </div>
 
-                  <button
-                    onClick={closeViewModal}
-                    className="rounded-xl bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
-                  >
-                    Close
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={closeViewModal}
+                      className="rounded-xl bg-navy px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
+                
               </div>
             </div>
           )}
@@ -250,31 +217,23 @@ export default function CalendarView({ role }) {
       />
 
       {/* Filters */}
-
       <div className="mb-6 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
         <div className="mb-4 flex items-center gap-2">
           <Filter size={17} className="text-gold" />
-
-          <h2 className="text-sm font-bold text-navy">
-            Filter Calendar
-          </h2>
+          <h2 className="text-sm font-bold text-navy">Filter Calendar</h2>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          {/* Term */}
-
           <div>
             <label className="mb-2 block text-sm font-semibold text-navy">
               Term
             </label>
-
             <select
               value={selectedTerm}
               onChange={(e) => setSelectedTerm(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
             >
               <option value="all">All Terms</option>
-
               {TERMS.map((term) => (
                 <option key={term} value={term}>
                   Term {term}
@@ -283,41 +242,31 @@ export default function CalendarView({ role }) {
             </select>
           </div>
 
-          {/* Grade */}
-
           <div>
             <label className="mb-2 block text-sm font-semibold text-navy">
               Grade
             </label>
-
             <select
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-text outline-none transition focus:border-gold focus:ring-2 focus:ring-gold/20"
             >
               <option value="all">All Grades</option>
-
-              {GRADES.filter((grade) => grade !== "All Grades").map(
-                (grade) => (
-                  <option key={grade} value={grade}>
-                    {grade}
-                  </option>
-                )
-              )}
+              {GRADES.filter((grade) => grade !== "All Grades").map((grade) => (
+                <option key={grade} value={grade}>
+                  {grade}
+                </option>
+              ))}
             </select>
           </div>
         </div>
       </div>
-
-      {/* Error */}
 
       {error && (
         <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
-
-      {/* Loading and Terms */}
 
       {loading ? (
         <div className="rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
@@ -329,10 +278,7 @@ export default function CalendarView({ role }) {
             {TERMS.map((term) => {
               const termCalendars = calendarsByTerm[term];
 
-              if (
-                selectedTerm !== "all" &&
-                String(term) !== selectedTerm
-              ) {
+              if (selectedTerm !== "all" && String(term) !== selectedTerm) {
                 return null;
               }
 
@@ -341,25 +287,19 @@ export default function CalendarView({ role }) {
                   key={term}
                   className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
                 >
-                  {/* Term heading */}
-
                   <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-navy">
                       <CalendarDays size={17} className="text-gold" />
                     </div>
-
                     <div>
                       <h2 className="text-lg font-bold text-navy">
                         Term {term}
                       </h2>
-
                       <p className="text-xs text-text-muted">
                         School calendar
                       </p>
                     </div>
                   </div>
-
-                  {/* Calendars */}
 
                   <div className="p-5">
                     {termCalendars.length === 0 ? (
@@ -368,14 +308,11 @@ export default function CalendarView({ role }) {
                           size={24}
                           className="mx-auto mb-2 text-slate-300"
                         />
-
                         <p className="text-sm font-semibold text-text-muted">
                           No calendar available
                         </p>
-
                         <p className="mt-1 text-xs text-text-muted">
-                          There is no calendar uploaded for this selection
-                          yet.
+                          There is no calendar uploaded for this selection yet.
                         </p>
                       </div>
                     ) : (
@@ -388,15 +325,9 @@ export default function CalendarView({ role }) {
                           >
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50">
                               {calendar.file_type === "PDF" ? (
-                                <FileText
-                                  size={19}
-                                  className="text-red-500"
-                                />
+                                <FileText size={19} className="text-red-500" />
                               ) : (
-                                <ImageIcon
-                                  size={19}
-                                  className="text-blue-500"
-                                />
+                                <ImageIcon size={19} className="text-blue-500" />
                               )}
                             </div>
 
@@ -404,11 +335,9 @@ export default function CalendarView({ role }) {
                               <p className="truncate text-sm font-semibold text-navy">
                                 {calendar.grade}
                               </p>
-
                               <p className="mt-0.5 truncate text-xs text-text-muted">
                                 {calendar.file_name}
                               </p>
-
                               <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-gold">
                                 View Calendar
                               </p>
@@ -423,19 +352,15 @@ export default function CalendarView({ role }) {
             })}
           </div>
 
-          {/* No results */}
-
           {filteredCalendars.length === 0 && (
             <div className="mt-4 rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm">
               <CalendarDays
                 size={28}
                 className="mx-auto mb-3 text-slate-300"
               />
-
               <h2 className="text-base font-bold text-navy">
                 No calendars found
               </h2>
-
               <p className="mt-1 text-sm text-text-muted">
                 Try changing your term or grade filter.
               </p>

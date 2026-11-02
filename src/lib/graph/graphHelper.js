@@ -11,8 +11,10 @@ import { TokenCredentialAuthenticationProvider } from
 //Declares two private properties for initialising Graph: ClientSecretCredential object & Client object (outside of the initializeGraphForAppOnlyAuth() function as to persist)
 let _clientSecretCredential = undefined;
 let _appClient = undefined;
-const BOOKING_BUSINESS_ID =
-  'HidayatulIslamCollegeParentMeetings@Hidayatulcpt.onmicrosoft.com';
+
+// USE ENV VARIABLE HERE
+const BOOKING_BUSINESS_ID = process.env.MS_BOOKINGS_BUSINESS_ID;
+
 let _staffMemberLookup = null;
 
 //Creates the Client Secret Credential, then creates the Microsoft Graph Client using that credential

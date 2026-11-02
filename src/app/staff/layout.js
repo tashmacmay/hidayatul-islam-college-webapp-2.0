@@ -4,6 +4,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRole } from "@/providers/RoleProvider";
+import { RefreshCw } from "lucide-react";
 
 export default function StaffLayout({ children }) {
   const router = useRouter();
@@ -30,7 +31,7 @@ export default function StaffLayout({ children }) {
           role="status"
           aria-live="polite"
         >
-          <div className="mx-auto h-9 w-9 animate-spin rounded-full border-4 border-slate-200 border-t-amber-500" />
+          <RefreshCw className="mx-auto animate-spin text-gold" size={32} />
 
           <p className="mt-4 text-sm font-medium text-slate-600">
             Checking your staff access...

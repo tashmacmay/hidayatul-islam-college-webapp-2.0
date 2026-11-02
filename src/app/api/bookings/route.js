@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { requireParent } from '@/lib/auth';
 
@@ -10,6 +9,7 @@ import {
 } from '@/lib/graph/graphHelper';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic'; // ADDED: Prevents API caching
 
 export async function GET(request) {
   try {

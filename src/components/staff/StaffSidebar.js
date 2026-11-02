@@ -13,6 +13,7 @@ import {
   BookOpen,
   Users,
   Images,
+  Newspaper,
 } from "lucide-react";
 import SidebarShell from "@/components/layout/SidebarShell";
 
@@ -23,18 +24,30 @@ export default function StaffSidebar({
   onCloseMobile,
 }) {
   const router = useRouter();
-  const {
-    isAdmin,
-    loading: roleLoading,
-  } = useRole();
+  const { isAdmin, loading: roleLoading } = useRole();
   const [user, setUser] = useState(null);
-  const [userLoading, setUserLoading] =
-    useState(true);
+  const [userLoading, setUserLoading] = useState(true);
+  const [dbName, setDbName] = useState(null);
 
-  // Listen for auth changes and fetch role
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      
+      if (currentUser) {
+        try {
+          const token = await currentUser.getIdToken();
+          const res = await fetch("/api/user-role", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setDbName(data.display_name || data.user?.display_name);
+          }
+        } catch (err) {
+          console.error("Failed to fetch sidebar name:", err);
+        }
+      }
+      
       setUserLoading(false);
     });
 
@@ -50,83 +63,35 @@ export default function StaffSidebar({
     }
   };
 
-  // Staff-facing links
   const staffLinks = [
-    {
-      name: "My Dashboard",
-      href: "/staff/dashboard",
-      icon: LayoutDashboard,
-    },
-    {
-      name: "School Notices",
-      href: "/staff/school-notices",
-      icon: Bell,
-    },
-    {
-      name: "My Bookings",
-      href: "/staff/bookings",
-      icon: CalendarDays,
-    },
-    {
-      name: "Learning Resources",
-      href: "/staff/learning-resources",
-      icon: BookOpen,
-    },
-    {
-      name: "School Calendar",
-      href: "/staff/calendar",
-      icon: CalendarDays,
-    },
+    { name: "My Dashboard", href: "/staff/dashboard", icon: LayoutDashboard },
+    { name: "School Notices", href: "/staff/school-notices", icon: Bell },
+    { name: "My Bookings", href: "/staff/bookings", icon: CalendarDays },
+    { name: "School News", href: "/staff/news", icon: Newspaper },
+    { name: "Learning Resources", href: "/staff/learning-resources", icon: BookOpen },
+    { name: "School Calendar", href: "/staff/calendar", icon: CalendarDays },
   ];
 
-  // Management links
   const adminLinks = [
-    {
-      name: "Term Calendar Management",
-      href: "/staff/admin/term-calendar-management",
-      icon: CalendarDays,
-    },
-    {
-      name: "Notice Management",
-      href: "/staff/admin/notice-management",
-      icon: Bell,
-    },
-    {
-      name: "Learning Resources Manager",
-      href: "/staff/admin/Learning-resources",
-      icon: BookOpen,
-    },
-    {
-      name: "School Bookings",
-      href: "/staff/admin/school-bookings",
-      icon: CalendarDays,
-    },
-    {
-      name: "User Management",
-      href: "/staff/admin/user-management",
-      icon: Users,
-    },
-    {
-      name: "Media Management",
-      href: "/staff/admin/media-management",
-      icon: Images,
-    },
+    { name: "Term Calendar Management", href: "/staff/admin/term-calendar-management", icon: CalendarDays },
+    { name: "Notice Management", href: "/staff/admin/notice-management", icon: Bell },
+    { name: "Learning Resources Manager", href: "/staff/admin/Learning-resources", icon: BookOpen },
+    { name: "School Bookings", href: "/staff/admin/school-bookings", icon: CalendarDays },
+    { name: "User Management", href: "/staff/admin/user-management", icon: Users },
+    { name: "Media Management", href: "/staff/admin/media-management", icon: Images },
   ];
 
   return (
     <SidebarShell
       sections={[
-        { heading: "Staff", items: staffLinks },
+        { heading: isAdmin ? "Staff" : null, items: staffLinks },
         ...(!roleLoading && isAdmin && adminLinks.length > 0
-          ? [{
-              heading: "Admin",
-              items: adminLinks,
-            }]
+          ? [{ heading: "Admin", items: adminLinks }]
           : []),
       ]}
-      profileHref="/staff/profile"
       roleLabel={isAdmin ? "Admin / Staff" : "Staff"}
       user={user}
+      displayName={dbName}
       loading={roleLoading || userLoading}
       onLogout={handleLogout}
       collapsed={collapsed}
