@@ -1,0 +1,247 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+
+import {
+  CalendarDays,
+  Bell,
+  BookOpen,
+  RefreshCw,
+} from "lucide-react";
+
+import ParentSidebar from "@/components/parent/ParentSidebar";
+import ShellPage from "@/components/layout/ShellPage";
+import { auth } from "@/lib/firebase";
+import DashboardStatCard from "@/components/ui/DashboardStatCard";
+import SectionCard from "@/components/ui/SectionCard";
+import PageHeader from "@/components/ui/PageHeader";
+import RecentNoticesPreview from "@/components/ui/RecentNoticesPreview";
+import UpcomingBookingsPreview from "@/components/ui/UpcomingBookingsPreview";
+import LoadingState from "@/components/ui/LoadingState";
+
+export default function DashboardPage() {
+  const router = useRouter();
+
+  // ==========================================================
+  // AUTH & PROFILE
+  // ==========================================================
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [dbProfile, setDbProfile] = useState(null);
+
+  // ==========================================================
+  // DASHBOARD DATA
+  // ==========================================================
+  const [notices, setNotices] = useState([]);
+  const [bookings, setBookings] = useState([]);
+  const [resourceCount, setResourceCount] = useState(0);
+
+  // ==========================================================
+  // LOADING / ERROR
+  // ==========================================================
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // ==========================================================
+  // AUTHENTICATION
+  // ==========================================================
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        if (!currentUser) {
+          router.push("/login");
+          return;
+        }
+        setUser(currentUser);
+        setAuthLoading(false);
+      }
+    );
+    return () => unsubscribe();
+  }, [router]);
+
+  // ==========================================================
+  // LOAD DASHBOARD DATA
+  // ==========================================================
+  useEffect(() => {
+    if (!user) return;
+
+    async function loadDashboard() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const token = await user.getIdToken();
+        const headers = { Authorization: `Bearer ${token}` };
+
+        const [
+          noticesResponse,
+          resourcesResponse,
+          bookingsResponse,
+          profileResponse, 
+        ] = await Promise.all([
+          fetch("/api/notices", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/resources", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/bookings", { method: "GET", headers, cache: "no-store" }),
+          fetch("/api/user-role", { method: "GET", headers, cache: "no-store" }),
+        ]);
+
+        const [
+          noticesData,
+          resourcesData,
+          bookingsData,
+          profileData,
+        ] = await Promise.all([
+          noticesResponse.json(),
+          resourcesResponse.json(),
+          bookingsResponse.json(),
+          profileResponse.json(),
+        ]);
+
+        if (profileResponse.ok && profileData) {
+           setDbProfile(profileData.user || profileData); 
+        }
+
+        if (!noticesResponse.ok) throw new Error(noticesData.error || "Failed to load notices.");
+        setNotices(Array.isArray(noticesData) ? noticesData : []);
+
+        if (!resourcesResponse.ok) throw new Error(resourcesData.error || "Failed to load resources.");
+        const resources = Array.isArray(resourcesData)
+          ? resourcesData
+          : Array.isArray(resourcesData.resources)
+          ? resourcesData.resources
+          : [];
+        setResourceCount(resources.length);
+
+        if (!bookingsResponse.ok) throw new Error(bookingsData.error || "Failed to load bookings.");
+        setBookings(Array.isArray(bookingsData) ? bookingsData : []);
+
+      } catch (err) {
+        console.error("Parent dashboard error:", err);
+        setError(err.message || "Unable to load dashboard data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadDashboard();
+  }, [user]);
+
+  // ==========================================================
+  // AUTH LOADING
+  // ==========================================================
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+        <RefreshCw className="animate-spin text-gold" size={32} />
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  // ==========================================================
+  // USER DISPLAY NAME
+  // ==========================================================
+  const displayName =
+    dbProfile?.display_name ||
+    user.displayName ||
+    user.email?.split("@")[0] ||
+    "Parent";
+
+  // ==========================================================
+  // DATA PREPARATION
+  // ==========================================================
+  const recentNotices = notices.slice(0, 3);
+  
+  // Filter for only upcoming bookings to match the preview section
+  const upcomingBookings = bookings.filter(
+    (booking) => !booking.status || booking.status === "upcoming"
+  );
+
+  // ==========================================================
+  // PAGE
+  // ==========================================================
+  return (
+    <ShellPage
+      sidebar={(sidebarProps) => <ParentSidebar {...sidebarProps} />}
+      spaceY=""
+    >
+      <PageHeader
+        icon={BookOpen}
+        portalLabel="Parent Portal"
+        title={`Assalamu Alaikum, ${displayName}`}
+        subtitle="Welcome back. Here is a quick overview of your school information."
+      />
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <section className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* FIXED: Now uses upcomingBookings.length so the number matches the list below */}
+        <DashboardStatCard
+          icon={<CalendarDays size={21} />}
+          title="My Bookings"
+          value={loading ? "..." : upcomingBookings.length}
+          subtitle="Upcoming appointments"
+          href="/my-bookings"
+        />
+
+        <DashboardStatCard
+          icon={<Bell size={21} />}
+          title="Notices"
+          value={loading ? "..." : notices.length}
+          subtitle="Published school notices"
+          href="/notices"
+        />
+
+        <DashboardStatCard
+          icon={<BookOpen size={21} />}
+          title="Resources"
+          value={loading ? "..." : resourceCount}
+          subtitle="Available resources"
+          href="/resources"
+        />
+      </section>
+
+      <div className="mb-7 grid gap-6 lg:grid-cols-2">
+        <SectionCard
+          title="Upcoming Bookings"
+          subtitle="Your upcoming appointment bookings"
+          href="/my-bookings"
+        >
+          {loading ? (
+            <LoadingState label="Loading bookings..." />
+          ) : (
+            <UpcomingBookingsPreview
+              bookings={upcomingBookings}
+              viewAllHref="/my-bookings"
+              itemHref="/my-bookings"
+            />
+          )}
+        </SectionCard>
+
+        <SectionCard
+          title="Recent Notices"
+          subtitle="Latest published school announcements"
+          href="/notices"
+        >
+          {loading ? (
+            <LoadingState label="Loading notices..." />
+          ) : (
+            <RecentNoticesPreview
+              notices={recentNotices}
+              viewAllHref="/notices"
+              itemHref="/notices"
+            />
+          )}
+        </SectionCard>
+      </div>
+    </ShellPage>
+  );
+}

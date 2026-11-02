@@ -1,0 +1,1079 @@
+// src/app/staff/admin/user-management/page.js
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
+import {
+  Users,
+  UserRound,
+  Shield,
+  GraduationCap,
+  Search,
+  Eye,
+  Pencil,
+  Trash2,
+  Plus,
+  Upload,
+  X,
+  FileSpreadsheet,
+  Download,
+  RefreshCw,
+} from "lucide-react";
+
+import * as XLSX from "xlsx";
+
+import StaffSidebar from "@/components/staff/StaffSidebar";
+import ShellPage from "@/components/layout/ShellPage";
+import LoadingState from "@/components/ui/LoadingState";
+import PageHeader from "@/components/ui/PageHeader";
+
+export default function UsersPage() {
+  // ============================================================
+  // STATE
+  // ============================================================
+
+  const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  
+  // Replaces importResult for page-level banners
+  const [importStatus, setImportStatus] = useState(null); 
+
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [viewingUser, setViewingUser] = useState(null);
+  const [deletingUser, setDeletingUser] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [importPreview, setImportPreview] = useState([]);
+  const [importFile, setImportFile] = useState(null);
+  
+  const fileInputRef = useRef(null);
+
+  // ============================================================
+  // FORM
+  // ============================================================
+
+  const emptyForm = {
+    email: "",
+    display_name: "",
+    role: "parent",
+    is_admin: false,
+  };
+
+  const [form, setForm] = useState(emptyForm);
+
+  // ============================================================
+  // AUTHENTICATION
+  // ============================================================
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setLoading(false);
+        setError("You must be signed in to manage users.");
+        return;
+      }
+      await fetchUsers(user);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // ============================================================
+  // AUTH HEADERS
+  // ============================================================
+
+  async function getAuthHeaders(user = auth.currentUser) {
+    if (!user) {
+      throw new Error("You must be signed in to manage users.");
+    }
+    const token = await user.getIdToken();
+    return {
+      Authorization: `Bearer ${token}`,
+    };
+  }
+
+  // ============================================================
+  // LOAD USERS
+  // ============================================================
+
+  async function fetchUsers(user = auth.currentUser) {
+    try {
+      setLoading(true);
+      setError("");
+
+      const headers = await getAuthHeaders(user);
+
+      const response = await fetch("/api/users", {
+        method: "GET",
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to load users.");
+      }
+
+      setUsers(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("❌ Failed to load users:", error);
+      setError(error.message || "Unable to load users.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // ============================================================
+  // FORM HANDLING
+  // ============================================================
+
+  function handleFormChange(event) {
+    const { name, value, type, checked } = event.target;
+    
+    setForm((previous) => {
+      const newForm = {
+        ...previous,
+        [name]: type === "checkbox" ? checked : value,
+      };
+
+      if (name === "role" && value !== "staff") {
+        newForm.is_admin = false;
+      }
+
+      return newForm;
+    });
+  }
+
+  // ============================================================
+  // OPEN ADD USER
+  // ============================================================
+
+  function openAddUser() {
+    setEditingUser(null);
+    setForm({ ...emptyForm });
+    setError("");
+    setSuccess("");
+    setImportStatus(null);
+    setShowUserModal(true);
+  }
+
+  // ============================================================
+  // OPEN EDIT USER
+  // ============================================================
+
+  function openEditUser(user) {
+    setEditingUser(user);
+    setForm({
+      email: user.email || "",
+      display_name: user.display_name || "",
+      role: user.role === "admin" ? "staff" : (user.role || "parent"),
+      is_admin: user.is_admin === true || user.role === "admin",
+    });
+    setError("");
+    setSuccess("");
+    setImportStatus(null);
+    setShowUserModal(true);
+  }
+
+  // ============================================================
+  // SAVE USER
+  // ============================================================
+
+  async function saveUser(event) {
+    event.preventDefault();
+
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+
+      const method = editingUser ? "PUT" : "POST";
+
+      const body = editingUser
+        ? { id: editingUser.id, ...form }
+        : form;
+
+      const baseHeaders = await getAuthHeaders();
+      const headers = {
+        ...baseHeaders,
+        "Content-Type": "application/json",
+      };
+
+      const response = await fetch("/api/users", {
+        method,
+        headers,
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to save user.");
+      }
+
+      await fetchUsers();
+
+      setShowUserModal(false);
+      setForm({ ...emptyForm });
+      setEditingUser(null);
+      setSuccess(
+        editingUser ? "User updated successfully." : "User added successfully."
+      );
+    } catch (error) {
+      console.error("❌ Failed to save user:", error);
+      setError(error.message || "Failed to save user.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ============================================================
+  // DELETE USER
+  // ============================================================
+
+  async function deleteUser() {
+    if (!deletingUser) return;
+
+    try {
+      setSaving(true);
+      setError("");
+      setSuccess("");
+
+      const headers = await getAuthHeaders();
+
+      const response = await fetch(`/api/users?id=${deletingUser.id}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete user.");
+      }
+
+      await fetchUsers();
+      setDeletingUser(null);
+      setSuccess("User deleted successfully.");
+    } catch (error) {
+      console.error("❌ Failed to delete user:", error);
+      setError(error.message || "Failed to delete user.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ============================================================
+  // IMPORT FILE
+  // ============================================================
+
+  function handleFile(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setError("");
+    setSuccess("");
+    setImportStatus(null);
+
+    const fileExtension = file.name.split('.').pop().toLowerCase();
+    if (!["csv", "xls", "xlsx"].includes(fileExtension)) {
+      setImportFile(null);
+      setImportPreview([]);
+      setError("Only .csv, .xls, and .xlsx files are supported.");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        
+        if (!workbook.SheetNames.length) {
+          throw new Error("The file contains no worksheets.");
+        }
+
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, {
+          defval: "",
+          raw: false,
+        });
+
+        if (rows.length === 0) {
+          throw new Error("The file contains no data rows.");
+        }
+
+        const rawHeaders = Object.keys(rows[0]);
+        const cleanHeaders = rawHeaders.map((header) =>
+          String(header).trim().toLowerCase()
+        );
+
+        const requiredColumns = ["email", "display_name", "role", "is_admin"];
+        const missingColumns = requiredColumns.filter(
+          (column) => !cleanHeaders.includes(column)
+        );
+
+        if (missingColumns.length > 0) {
+          throw new Error(`Missing required columns: ${missingColumns.join(", ")}`);
+        }
+
+        const headerMap = {};
+        rawHeaders.forEach((rawKey) => {
+          headerMap[String(rawKey).trim().toLowerCase()] = rawKey;
+        });
+
+        const formattedRows = rows.map((row) => ({
+          email: String(row[headerMap["email"]] ?? "").trim(),
+          display_name: String(row[headerMap["display_name"]] ?? "").trim(),
+          role: String(row[headerMap["role"]] ?? "").trim().toLowerCase(),
+          is_admin: String(row[headerMap["is_admin"]] ?? "").trim().toLowerCase(),
+        }));
+
+        setImportFile(file);
+        setImportPreview(formattedRows);
+      } catch (error) {
+        console.error("Unable to read user file:", error);
+        setImportFile(null);
+        setImportPreview([]);
+        setError(error.message || "Unable to read this file.");
+      }
+    };
+
+    reader.onerror = () => {
+      setImportFile(null);
+      setImportPreview([]);
+      setError("Unable to read this file.");
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function openImportUsers() {
+    setError("");
+    setSuccess("");
+    setImportStatus(null);
+    setImportFile(null);
+    setImportPreview([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setShowImportModal(true);
+  }
+
+  // ============================================================
+  // IMPORT USERS (ALL FEEDBACK GOES TO PAGE BANNER)
+  // ============================================================
+
+  async function importUsers() {
+    if (!importFile || importPreview.length === 0) {
+      setError("Choose a valid file before importing.");
+      return;
+    }
+
+    try {
+      setImporting(true);
+      setError("");
+      setSuccess("");
+      setImportStatus(null);
+
+      const baseHeaders = await getAuthHeaders();
+      const formData = new FormData();
+      formData.append("file", importFile);
+      
+      const response = await fetch("/api/users/import", {
+        method: "POST",
+        headers: baseHeaders,
+        body: formData,
+      });
+      const data = await response.json();
+
+      // 1. CLOSE THE MODAL IMMEDIATELY, NO MATTER WHAT
+      setShowImportModal(false);
+      setImportPreview([]);
+      setImportFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+
+      // 2. HANDLE HARD ERRORS (Server rejected the file entirely)
+      if (!response.ok) {
+        setImportStatus({
+          type: "error",
+          title: "Import Failed",
+          message: data.error || "The server rejected the file.",
+          details: data.failures, // Show row errors if they exist
+        });
+        return;
+      }
+
+      await fetchUsers();
+
+      const { imported, duplicates, invalid, total } = data.summary;
+
+      // 3. HANDLE ALL FAILED (All duplicates or invalid)
+      if (imported === 0) {
+        setImportStatus({
+          type: "error",
+          title: "0 Users Imported",
+          message: `0 of ${total} users imported. ${duplicates} duplicate(s), ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 4. HANDLE PARTIAL SUCCESS (Some imported, some failed)
+      else if (imported < total) {
+        setImportStatus({
+          type: "warning",
+          title: "Partial Import",
+          message: `Successfully imported ${imported} user(s). Skipped ${duplicates} duplicate(s) and ${invalid} invalid row(s).`,
+          details: data.failures,
+        });
+      } 
+      // 5. HANDLE FULL SUCCESS (All imported)
+      else {
+        setImportStatus({
+          type: "success",
+          title: "Import Successful",
+          message: `All ${imported} user(s) were imported successfully.`,
+        });
+      }
+      
+    } catch (error) {
+      // Catch network errors
+      setShowImportModal(false); // Still close modal
+      console.error("Import error:", error);
+      setImportStatus({
+        type: "error",
+        title: "Network Error",
+        message: error.message || "An error occurred while importing users.",
+      });
+    } finally {
+      setImporting(false);
+    }
+  }
+
+  async function exportUsers(format) {
+    try {
+      setError("");
+      setSuccess("");
+      setImportStatus(null);
+      const response = await fetch(`/api/users/export?format=${format}`, {
+        headers: await getAuthHeaders(),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to export users.");
+      }
+
+      const blob = await response.blob();
+      const disposition = response.headers.get("content-disposition") || "";
+      const filename =
+        disposition.match(/filename="([^"]+)"/)?.[1] ||
+        `users.${format}`;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+      setSuccess(`${format.toUpperCase()} export downloaded.`);
+    } catch (error) {
+      console.error("Export error:", error);
+      setError(error.message || "Unable to export users.");
+    }
+  }
+
+  // ============================================================
+  // FILTER USERS
+  // ============================================================
+
+  const filteredUsers = users.filter((user) => {
+    const name = user.display_name || "";
+    const email = user.email || "";
+    const role = user.role || "";
+    const searchTerm = search.toLowerCase();
+
+    const matchesSearch =
+      name.toLowerCase().includes(searchTerm) ||
+      email.toLowerCase().includes(searchTerm);
+
+    let matchesRole = true;
+    if (roleFilter === "parent") matchesRole = role === "parent";
+    if (roleFilter === "staff") matchesRole = role === "staff";
+    if (roleFilter === "admin") matchesRole = user.is_admin === true;
+
+    return matchesSearch && matchesRole;
+  });
+
+  // ============================================================
+  // STATISTICS
+  // ============================================================
+
+  const totalUsers = users.length;
+  const parentCount = users.filter((u) => u.role === "parent").length;
+  const staffCount = users.filter((u) => u.role === "staff").length;
+  const adminCount = users.filter((u) => u.is_admin === true).length;
+
+  // ============================================================
+  // PAGE
+  // ============================================================
+
+  return (
+    <ShellPage
+      sidebar={(sidebarProps) => <StaffSidebar {...sidebarProps} />}
+      modals={
+        <>
+          {/* ADD / EDIT USER MODAL */}
+          {showUserModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-navy">
+                      {editingUser ? "Edit User" : "Add User"}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {editingUser ? "Update user information." : "Add a new system user."}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowUserModal(false)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <form onSubmit={saveUser} className="space-y-5 p-6">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Full Name</label>
+                    <input
+                      name="display_name"
+                      value={form.display_name}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                      placeholder="e.g. John Smith"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleFormChange}
+                      required
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                      placeholder="user@example.com"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium">Role</label>
+                    <select
+                      name="role"
+                      value={form.role}
+                      onChange={handleFormChange}
+                      className="w-full rounded-lg border px-3 py-2 outline-none focus:border-gold"
+                    >
+                      <option value="parent">Parent</option>
+                      <option value="staff">Staff</option>
+                    </select>
+                  </div>
+
+                  {form.role === "staff" && (
+                    <label className="flex items-center gap-3 pt-2">
+                      <input
+                        type="checkbox"
+                        name="is_admin"
+                        checked={form.is_admin}
+                        onChange={handleFormChange}
+                        className="h-4 w-4 rounded border-gray-300 text-gold focus:ring-gold"
+                      />
+                      <span className="text-sm font-medium">Administrator access</span>
+                    </label>
+                  )}
+
+                  {!editingUser && (
+                    <div className="rounded-lg border border-blue-200 bg-blue-50 p-4">
+                      <p className="text-sm font-semibold text-blue-800">
+                        Parent account activation
+                      </p>
+                      <p className="mt-1 text-sm text-blue-700">
+                        The Firebase account will be created when the invited user
+                        activates their account. You do not need to enter a Firebase
+                        UID or password.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowUserModal(false)}
+                      className="rounded-lg border px-4 py-2 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : editingUser ? "Save Changes" : "Add User"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* IMPORT MODAL (No error display here anymore) */}
+          {showImportModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-4xl rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-navy">Import Users</h2>
+                    <p className="text-sm text-gray-500">
+                      Upload a CSV or Excel file with email, display_name, role, and is_admin columns.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowImportModal(false)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-6 p-6">
+                  <div className="rounded-xl border-2 border-dashed border-slate-200 p-8 text-center">
+                    <FileSpreadsheet size={40} className="mx-auto mb-4 text-slate-400" />
+                    <h3 className="font-semibold text-navy">Upload User File</h3>
+                    <p className="mt-1 text-sm text-gray-500">CSV, XLS or XLSX</p>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv, .xls, .xlsx"
+                      onChange={handleFile}
+                      className="mx-auto mt-4 block text-sm"
+                    />
+                  </div>
+
+                  {importPreview.length > 0 && (
+                    <div>
+                      <div className="mb-3 flex items-center justify-between">
+                        <h3 className="font-semibold text-navy">Import Preview</h3>
+                        <span className="text-sm text-gray-500">
+                          {importPreview.length} users
+                        </span>
+                      </div>
+
+                      <div className="max-h-64 overflow-auto rounded-lg border">
+                        <table className="w-full text-left text-sm">
+                          <thead className="sticky top-0 bg-slate-50">
+                            <tr>
+                              <th className="p-3">Name</th>
+                              <th className="p-3">Email</th>
+                              <th className="p-3">Role</th>
+                              <th className="p-3">Admin</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {importPreview.map((user, index) => (
+                              <tr key={index} className="border-t">
+                                <td className="p-3">{user.display_name}</td>
+                                <td className="p-3">{user.email}</td>
+                                <td className="p-3 capitalize">{user.role}</td>
+                                <td className="p-3">
+                                  {["true", "1"].includes(
+                                    String(user.is_admin).toLowerCase()
+                                  )
+                                    ? "Yes"
+                                    : "No"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      onClick={() => setShowImportModal(false)}
+                      className="rounded-lg border px-4 py-2 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={importUsers}
+                      disabled={importing || importPreview.length === 0}
+                      className="rounded-lg bg-gold px-5 py-2 font-semibold text-navy disabled:opacity-50"
+                    >
+                      {importing ? "Importing..." : "Import Users"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* VIEW USER MODAL */}
+          {viewingUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b p-6">
+                  <h2 className="text-xl font-bold text-navy">User Details</h2>
+                  <button
+                    onClick={() => setViewingUser(null)}
+                    className="rounded-lg p-2 hover:bg-slate-100"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+
+                <div className="space-y-4 p-6">
+                  <Detail label="Name" value={viewingUser.display_name} />
+                  <Detail label="Email" value={viewingUser.email} />
+                  <Detail
+                    label="Firebase UID"
+                    value={viewingUser.firebase_uid || "Not activated yet"}
+                  />
+                  <Detail label="Role" value={viewingUser.role} />
+                  <Detail
+                    label="Administrator"
+                    value={viewingUser.is_admin ? "Yes" : "No"}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* DELETE CONFIRMATION */}
+          {deletingUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+              <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+                  <Trash2 size={22} className="text-red-600" />
+                </div>
+
+                <h2 className="text-xl font-bold text-navy">Delete User?</h2>
+
+                <p className="mt-2 text-sm text-gray-600">
+                  Are you sure you want to delete{" "}
+                  <strong>
+                    {deletingUser.display_name || deletingUser.email}
+                  </strong>
+                  ? This action cannot be undone.
+                </p>
+
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => setDeletingUser(null)}
+                    className="rounded-lg border px-4 py-2 font-medium"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={deleteUser}
+                    disabled={saving}
+                    className="rounded-lg bg-red-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving ? "Deleting..." : "Delete User"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      }
+    >
+          <PageHeader
+            icon={Users}
+            portalLabel="Admin Portal"
+            title="User Management"
+            subtitle="Manage system users and access."
+            action={
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button
+                  onClick={openImportUsers}
+                  className="flex items-center justify-center gap-2 rounded-lg border border-gold px-4 py-2 font-semibold text-gold hover:bg-gold hover:text-navy"
+                >
+                  <Upload size={18} />
+                  Import Users
+                </button>
+
+                <div className="flex items-center gap-1 rounded-lg border border-slate-200 px-2">
+                  <Download size={16} className="text-slate-500" />
+                  <select
+                    defaultValue=""
+                    onChange={(event) => {
+                      if (event.target.value) {
+                        exportUsers(event.target.value);
+                        event.target.value = "";
+                      }
+                    }}
+                    className="bg-transparent py-2 text-sm font-semibold text-slate-700 outline-none"
+                    aria-label="Export users"
+                  >
+                    <option value="" disabled>
+                      Export
+                    </option>
+                    <option value="csv">CSV</option>
+                    <option value="xlsx">Excel (.xlsx)</option>
+                    <option value="pdf">PDF</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={openAddUser}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-gold px-4 py-2 font-semibold text-navy hover:opacity-90"
+                >
+                  <Plus size={18} />
+                  Add User
+                </button>
+              </div>
+            }
+          />
+
+          {/* NEW IMPORT STATUS BANNER (Now with row details) */}
+          {importStatus && (
+            <div
+              className={`rounded-lg border p-4 text-sm mb-4 ${
+                importStatus.type === "success"
+                  ? "bg-green-50 border-green-200 text-green-700"
+                  : importStatus.type === "warning"
+                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                  : "bg-red-50 border-red-200 text-red-700"
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold">{importStatus.title}</p>
+                  <p className="mt-1">{importStatus.message}</p>
+                  
+                  {/* Show row-level errors on the page if they exist */}
+                  {importStatus.details && importStatus.details.length > 0 && (
+                    <ul className="mt-3 list-inside list-disc space-y-1">
+                      {importStatus.details.map((failure, idx) => (
+                        <li key={idx}>
+                          Row {failure.row}: {failure.reasons.join(", ")}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                </div>
+                <button
+                  onClick={() => setImportStatus(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* GENERAL ALERTS */}
+          {success && (
+            <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700 mb-4">
+              {success}
+            </div>
+          )}
+
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 mb-4">
+              {error}
+            </div>
+          )}
+
+          {/* STATISTICS */}
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard title="Total Users" value={totalUsers} icon={<Users size={22} />} />
+            <StatCard title="Parents" value={parentCount} icon={<UserRound size={22} />} />
+            <StatCard title="Staff" value={staffCount} icon={<GraduationCap size={22} />} />
+            <StatCard title="Admins" value={adminCount} icon={<Shield size={22} />} />
+          </div>
+
+          {/* FILTERS */}
+          <div className="flex flex-col gap-4 rounded-xl bg-white p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-wrap gap-2">
+              {[
+                ["all", "All Users"],
+                ["parent", "Parents"],
+                ["staff", "Staff"],
+                ["admin", "Admins"],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  onClick={() => setRoleFilter(value)}
+                  className={`rounded-lg px-4 py-2 text-sm font-medium ${
+                    roleFilter === value
+                      ? "bg-navy text-white"
+                      : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex w-full items-center rounded-lg border border-slate-200 px-3 py-2 lg:max-w-sm">
+              <Search size={18} className="text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                className="ml-2 w-full bg-transparent text-sm outline-none"
+              />
+            </div>
+          </div>
+
+          {/* USERS TABLE */}
+          <div className="overflow-hidden rounded-xl bg-white shadow-sm mt-4">
+            <div className="flex items-center justify-between border-b border-slate-200 p-6">
+              <div>
+                <h2 className="text-xl font-bold text-navy">Users</h2>
+                <p className="mt-1 text-sm text-text-muted">
+                  {filteredUsers.length} users displayed
+                </p>
+              </div>
+              <button
+                onClick={() => fetchUsers()}
+                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                title="Refresh users"
+              >
+                <RefreshCw size={18} />
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="p-16 text-center">
+                <LoadingState label="Loading users..." />
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="p-16 text-center">
+                <UserRound size={40} className="mx-auto mb-4 text-slate-300" />
+                <h3 className="font-semibold text-navy">No users found</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Try changing your search or filter.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b bg-slate-50">
+                      <th className="px-6 py-4 text-sm font-semibold text-navy">User</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-navy">Role</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-navy">Email</th>
+                      <th className="px-6 py-4 text-sm font-semibold text-navy">Admin</th>
+                      <th className="px-6 py-4 text-right text-sm font-semibold text-navy">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user) => (
+                      <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 font-semibold text-navy">
+                              {(user.display_name || "U").charAt(0).toUpperCase()}
+                            </div>
+                            <span className="font-medium">
+                              {user.display_name || "Unnamed User"}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold capitalize text-blue-700">
+                            {user.role || "Unknown"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-slate-600">
+                          {user.email || "—"}
+                        </td>
+                        <td className="px-6 py-4">
+                          {user.is_admin === true ? (
+                            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Yes</span>
+                          ) : (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-500">No</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => setViewingUser(user)}
+                              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-navy"
+                              title="View"
+                            >
+                              <Eye size={17} />
+                            </button>
+                            <button
+                              onClick={() => openEditUser(user)}
+                              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-navy"
+                              title="Edit"
+                            >
+                              <Pencil size={17} />
+                            </button>
+                            <button
+                              onClick={() => setDeletingUser(user)}
+                              className="rounded-lg p-2 text-red-500 hover:bg-red-50"
+                              title="Delete"
+                            >
+                              <Trash2 size={17} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+    </ShellPage>
+  );
+}
+
+// ============================================================
+// STAT CARD
+// ============================================================
+
+function StatCard({ title, value, icon }) {
+  return (
+    <div className="rounded-xl bg-white p-6 shadow-sm">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-navy">
+        {icon}
+      </div>
+      <p className="text-sm text-text-muted">{title}</p>
+      <h2 className="mt-1 text-3xl font-bold text-navy">{value}</h2>
+    </div>
+  );
+}
+
+// ============================================================
+// DETAIL
+// ============================================================
+
+function Detail({ label, value }) {
+  return (
+    <div>
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+        {label}
+      </p>
+      <p className="mt-1 break-all text-sm font-medium text-slate-800">
+        {value || "—"}
+      </p>
+    </div>
+  );
+}

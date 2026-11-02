@@ -1,0 +1,142 @@
+// src/lib/reporting/bookingsSync.js
+import {
+  initializeGraphForAppOnlyAuth,
+  getBookingsAsync,
+  getStaffMemberLookupAsync,
+} from "@/lib/graph/graphHelper";
+import { getUserIdsByEmail, upsertBooking } from "@/lib/reporting/bookingsRepository";
+
+/**
+ * Parses a Graph dateTime. Returns a valid Date or null.
+ * Never returns an Invalid Date object — callers can treat null safely.
+ */
+function parseGraphDateTime(dateTimeStr, timeZone) {
+  if (!dateTimeStr) return null;
+
+  let iso;
+
+  if (dateTimeStr.endsWith("Z")) {
+    // Already UTC. Normalise fractional seconds to 3 digits.
+    iso = dateTimeStr.replace(/\.(\d{3})\d+Z$/, ".$1Z");
+  } else {
+    const trimmed = dateTimeStr.replace(/\.\d+$/, "");
+
+    if (timeZone === "South Africa Standard Time") {
+      iso = `${trimmed}+02:00`;
+    } else if (timeZone === "UTC" || timeZone === "Etc/UTC") {
+      iso = `${trimmed}Z`;
+    } else {
+      console.warn(
+        "Unexpected timeZone from Graph:",
+        timeZone,
+        "dateTime:",
+        dateTimeStr
+      );
+      iso = `${trimmed}Z`;
+    }
+  }
+
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function getLearnerName(booking) {
+  return (
+    booking.customers?.[0]?.customQuestionAnswers?.find(
+      (a) => a.question === "Learner's Full Name"
+    )?.answer || null
+  );
+}
+
+function getStatus(booking) {
+  if (booking.isCancelled) return "Cancelled";
+
+  const start = parseGraphDateTime(
+    booking.startDateTime?.dateTime,
+    booking.startDateTime?.timeZone
+  );
+
+  return start && start >= new Date() ? "Upcoming" : "Past";
+}
+
+function transformBooking(booking, staffLookup) {
+  const staffMsId = booking.staffMemberIds?.[0] || null;
+  const staffEntry = staffMsId ? staffLookup?.byId?.get(staffMsId) : null;
+
+  return {
+    msBookingId: booking.id,
+    reference: booking.selfServiceAppointmentId || null,
+    parentEmail: booking.customerEmailAddress || null,
+    parentName: booking.customerName || null,
+    learnerName: getLearnerName(booking),
+    staffMsId,
+    staffName: staffEntry?.displayName || null,
+    appointmentType: booking.serviceName || null,
+    startAt: parseGraphDateTime(
+      booking.startDateTime?.dateTime,
+      booking.startDateTime?.timeZone
+    ),
+    endAt: parseGraphDateTime(
+      booking.endDateTime?.dateTime,
+      booking.endDateTime?.timeZone
+    ),
+    status: getStatus(booking),
+    cancelledAt: null,
+  };
+}
+
+export async function fetchRecentBookingsFromGraph() {
+  initializeGraphForAppOnlyAuth();
+
+  const [response, staffLookup] = await Promise.all([
+    getBookingsAsync(),
+    getStaffMemberLookupAsync(),
+  ]);
+
+  return response.value.map((booking) =>
+    transformBooking(booking, staffLookup)
+  );
+}
+
+export async function syncBookingsToDb() {
+  const startedAt = Date.now();
+
+  const rows = await fetchRecentBookingsFromGraph();
+
+  // Look up all parent IDs in one query
+  const emails = rows.map((r) => r.parentEmail).filter(Boolean);
+  const idByEmail = await getUserIdsByEmail(emails);
+
+  let inserted = 0;
+  let updated = 0;
+  const skippedEmails = [];
+
+  for (const row of rows) {
+    const email = (row.parentEmail || "").toLowerCase().trim();
+    const parentId = idByEmail.get(email);
+
+    if (!parentId) {
+      skippedEmails.push(email || "(no email)");
+      continue;
+    }
+
+    const result = await upsertBooking({ ...row, parentId });
+    if (result === "inserted") inserted += 1;
+    else updated += 1;
+  }
+
+  const startTimes = rows.map((r) => r.startAt).filter(Boolean).sort();
+  const oldestAppointment = startTimes[0] || null;
+  const newestAppointment = startTimes[startTimes.length - 1] || null;
+  
+    return {
+    fetched: rows.length,
+    inserted,
+    updated,
+    skipped: skippedEmails.length,
+    skippedEmails,
+    oldestAppointment,
+    newestAppointment,
+    durationMs: Date.now() - startedAt,
+  };
+}
