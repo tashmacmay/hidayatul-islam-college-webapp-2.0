@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 
 const isNewsObjectKey = (value) =>
   typeof value === "string" &&
-  /^news\/[a-f0-9-]+\.(?:png|jpg|webp)$/i.test(value);
+  /^news\/[a-f0-9-]+\.(?:png|jpg|webp|pdf)$/i.test(value);
 
 export async function GET(request, { params }) {
   try {
@@ -75,13 +75,11 @@ export async function GET(request, { params }) {
       typeof news.featured_image_url === "string" &&
       /^https?:\/\//i.test(news.featured_image_url)
     ) {
-      // Preserve existing externally hosted images.
       previewUrl = news.featured_image_url;
     } else if (
       typeof news.featured_image_url === "string" &&
       news.featured_image_url.startsWith("/uploads/news/")
     ) {
-      // Preserve legacy local image paths.
       previewUrl = news.featured_image_url;
     }
 

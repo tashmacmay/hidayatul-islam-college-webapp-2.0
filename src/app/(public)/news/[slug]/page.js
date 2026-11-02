@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { headers } from "next/headers"; // <-- Add this import
+import { headers } from "next/headers";
 import { Section, Container } from "@/components/ui/layout";
 import { ArrowLeft, Calendar, FileText } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 async function getNewsItem(slug) {
   try {
-    // Dynamically get the host URL (works locally AND on Vercel)
     const headersList = headers();
     const host = headersList.get("host") || "localhost:3000";
     const protocol = host.includes("localhost") ? "http" : "https";
@@ -74,7 +75,6 @@ export default async function NewsArticle({ params }) {
           Back to News
         </Link>
 
-        {/* Article Header */}
         <div className="mb-8">
           <span className="inline-block rounded-full bg-gold/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-navy mb-4">
             {item.category || "News"}
@@ -88,10 +88,8 @@ export default async function NewsArticle({ params }) {
           </p>
         </div>
 
-        {/* Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mt-10">
           
-          {/* LEFT COLUMN: Text + Bottom Button */}
           <div className="lg:col-span-7 flex flex-col justify-start">
             
             {item.excerpt && (
@@ -100,12 +98,10 @@ export default async function NewsArticle({ params }) {
               </p>
             )}
 
-            {/* Main Content Area */}
             <div className="prose prose-lg prose-navy max-w-none text-gray-700 whitespace-pre-wrap leading-8">
               {item.content || (!item.excerpt ? "No further details available for this article." : "")}
             </div>
 
-            {/* Back to All News Button anchored to the text */}
             <div className="mt-12 pt-8 border-t border-gray-200">
               <Link
                 href="/news"
@@ -117,14 +113,13 @@ export default async function NewsArticle({ params }) {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Sticky Media */}
           <div className="lg:col-span-5">
             <div className="sticky top-24">
               {mediaUrl && (
                 <>
                   {isPdf ? (
                     <a 
-                      href={`/api/storage/${item.featured_image_url}`} 
+                      href={mediaUrl}
                       target="_blank" 
                       rel="noreferrer"
                       className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-navy p-10 text-center shadow-sm transition hover:bg-navy-dark"
