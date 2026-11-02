@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Calendar, X } from "lucide-react";
+import { Calendar, X, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import FilterButtons from "@/components/public/FilterButtons";
 import LoadingState from "@/components/ui/LoadingState";
@@ -23,7 +23,6 @@ export default function NewsView() {
   const [error, setError] = useState("");
   const [selectedArticle, setSelectedArticle] = useState(null);
 
-  // Filters
   const [activeFilter, setActiveFilter] = useState("All");
   const [filters, setFilters] = useState(["All"]);
 
@@ -39,7 +38,6 @@ export default function NewsView() {
         const newsItems = Array.isArray(data) ? data : data.news || [];
         setArticles(newsItems);
 
-        // Extract unique categories for filters
         const categories = new Set();
         newsItems.forEach((item) => {
           if (item.category) categories.add(item.category);
@@ -59,9 +57,12 @@ export default function NewsView() {
     ? articles 
     : articles.filter((a) => a.category === activeFilter);
 
+  const getMediaUrl = (article) => article.preview_url || article.featured_image_url;
+  const isPdf = (url) => url?.toLowerCase().includes(".pdf");
+
   return (
     <>
-      <div className="mb-8 flex flex-wrap items-center gap-3">
+      <div className="mb-6 flex flex-wrap items-center gap-3">
         <span className="mr-2 text-xs font-semibold text-navy">Filter:</span>
         <FilterButtons
           items={filters}
@@ -87,30 +88,34 @@ export default function NewsView() {
       {!loading && !error && visibleArticles.length > 0 && (
         <div className="grid grid-cols-1 items-start gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {visibleArticles.map((item) => (
-            <Card
-              key={item.id}
-              onClick={() => setSelectedArticle(item)}
-              className="cursor-pointer transition hover:-translate-y-1 hover:border-gold hover:shadow-md"
-              media={
-                item.featured_image_url ? (
-                  <img
-                    src={item.featured_image_url}
-                    alt={item.title}
-                    className="h-full w-full object-cover object-top transition duration-300"
-                  />
-                ) : undefined
-              }
+            <div 
+              key={item.id} 
+              onClick={() => setSelectedArticle(item)} 
+              className="cursor-pointer transition hover:-translate-y-1"
             >
-              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
-                {item.category}
-              </p>
-              <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
-              <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
-              <p className="line-clamp-2 text-sm text-text-muted">
-                {item.excerpt || (item.content ?? "").slice(0, 100)}...
-              </p>
-              <p className="mt-4 text-xs font-semibold text-gold">Click to read →</p>
-            </Card>
+              <Card
+                className="h-full"
+                media={
+                  getMediaUrl(item) ? (
+                    <img
+                      src={getMediaUrl(item)}
+                      alt={item.title}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  ) : undefined
+                }
+              >
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-gold">
+                  {item.category}
+                </p>
+                <h3 className="mb-2 text-lg font-semibold text-navy">{item.title}</h3>
+                <p className="mb-3 text-xs text-text-muted">{formatDate(item.published_at)}</p>
+                <p className="line-clamp-2 text-sm text-text-muted">
+                  {item.excerpt || (item.content ?? "").slice(0, 100)}...
+                </p>
+                <p className="mt-4 text-xs font-semibold text-gold">Click to read →</p>
+              </Card>
+            </div>
           ))}
         </div>
       )}
@@ -119,6 +124,7 @@ export default function NewsView() {
       {selectedArticle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
           <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
+            
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5 bg-navy text-white shrink-0">
               <div>
@@ -136,23 +142,47 @@ export default function NewsView() {
               </button>
             </div>
             
-            {/* Modal Body */}
-            <div className="overflow-y-auto p-6">
-              <p className="text-xs text-gray-500 mb-4 flex items-center gap-2">
-                <Calendar size={14} /> Published {formatDate(selectedArticle.published_at)}
-              </p>
+            {/* Modal Body (Scrollable) */}
+            <div className="overflow-y-auto flex-1">
               
-              {selectedArticle.preview_url && (
-                <img 
-                  src={selectedArticle.preview_url} 
-                  alt="Preview" 
-                  className="mb-6 max-h-96 w-full object-contain rounded-xl bg-gray-50" 
-                />
+              {/* EDGE-TO-EDGE MEDIA */}
+              {getMediaUrl(selectedArticle) && (
+                isPdf(getMediaUrl(selectedArticle)) ? (
+                  <div className="w-full bg-navy p-12 text-center border-b border-gray-200">
+                    <FileText size={64} className="mx-auto text-gold mb-4" />
+                    <span className="block text-xl font-bold text-white mb-2">View Document</span>
+                    <a 
+                      href={getMediaUrl(selectedArticle)} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="inline-block text-sm font-medium text-blue-200 underline hover:text-white"
+                    >
+                      Opens PDF in new tab
+                    </a>
+                  </div>
+                ) : (
+                  <div className="w-full bg-gray-50 border-b border-gray-200">
+                    {/* THE FIX: Full width, auto height */}
+                    <img 
+                      src={getMediaUrl(selectedArticle)} 
+                      alt="Preview" 
+                      className="w-full h-auto block" 
+                    />
+                  </div>
+                )
               )}
-              
-              <div className="whitespace-pre-wrap text-sm leading-7 text-gray-700">
-                {selectedArticle.content || selectedArticle.excerpt}
+
+              {/* PADDED TEXT CONTENT */}
+              <div className="p-6">
+                <p className="text-xs text-gray-500 mb-4 flex items-center gap-2">
+                  <Calendar size={14} /> Published {formatDate(selectedArticle.published_at)}
+                </p>
+                
+                <div className="whitespace-pre-wrap text-sm leading-7 text-gray-700">
+                  {selectedArticle.content || selectedArticle.excerpt}
+                </div>
               </div>
+
             </div>
           </div>
         </div>

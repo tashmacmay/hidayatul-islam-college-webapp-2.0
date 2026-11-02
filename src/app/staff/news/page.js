@@ -1,9 +1,8 @@
-"use client"; // <--- ADD THIS LINE
+"use client";
 
 import StaffSidebar from "@/components/staff/StaffSidebar";
 import ShellPage from "@/components/layout/ShellPage";
 import PageHeader from "@/components/ui/PageHeader";
-import { Section, Container } from "@/components/ui/layout";
 import { Newspaper } from "lucide-react";
 import NewsView from "@/features/news/NewsView";
 
@@ -16,11 +15,10 @@ export default function StaffNewsPage() {
         title="School News"
         subtitle="Stay up to date with the latest announcements."
       />
-      <Section tone="white" space="sm">
-        <Container>
-          <NewsView />
-        </Container>
-      </Section>
+      
+      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <NewsView />
+      </div>
     </ShellPage>
   );
 }
