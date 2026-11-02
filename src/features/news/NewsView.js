@@ -57,7 +57,14 @@ export default function NewsView() {
     ? articles 
     : articles.filter((a) => a.category === activeFilter);
 
-  const getMediaUrl = (article) => article.preview_url || article.featured_image_url;
+  // THE FIX: Build the full URL for raw S3 keys
+  const getMediaUrl = (article) => {
+    const url = article.preview_url || article.featured_image_url;
+    if (!url) return null;
+    if (url.startsWith("http") || url.startsWith("/")) return url;
+    return `/api/storage/${url}`;
+  };
+
   const isPdf = (url) => url?.toLowerCase().includes(".pdf");
 
   return (
@@ -120,12 +127,10 @@ export default function NewsView() {
         </div>
       )}
 
-      {/* MODAL */}
       {selectedArticle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm">
           <div className="max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl flex flex-col">
             
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5 bg-navy text-white shrink-0">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wide text-gold">
@@ -142,10 +147,7 @@ export default function NewsView() {
               </button>
             </div>
             
-            {/* Modal Body (Scrollable) */}
             <div className="overflow-y-auto flex-1">
-              
-              {/* EDGE-TO-EDGE MEDIA */}
               {getMediaUrl(selectedArticle) && (
                 isPdf(getMediaUrl(selectedArticle)) ? (
                   <div className="w-full bg-navy p-12 text-center border-b border-gray-200">
@@ -162,7 +164,6 @@ export default function NewsView() {
                   </div>
                 ) : (
                   <div className="w-full bg-gray-50 border-b border-gray-200">
-                    {/* THE FIX: Full width, auto height */}
                     <img 
                       src={getMediaUrl(selectedArticle)} 
                       alt="Preview" 
@@ -172,7 +173,6 @@ export default function NewsView() {
                 )
               )}
 
-              {/* PADDED TEXT CONTENT */}
               <div className="p-6">
                 <p className="text-xs text-gray-500 mb-4 flex items-center gap-2">
                   <Calendar size={14} /> Published {formatDate(selectedArticle.published_at)}

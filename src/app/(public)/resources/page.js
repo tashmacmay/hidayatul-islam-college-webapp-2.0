@@ -1,4 +1,5 @@
 import { PageHero, CtaBanner } from "@/components/ui/primitives";
+import { Section } from "@/components/ui/layout";
 import ResourceView from "@/components/public/ResourceView";
 
 export const metadata = {
@@ -17,7 +18,9 @@ export default function Resources() {
         description="The school makes learning materials freely available to everyone, including the wider community. No login or school registration is required."
       />
       
-      <ResourceView />
+      <Section tone="white" space="sm">
+        <ResourceView />
+      </Section>
     </>
   );
 }
