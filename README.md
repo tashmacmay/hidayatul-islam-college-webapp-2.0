@@ -1,70 +1,25 @@
-IF3003W TEAM 1 YEAR PROJECT
+# Hidayatul Islam College Web App
 
-Title:
-Hidayatul Islam College Webapp
+**Title:** Hidayatul Islam College Webapp  
+**Sponsor/Client:** Mr J. Alexander | Hidayatul Islam College  
+**Team Members:** PM - Taslimah Emjedi | SD - Tasha Maclay-Mayers | BA - Lindani Xaba | SS - Khensani Baloyi
 
-Sponsor/Client:
-Principal A. Fridie | Hidayatul Islam College
+## Description
+The Hidayatul Islam College web application modernizes the school's digital presence, replacing the legacy Wix site. The system provides a modern public-facing website (including Admissions and Fees pages) alongside secure, role-specific portals for Parents, Staff, and Administrators. Key features include synchronised Microsoft Bookings, dynamic News and Notice management with POPIA consent validation, and a secure learning resource repository.
 
-Team Members:
-PM - Taslimah Emjedi (EMJTAS001)
-SD - Tasha Maclay-Mayers (MCLTAS001)
-BA - Lindani Xaba (XBXLIN006)
-SS - Khensani Baloyi (BLYMIT001)
-
-Description:
-The Hidayatul Islam College web application serves to renovate the school's abandoned Wix website, maintaining legacy content while adding login functionality and user-specific dashboards. With the introduction of user authorisation, the webapp aims to introduce online booking functionality and announcement posting functionality directly within the app.
-
-Techstack:
-- Next.js 14
-- Tailwind CSS: styling
-- React Hook Form + Zod: form validation
-- Lucide React: icons
-- Framer Motion: animations
-
-- MSSQL: user information
-- Firebase Auth: email/password + Google OAuth
-
-- MS Bookings & Microsoft Graph API: create/reference Outlook calendar events
-- Nodemailer (SMTP): confirmation/cancellation/reminder emails with .ics calendar attachments
-
-Until project is complete, all development is contained by and pushed to the "develop" branch. Check this branch for the most up-to-date, stable functionality.
-
----
-
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Tech Stack
+*   **Framework:** Next.js 14 (App Router)
+*   **Styling:** Tailwind CSS & Lucide React
+*   **Authentication:** Firebase Auth (Email/Password & Google OAuth)
+*   **Database:** Neon PostgreSQL (Serverless) via `pg`
+*   **Object Storage:** AWS S3 (for secure PDF and image hosting)
+*   **Integrations:** Microsoft Graph API (Bookings synchronization)
+*   **Data Handling:** `xlsx` (for CSV/Excel user imports), `pdf-lib`
 
 ## Getting Started
 
-First, run the development server:
-
+First, install the dependencies:
 ```bash
-npm run dev
+npm install
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+yarn install
