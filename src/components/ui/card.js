@@ -1,17 +1,16 @@
 import Link from "next/link";
 
 export function Card({
-  variant = "light",      // light | pale | navy | ghost
+  variant = "light",
   href,
-  media,                  // Top slot: image OR <FileBadge/>
-  icon,                   // Top icon (optional)
-  centered = false,       // Centers the icon
-  padded = true,          // p-6 by default
+  media,
+  icon,
+  centered = false,
+  padded = true,
   className = "",
   children,
 }) {
-  // REMOVED h-full from base
-  const base = "rounded-2xl overflow-hidden transition flex flex-col w-full min-w-0";
+  const base = "rounded-2xl overflow-hidden transition flex flex-col w-full h-full min-w-0";
   
   const variants = {
     light: "bg-white border border-gray-200 shadow-sm",
@@ -27,12 +26,12 @@ export function Card({
   const inner = (
     <div className={`${base} ${variants[variant]} ${hover} ${className}`}>
       {media && (
-        <div className="aspect-[16/9] w-full shrink-0 overflow-hidden bg-slate-100 relative">
+        <div className="h-48 w-full shrink-0 overflow-hidden bg-slate-100 relative">
           {media}
         </div>
       )}
       
-      <div className={padded ? "p-6 flex flex-col" : "flex flex-col"}>
+      <div className={padded ? "p-6 flex flex-col flex-1" : "flex flex-col flex-1"}>
         {icon && (
           <div className={centered ? "mx-auto flex justify-center mb-4" : "mb-4"}>
             {icon}
@@ -44,8 +43,7 @@ export function Card({
   );
 
   if (href) {
-    // REMOVED h-full from Link
-    return <Link href={href} className="block w-full">{inner}</Link>;
+    return <Link href={href} className="block w-full h-full">{inner}</Link>;
   }
   return inner;
 }
